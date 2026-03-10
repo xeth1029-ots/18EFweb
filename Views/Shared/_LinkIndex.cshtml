@@ -1,0 +1,8 @@
+﻿@model WDAIIP.WEB.Models.LinkViewModel
+
+<div class="col-sm-12">
+    @if (Model.Grid != null)
+    {
+        @Html.Partial("_LinkGridRows")
+    }
+</div>

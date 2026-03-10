@@ -1,0 +1,10 @@
+﻿@model WDAIIP.WEB.Models.AddressField
+
+@if(!string.IsNullOrEmpty(Model.Zip))
+{
+   <span>(@Model.Zip)</span> <span>@Model.ZipText</span>
+}
+@if (!string.IsNullOrEmpty(Model.Address))
+{
+    <span> @Model.Address</span>
+}

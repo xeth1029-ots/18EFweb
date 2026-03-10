@@ -1,0 +1,12 @@
+﻿@using WDAIIP.WEB.Commons
+@model WDAIIP.WEB.Models.AddressModel
+@{ 
+    SelectList cityList = MyHelperUtil.GetCityCodeList(Model.City);
+    SelectList zipList = MyHelperUtil.GetCountyZipList(Model.City, Model.Zip);
+}
+<div class="col-sm-10 form-inline">
+    @Html.TextBoxFor(m => m.Zip, new { size = "3", @class="form-control", title="3碼郵遞區號", maxLength = "3" })
+    @Html.DropDownListFor(m=>m.City, cityList, "縣市", new { @class = "form-control" })
+    @Html.DropDownListFor(m => m.Town, zipList, "鄉鎮市區", new { @class = "form-control" })
+    @Html.TextBoxFor(m => m.Address, new { size = "60", @class = "form-control", placeholder="路段及號碼", maxLength = "60" })
+</div>

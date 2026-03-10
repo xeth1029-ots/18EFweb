@@ -1,0 +1,249 @@
+﻿@using WDAIIP.WEB.Models
+@model SignUpViewModel
+@{
+    ViewBag.Title = "課程查詢報名--線上報名";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+
+    SessionModel sm = SessionModel.Get();
+    int timeLeft = 6;
+}
+
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 課程查詢 / 線上報名</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fas fa-edit space-right"></i>線上報名</h3>
+    <!-- search form start -->
+    <div class="unit-border">
+        <div class="unit-bg unit-bg-green">
+            <p>本功能使用說明：</p>
+            <ol>
+                @*2019-01-29 修正問題單400 *@
+                @*<li>民眾於線上報名時將不再提醒有關補助費使用情形，請避開每日11:45至13:00時段至「報名及參訓課程查詢」&gt;&gt;「近3年內課程報名及參訓情形」查詢。並請於完成線上報名後隔日上午，再至「近3年內課程報名及參訓情形」確認是否有報名參訓時段重疊的訓練課程。</li>*@
+                <li>民眾於線上報名時將不再提醒有關補助費使用情形，請避開每日11:45至13:00時段至「會員專區」》「參訓歷程紀錄」查詢。</li>
+                <li>欲報名本方案訓練課程者，請按下「線上報名」，於台灣就業通網站登入會員後，再繼續本項作業。</li>
+                <li>民眾報名請先至「@*報名資料維護*@會員資料維護」填寫報名相關資料，以利縮短後續報名作業。另部分基本資料內容不提供修正，如欲修正請至<a target="_blank" rel="noreferrer noopener" title="前往台灣就業通網站(另開新視窗)" href="https://www.taiwanjobs.gov.tw/">台灣就業通</a>進行個人會員資料維護。</li>
+                <li>本方案訓練課程統一於開訓日前1個月中午12點整開放線上報名。遴選方式除另有規定外，以線上報名先後順序依序審核參訓資格，以維公開、公平原則。</li>
+                <li>報名資料送出後，將出現線上收件成功及相關提醒訊息，請於讀完提醒訊息後勾選「我已清楚了解，請顯示序號」，即會顯示您的報名序號。</li>
+            </ol>
+        </div>
+        <div class="clearfix"></div>
+        @using (Html.BeginForm("Detail", "SignUp", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+        {
+            <div hidden>
+                @Html.HiddenFor(m => m.Form.PlanType)
+                @Html.HiddenFor(m => m.Form.ProvideLocation)
+                @Html.HiddenFor(m => m.Form.OCID)
+                @Html.HiddenFor(m => m.Form.DB3D0C)
+                @*@Html.Hidden("PlanType", Model.Form.PlanType)
+                    @Html.Hidden("ProvideLocation", Model.Form.ProvideLocation)
+                    @Html.Hidden("OCID", Model.Form.OCID)*@
+
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.NAME, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.NAME, new { @class = "form-control", placeholder = "姓名", title = "姓名" }, true)
+                    @*2019-01-18 fix 中文字含編碼內容（&#xxxxx;） *@
+                    @*@Html.Raw(HttpUtility.HtmlDecode(@Html.TextBoxFor(m => m.Form.NAME, new { @class = "form-control", placeholder = "姓名", title = "姓名" }, true).ToHtmlString()))*@
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Form_BIRTH_YEAR" class="form-label-search">出生日期</label>
+                <div class="form-input form-inline">
+                    <label for="Form_BIRTH_YEAR">民國</label>
+                    @Html.TextBoxFor(m => m.Form.BIRTH_YEAR, new { @class = "form-control", placeholder = "年", maxlength = 3, size = 4, title = "出生日期年" }, true)
+                    <label for="Form_BIRTH_YEAR">年</label>
+                    @Html.TextBoxFor(m => m.Form.BIRTH_MON, new { @class = "form-control", placeholder = "月", maxlength = 2, size = 3, title = "出生日期月" }, true)
+                    <label for="Form_BIRTH_MON">月</label>
+                    @Html.TextBoxFor(m => m.Form.BIRTH_DAY, new { @class = "form-control", placeholder = "日", maxlength = 2, size = 3, title = "出生日期日" }, true)
+                    <label for="Form_BIRTH_DAY">日</label>
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.IDNO, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.IDNO, new { @class = "form-control", placeholder = "身分證號", maxlength = 10, title = "身分證號" }, true)
+                </div>
+            </div>
+            <div class="form-group-search"> </div>
+            <div class="clearfix"></div>
+            <div class="submit-bar">
+                @*<button type="submit" class="btn-orange" title="報名">報名</button>*@
+                <button type="button" data-role="GoSignUp" class="btn-orange" title="報名">報名</button>
+                <button type="button" data-role="GoDetail" class="btn-refill" title="取消">取消</button>
+            </div>
+        }
+        <p>
+        <p>
+            <!-- search form end -->
+    </div>
+
+</div>
+
+@*回查詢清單*@
+@using (Html.BeginForm("Index", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoListForm" }))
+{
+    @Html.Hidden("useCache", 1)
+}
+
+@*回明細頁*@
+@using (Html.BeginForm("Detail", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoDetailForm" }))
+{
+    @Html.Hidden("PlanType", Model.Form.PlanType)
+    @Html.Hidden("ProvideLocation", Model.Form.ProvideLocation)
+    @Html.Hidden("OCID", Model.Form.OCID)
+}
+
+@*線上報名頁*@
+@using (Html.BeginForm("Online1", "SignUp", FormMethod.Get, new { id = "GoOnline1Form" }))
+{
+
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // 預先快取常用物件
+        const $signUpBtn = $("button[data-role=GoSignUp]");
+        const $mainForm = $("#main_form");
+
+        // 報名按鈕事件
+        $signUpBtn.on("click", function () {
+            const $this = $(this);
+            // 防止重複點擊攔截
+            if ($this.prop("disabled") || $this.hasClass("loading")) return;
+            //查詢是否有設定停止報名設定，有則要先顯示停止報名訊息
+            const url = '@Url.Action("StopEnterTempMsg", "Ajax")';
+            // 1. 立即停用按鈕，防止在 AJAX 回應前再次點擊
+            $this.prop("disabled", true).addClass("loading").text("處理中...");
+            ajaxLoadMore(url, {}, function (resp) {
+                // 如果沒有停止報名的訊息，則進入下一階段驗證
+                if (!resp || !resp.data) {
+                    CheckSendEnterOnline2($this, $mainForm);
+                } else {
+                    // 檢核有不符報名條件
+                    blockAlert(resp.data, "提示訊息", function () {
+                        $this.prop("disabled", false).removeClass("loading").text("報名");
+                    });
+                }
+            });
+        });
+
+        // 取消與回上頁邏輯 (保持原樣但快取) //取消回上頁-回明細頁 GoDetail
+        const isOnlneSignUp = '@sm.IsOnlineSignUp';
+        $("a[data-role=GoDetail], button[data-role=GoDetail]").click(function () {
+            const formId = (isOnlneSignUp === "Y") ? "GoOnline1Form" : "GoDetailForm";
+            $(`#${formId}`).submit();
+        });
+    });
+
+    // 送出報名檢核函數優化
+    function CheckSendEnterOnline2($btn, $form) {
+        // 1. 前端基本資料讀取
+        const yy = $("#Form_BIRTH_YEAR").val();
+        const mm = $("#Form_BIRTH_MON").val();
+        const dd = $("#Form_BIRTH_DAY").val();
+
+        if (!yy || !mm || !dd) {
+            blockAlert("出生日期資料不完整，請檢查後再試", "錯誤訊息", function() {
+                $btn.prop("disabled", false).removeClass("loading").text("報名");
+            });
+            return;
+        }
+
+        // 2. 準備傳送資料
+        const ocidVal = $("#Form_OCID").val();
+        const planType = $("#Form_PlanType").val();
+        const vDB3D0C = $("#Form_DB3D0C").val();
+        const birth = (parseInt(yy, 10) + 1911) + "/" + mm + "/" + dd;
+        const data = { ocid: ocidVal, planType: planType, birth: birth, DB3D0C: vDB3D0C };
+
+        // 3. 發送 API 驗證
+        $.ajax({
+            url: '@Url.Action("CheckSendEnterOnline2", "Ajax")',
+            type: 'POST',
+            data: data,
+            success: function (resp) {
+                if (resp && resp.status) {
+                    $form.submit(); // 驗證成功，送出表單
+                } else {
+                    const errorTxt = resp.data || "驗證失敗或報名人數眾多系統無法即時處理，請稍後再試";
+                    blockAlert(errorTxt, "錯誤訊息", function () {
+                        $btn.prop("disabled", false).removeClass("loading").text("報名");
+                    });
+                }
+            },
+            error: function () {
+                blockAlert("報名人數眾多系統無法即時處理或伺服器異常，請稍後再試", "系統錯誤", function () {
+                    $btn.prop("disabled", false).removeClass("loading").text("報名");
+                });
+            }
+        });
+    }
+</script>
+@*    <style>
+        /* ---CSS 樣式--- */
+        /* 彈窗背景：整個螢幕的黑色半透明遮罩 */
+        .modal-overlay { /* 預設隱藏 */ display: none; /* 固定在最上層，覆蓋所有內容 */ position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); /* 黑色半透明 */ }
+        /* 彈窗內容區塊 */
+        .modal-content { background-color: #fefefe; /* 垂直置中 */ margin: 10% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 700px; border-radius: 8px; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19); position: relative; }
+        /* 關閉按鈕 (右上角 X) */
+        .close-btn { color: #aaa; float: right; font-size: 18px; font-weight: bold; line-height: 1px; /* 調整垂直位置 */ padding-left: 10px; cursor: pointer; }
+            .close-btn:hover,
+            .close-btn:focus { color: black; text-decoration: none; }
+        /* 標題樣式 */
+        .modal-content h3 { color: #b00; /* 顯眼的紅色 */ border-bottom: 2px solid #b00; padding-bottom: 5px; margin-bottom: 15px; }
+        /* 警告內容表格樣式 */
+        .warning-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+            .warning-table th, .warning-table td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+            .warning-table th { background-color: #f2f2f2; width: 30%; /* 警示項目欄位寬度 */ }
+        /* 倒數計時器文字 */
+        .countdown { text-align: right; margin-top: 15px; font-size: 14px; color: #555; }
+            .countdown strong { color: #d9534f; /* 顯眼的倒數顏色 */ font-size: 16px; }
+    </style>
+    <div id="myModal" class="modal-overlay"><div class="modal-content"><span class="close-btn" onclick="closeModal()">&times;關閉</span><h3>🚨 重要報名【系統與瀏覽器設定】提醒警語 🚨</h3><table class="warning-table"><thead><tr><th>警示項目</th><th>檢查與操作建議</th></tr></thead><tbody><tr><td>**💻 瀏覽器相容性**</td><td>更換瀏覽器試試看！ 若報名網頁出現**「破圖」或功能無法點擊**，請立即更換 Chrome、Edge 或 Firefox 等主流瀏覽器再試。</td></tr><tr><td>**🗑️ 清除快取**</td><td>報名前請清除瀏覽器的快取 (Cache) 及 Cookie，避免舊資料干擾網頁正確顯示。</td></tr><tr><td>**🚫 關閉擴充功能**</td><td>請暫時關閉所有瀏覽器外掛或擴充功能（特別是廣告阻擋器/AdBlockers），它們可能誤判而阻擋網頁重要元件載入。</td></tr><tr><td>**⏰ 系統時間**</td><td>確保您的電腦日期和時間設定正確且與網路時間同步，不正確的時間可能會影響系統驗證。</td></tr><tr><td>**📶 網路連線**</td><td>檢查網路連線是否穩定，不穩定的連線可能導致網頁檔案載入不完整（造成破圖）。</td></tr></tbody></table><div class="countdown">本視窗將於 <strong id="countdown-timer">@(timeLeft)</strong> 秒後自動關閉。</div></div></div>
+    <script>
+        // 取得彈窗元素
+        const modal = document.getElementById("myModal");
+        // 取得倒數計時元素
+        const timerDisplay = document.getElementById("countdown-timer");
+        // 初始倒數秒數
+        let timeLeft = @(timeLeft);
+        // 儲存定時器ID
+        let timerId;
+        // 定義關閉彈窗的函數
+        function closeModal() {
+            modal.style.display = "none";
+            // 清除自動關閉的定時器
+            if (timerId) {
+                clearInterval(timerId);
+            }
+        }
+        // 倒數計時邏輯
+        function startCountdown() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    // 時間到，執行關閉
+                    closeModal();
+                }
+            }, 1000); // 每 1000 毫秒（1秒）執行一次
+        }
+        // 頁面載入完成後執行
+        window.onload = function () {
+            // 顯示彈窗
+            modal.style.display = "block";
+            // 開始倒數
+            startCountdown();
+            // 點擊彈窗以外的區域也可以關閉 (可選功能)
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    closeModal();
+                }
+            }
+        }
+    </script>
+*@

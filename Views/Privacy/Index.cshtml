@@ -1,0 +1,28 @@
+﻿@using WDAIIP.WEB.Commons;
+
+@{
+    ViewBag.Title = "隱私權及安全政策";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    string content = (string)ViewBag.Privacy;
+}
+
+<!-- content -->
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 隱私權及安全政策</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-book space-right"></i>隱私權及安全政策</h3>
+    <!-- news content start -->
+    <div class="news-content">
+        <div class="clearfix"></div>
+
+        <!-- privacy start -->
+        <div class="newsgroup">
+            <p>@Html.Raw(string.IsNullOrEmpty(content) ? "尚無資訊" : MyHelperUtil.ChangeBreakLine(content))</p>
+        </div>
+        <!-- privacy end -->
+
+    </div>
+    <!-- news content end -->
+</div>

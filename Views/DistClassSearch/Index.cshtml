@@ -1,0 +1,172 @@
+﻿@model WDAIIP.WEB.Models.DistClassSearchViewModel
+
+@{
+    ViewBag.Title = "課程查詢報名--分署課程列表";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+}
+
+<div class="col-sm-12">
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 分署課程列表<span id="spanDistName1" style="display:none"></span></div>
+    <h3 class="main-title main-title-blue"><i class="fas fa-search space-right"></i>分署課程列表</h3>
+    <ul class="question-type">
+        @Html.Partial("_DistGridRows", Model)
+    </ul>
+    <h3 class="titlebar titlebarBg-green">計畫別</h3>
+    <ul class="question-type">
+        @Html.Partial("_PlanGridRows", Model)
+    </ul>
+    <div class="col-sm-12">
+        <br />
+    </div>
+    <div class="clearfix"></div>
+    <h3 class="titlebar titlebarBg-green"><span id="spanDistName2"></span> / <span id="spanPlanTypeName"></span></h3>
+    <div class="table-responsive">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+            <thead>
+                @switch (Model.Form.PLANTYPE)
+                {
+                    case "1": //產投
+                        <tr>
+                            @*<th width="2%" rowspan="2">&nbsp;</th>*@
+                            <th width="14%" rowspan="2" id="a">訓練班別(訓練單位)</th>
+                            <th width="6%" rowspan="2" id="b">課程代碼</th>
+                            <th width="6%" rowspan="2" id="c">訓練人數</th>
+                            <th width="6%" rowspan="2" id="d">訓練時數</th>
+                            <th colspan="2" id="e">訓練費用</th>
+                            <th width="7%" rowspan="2" id="f">學科訓練地點</th>
+                            <th width="7%" rowspan="2" id="g">術科訓練地點</th>
+                            @*@if (Model.Form.PROVIDELOCATION == "Y")
+                            {
+                                <th width="8%" rowspan="2">
+                                    距離公里數
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-up text-primary" aria-hidden="true"></i></a>
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-down text-primary" aria-hidden="true"></i></a>
+                                </th>
+                            }*@
+                            <th width="8%" rowspan="2" id="h">報名日期</th>
+                            <th width="8%" rowspan="2" id="i">招生狀態</th>
+                            <th width="8%" rowspan="2" id="j">預訂訓練起迄日期</th>
+                            <th width="8%" rowspan="2" id="k">報名繳費方式</th>
+                        </tr>
+                        <tr>
+                            <th width="6%" id="l">學員負擔</th>
+                            <th width="6%" id="m">政府負擔</th>
+                        </tr>
+
+                        break;
+                    case "2": //在職
+                    case "5": //區域產業據點
+                        <tr>
+                            @*<th width="2%" rowspan="2">&nbsp;</th>*@
+                            <th width="15%" id="a">訓練班別</th>
+                            <th width="15%" id="b">訓練單位</th>
+                            <th width="8%" id="c">上課地點</th>
+                            @*@if (Model.Form.PROVIDELOCATION == "Y")
+                            {
+                                <th width="8%" rowspan="2">
+                                    距離公里數
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-up text-primary" aria-hidden="true"></i></a>
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-down text-primary" aria-hidden="true"></i></a>
+                                </th>
+                            }*@
+                            <th width="12%" id="d">通俗職類</th>
+                            <th width="10%" id="f">報名起迄日</th>
+                            <th width="10%" id="g">訓練起迄日</th>
+                            <th width="10%" id="h">@*訓練時段*@上課時間</th>
+                            <th width="10%" id="i">學歷資格</th>
+                        </tr>
+
+                        break;
+                }
+            </thead>
+            <tbody id="rows">
+                @Html.Partial("_GridRows", Model)
+            </tbody>
+        </table>
+    </div>
+
+    @Html.Partial("_PagingLink", Model.Form)
+
+    @using (Html.BeginForm("Index", "DistClassSearch", FormMethod.Post, new { id = "mail_form" }))
+    {
+        @Html.HiddenFor(m => m.Form.ActiveMode)
+        @Html.HiddenFor(m => m.Form.DISTID)
+        @Html.HiddenFor(m => m.Form.PLANTYPE)
+    }
+
+    @using (Html.BeginForm("Detail", "ClassSearch", FormMethod.Post, new { id = "detail_form" }))
+    {
+        @Html.Hidden("PlanType")
+        @Html.Hidden("ProvideLocation", "N")
+        @Html.Hidden("OCID")
+    }
+
+</div>
+<script type="text/javascript">
+    $(function () {
+        var isFirst = '@Model.Form.IsFirst';
+        var activeMode = '@Model.Form.ActiveMode';
+        var distID = '@Model.Form.DISTID';
+        var planType = '@Model.Form.PLANTYPE';
+
+        if (isFirst == "N") {
+            switch (activeMode) {
+                case "1": //分署別
+                    $("#aDist_" + distID).focus();
+                    break;
+                case "2": //計畫別
+                    $("#aPlanType_" + planType).focus();
+                    break;
+            }
+        }
+
+        //控制執行中的分署別按鈕顏色(class="active")
+        $("ul.question-type li.dist-id a").click(function () {
+            $("li.dist-id a.active").removeClass("active");
+            $(this).addClass("active");
+        });
+
+        //控制執行中的計畫別按鈕顏色(class="active")
+        $("ul.question-type li.plan-type a").click(function () {
+            $("li.plan-type a.active").removeClass("active");
+            $(this).addClass("active");
+        });
+
+        //顯示功能路徑明
+        $("span#spanDistName1").text("/" + $("li.dist-id a.active").text());
+        $("span#spanDistName2").text($("li.dist-id a.active").text());
+        $("span#spanPlanTypeName").text($("li.plan-type a.active").text());
+    });
+
+    //設定查詢條件-分署
+    function setDistID(distid) {
+        var form = $("#mail_form");
+        form.find("#Form_DISTID").val(distid);
+
+        doQuery("1");
+    }
+
+    //設定查詢條件-計畫別
+    function setPlanType(plantype) {
+        var form = $("#mail_form");
+        form.find("#Form_PLANTYPE").val(plantype);
+        doQuery("2");
+    }
+
+    //查詢
+    function doQuery(activeMode) {
+        var form = $("#mail_form");
+        form.find("#Form_ActiveMode").val(activeMode);
+
+        form.submit();
+    }
+
+    //瀏覽課程明細
+    function doDetail(plantype, providelocation, ocid) {
+        $("#PlanType").val(plantype);
+        $("#ProvideLocation").val((providelocation == null || providelocation == "" ? "N" : providelocation));
+        $("#OCID").val(ocid);
+        $("form#detail_form").attr("action", "@Url.Action("Detail","ClassSearch")").submit();
+    }
+</script>

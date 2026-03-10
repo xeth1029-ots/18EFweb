@@ -1,0 +1,80 @@
+﻿@model WDAIIP.WEB.Models.ClassConfirm003ViewModel
+@{
+    ViewBag.Title = "課程錄訓名單--充電起飛計畫";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+@using (Html.BeginForm("Detail", "Classconfirm003", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+{
+    <div class="col-sm-12">
+        <!-- bread start --->
+        <div class="breadlink">
+            <a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a>
+            <i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程錄訓名單 / 充電起飛計畫
+        </div>
+        <!-- bread end --->
+        <h3 class="main-title main-title-green"><i class="fab fa-readme space-right"></i>課程錄訓名單</h3>
+
+        <!-- note table-->
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table  table-result">
+                <tr>
+                    <th width="15%">發布單位</th>
+                    <td width="35%">@Model.UnitGrid_list[0].CFORGNAME</td>
+                    <th width="15%">文號</th>
+                    <td width="35%">@Model.UnitGrid_list[0].ODNUMBER</td>
+                </tr>
+                <tr>
+                    <th>訓練單位</th>
+                    <td>@Model.UnitGrid_list[0].ORGNAME</td>
+                    <th>公告日期</th>
+                    <td>@Model.UnitGrid_list[0].CONFIRDATE_TW</td>
+                    @*<a href="javascript:showclassdetail(3,'N',@Model.UnitGrid_list[0].OCID)" title="前往檢視課程明細">課程連結</a>*@
+                </tr>
+                <tr>
+                    <th>訓練班別</th>
+                    @*<td><a href="javascript:showclassdetail(3,'N',@Model.UnitGrid_list[0].OCID)" title="@Model.UnitGrid_list[0].CLASSCNAME">@Model.UnitGrid_list[0].CLASSCNAME<b></b></a></td>*@
+                    <td>@Model.UnitGrid_list[0].CLASSCNAME</td>
+                    <th>公告期間</th>
+                    <td>@Model.UnitGrid_list[0].CONFIRDATERANGE</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    <tr>
+                        <th width="25%">編號</th>
+                        <th width="25%">姓名</th>
+                        <th width="25%">身分證字號</th>
+                        <th width="25%">備註</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @Html.Partial("_UserGridRows", Model)
+                </tbody>
+            </table>
+        </div>
+
+        <div class="submit-bar">
+            <button type="button" class="btn-orange" onclick="goback('@Model.StudForm.DISTID')" title="回上一頁">回上一頁</button>
+        </div>
+        <p><p>
+    </div>
+
+}
+
+<script type="text/javascript">
+    //回上一頁
+    function goback(DISTID) {
+        var data = { "DISTID": DISTID };
+        var url = '@Url.Action("Index", "ClassConfirm003")';
+        goBackPage(url, data, 2, 'POST');
+    }
+    function showclassdetail(PlanType, ProvideLocation, OCID) {
+        var data = { "PlanType": 3, "ProvideLocation": 'N', "OCID": OCID };
+        var url = '@Url.Action("Detail", "ClassSearch")';
+        goBackPage(url, data, 2, 'POST');
+    }
+</script>

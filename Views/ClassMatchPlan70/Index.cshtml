@@ -1,0 +1,101 @@
+﻿@model WDAIIP.WEB.Models.ClassMatchListViewModel
+@using WDAIIP.WEB.DataLayers
+@using WDAIIP.WEB.Models
+
+@{ 
+    ViewBag.Title = "會員專區--速配課程清單";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    bool fg_test = ConfigModel.CHK_IS_TEST_ENVC; //(fg_test || fg_use1)
+    bool fg_use1 = (DateTime.Now.Year >= 2025);
+    ViewBag.PT2NM = "分署自辦在職訓練";
+    ViewBag.PT1NM = "產業人才投資方案(三年七萬)";
+    if (fg_test || fg_use1) { ViewBag.PT1NM = "產業人才投資方案(三年十萬)"; }
+    ViewBag.PT5NM = "區域產業據點";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / 速配課程清單</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-pink"><i class="far fa-list-alt space-right"></i>課程速配清單</h3>
+    <ul class="question-type">
+        <li style="width:48%"><a href="@Url.Content("~/ClassMatchPlan06")" title="@(ViewBag.PT2NM)">@(ViewBag.PT2NM)</a></li>
+        <li style="width:48%"><a href="@Url.Content("~/ClassMatchPlan28")" title="@(ViewBag.PT1NM)">@(ViewBag.PT1NM)</a></li>
+        <li style="width:48%"><a href="@Url.Content("~/ClassMatchPlan70")" class="active" title="@(ViewBag.PT5NM)">@(ViewBag.PT5NM)</a></li>
+    </ul>
+    @using (Html.BeginForm("Index", "MatchPlan70", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+    {
+        @Html.HiddenFor(m => m.Form.PlanType)
+
+        <div class="table-responsive">
+            <div class="col-sm-10">&nbsp;</div>
+            <div class="col-sm-2">
+                <button type="button" onclick="doClassMatchSetting()" onkeypress="doClassMatchSetting()" class="btn btn-result btn-justified" title="前往速配條件設定">速配條件設定</button>
+            </div>
+        </div>
+        <!-- result table -->
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    <tr>
+                        <th width="15%">訓練班別</th>
+                        <th width="15%">訓練單位</th>
+                        <th>上課地點</th>
+                        @*@if (!string.IsNullOrEmpty(Model.Form.ProvideLocation) && Model.Form.ProvideLocation == "Y")
+                        {
+                            <th width="8%" rowspan="2">
+                                距離公里數
+                                <a href="javascript: doSort();"><i class="fa fa-caret-up text-primary" aria-hidden="true"></i></a>
+                                <a href="javascript: doSort();"><i class="fa fa-caret-down text-primary" aria-hidden="true"></i></a>
+                            </th>
+                        }*@
+                        <th width="12%">通俗職類</th>
+                        <th width="10%">報名起迄日</th>
+                        <th width="10%">訓練起迄日</th>
+                        <th width="10%">訓練時段</th>
+                        <th width="10%">學歷資格</th>
+                    </tr>
+                </thead>
+                <tbody id="rows">
+                    @Html.Partial("_GridRows",Model)
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!--  pager start -->
+    @Html.Partial("_PagingLink", Model.Form)
+    <!-- pager end -->
+
+</div>
+
+@using (Html.BeginForm("PlanTypeChange", "ClassMatch", FormMethod.Post, new { id = "SettingForm" }))
+{
+    @Html.Hidden("planType", Model.Form.PlanType);
+}
+
+@*檢視課程明細頁*@
+@using (Html.BeginForm("Detail", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoDetailForm" }))
+{
+    @Html.Hidden("PlanType")
+    @Html.Hidden("ProvideLocation")
+    @Html.Hidden("OCID")
+    @Html.Hidden("OCID2")
+}
+
+<script type="text/javascript">
+    //瀏覽課程明細
+    function doDetail(plantype, providelocation, ocid) {
+        $("#PlanType").val(plantype);
+        $("#ProvideLocation").val(providelocation);
+        $("#OCID").val(ocid);
+        $("form#GoDetailForm").attr("action", "@Url.Action("Detail","ClassSearch")").submit();
+    }
+
+    //顯示速配課程設定頁面
+    function doClassMatchSetting() {
+        var form = $("#SettingForm");
+        form.submit();
+    }
+</script>

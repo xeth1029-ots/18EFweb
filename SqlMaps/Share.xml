@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="Share" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <resultMaps></resultMaps>
+
+  <cacheModel id="WDAIIP.WEB-cache" implementation="MEMORY" >
+    <flushInterval hours="1"/>
+    <flushOnExecute  statement="insertMember"/>
+    <flushOnExecute  statement="updateMember"/>
+    <property name="Type" value="WEAK"/>
+  </cacheModel>
+
+  <statements>
+
+    <!--查詢郵遞區號3+2(包含所對應的路段)-->
+    <select id="queryZip"
+            resultClass="WDAIIP.WEB.Models.ZipGridModel"
+            parameterClass="WDAIIP.WEB.Models.ZipFormModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+  SELECT C.CTID
+  ,convert(varchar,A.ZIPCODE) ZIPCODE
+  ,A.ZIPCODE2
+  ,concat(A.ZIPCODE,A.ZIPCODE2) ZIPCODE6
+  ,CASE WHEN A.ZIPCODE_N IS NOT NULL THEN A.CITY ELSE C.CTNAME END CTNAME
+  ,CASE WHEN A.ZIPCODE_N IS NOT NULL THEN A.AREA ELSE B.ZIPNAME END ZIPNAME
+  ,A.ROAD
+  ,A.NOTE
+  FROM dbo.ID_ZIP2 A WITH(NOLOCK)
+  JOIN dbo.ID_ZIP B WITH(NOLOCK) ON B.ZIPCODE=A.ZIPCODE
+  JOIN dbo.ID_CITY C WITH(NOLOCK) ON C.CTID=B.CTID
+  WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="CTIDZIP">
+            <![CDATA[  AND dbo.FN_GZIP3(A.ZIPCODE)+dbo.FN_GZIP2(A.ZIPCODE2) LIKE '%'+ #CTIDZIP# +'%' ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="CTID">
+            <![CDATA[ AND C.CTID=#CTID# ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="ZIPCODE">
+            <isNotEmpty prepend="" property="ZIPNAME">
+              <![CDATA[
+              AND (1!=1
+               OR ISNULL(dbo.FN_GZIP3(A.ZIPCODE),'')=#ZIPCODE#
+               OR ISNULL(A.AREA,'')=#ZIPNAME#
+               OR ISNULL(B.ZIPNAME,'')=#ZIPNAME#
+               ) ]]>
+            </isNotEmpty>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="ROAD">
+            <![CDATA[ AND A.ROAD LIKE '%'+#ROAD#+'%' ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[ ORDER BY 1,2,3,4,5,6,7 ]]>
+    </select>
+
+    <!--查詢郵遞區號3+3(包含所對應的路段)-->
+    <select id="queryZip6"
+            resultClass="WDAIIP.WEB.Models.ZipGridModel"
+            parameterClass="WDAIIP.WEB.Models.ZipFormModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+  SELECT C.CTID
+  ,convert(varchar,A.ZIPCODE) ZIPCODE
+  ,SUBSTRING(a.zipcode6,4,3) ZIPCODE2
+  ,A.ZIPCODE6
+  ,c.CTNAME
+  ,b.ZIPNAME
+  ,A.ROAD
+  ,A.NOTE
+  FROM dbo.ID_ZIP6 A WITH(NOLOCK)
+  JOIN dbo.ID_ZIP B WITH(NOLOCK) ON B.ZIPCODE=A.ZIPCODE
+  JOIN dbo.ID_CITY C WITH(NOLOCK) ON C.CTID=B.CTID
+  WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="CTIDZIP">
+            <![CDATA[ AND A.ZIPCODE6 LIKE '%'+ #CTIDZIP# +'%' ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="CTID">
+            <![CDATA[ AND C.CTID=#CTID# ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="ZIPCODE">
+            <isNotEmpty prepend="" property="ZIPNAME">
+              <![CDATA[
+              AND (1!=1
+               OR ISNULL(dbo.FN_GZIP3(A.ZIPCODE),'')=#ZIPCODE#
+               OR ISNULL(A.AREA,'')=#ZIPNAME#
+               OR ISNULL(B.ZIPNAME,'')=#ZIPNAME#
+               )
+            ]]>
+            </isNotEmpty>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="ROAD">
+            <![CDATA[ AND A.ROAD LIKE '%'+#ROAD#+'%' ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[ ORDER BY 1,2,3,4,5,6,7 ]]>
+    </select>
+
+    <!--查詢停止線上報名服務設定資料-->
+    <select id="queryStopEnterMsg"
+            resultClass="WDAIIP.WEB.Models.HomeNews3ExtModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+  SELECT A.HN3ID  /*PK*/ 
+  ,A.SUBJECT
+  ,AC.NAME MODIFYNAME
+  ,A.STOPSDATE
+  ,A.STOPEDATE
+  ,A.POSTDATE
+  /*,CONVERT(VARCHAR, A.STOPSDATE, 120) STOPSDATE
+  ,CONVERT(VARCHAR, A.STOPEDATE, 120) STOPEDATE
+  ,CONVERT(VARCHAR, A.POSTDATE, 111) POSTDATE */
+  FROM HOME_NEWS3 A
+  JOIN AUTH_ACCOUNT AC ON AC.ACCOUNT = A.MODIFYACCT
+  WHERE 1=1
+  AND A.ISDELETE IS NULL /*顯示未刪除的資料*/
+  AND A.POSTDATE <= GETDATE()  /*發佈日之後*/
+  AND A.STOPSDATE <= GETDATE() /*過啟動日*/
+  AND A.STOPEDATE >= GETDATE() /*有效時間內*/
+  ORDER BY A.STOPSDATE, A.STOPEDATE
+      ]]>
+    </select>
+  </statements>
+</sqlMap>

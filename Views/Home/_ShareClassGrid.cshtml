@@ -1,0 +1,29 @@
+﻿@model WDAIIP.WEB.Models.HomeViewModel
+
+@if (Model.TopShareClassGrid != null && Model.TopShareClassGrid.Count > 0)
+{
+
+    foreach (var item in Model.TopShareClassGrid)
+    {
+        string plantype = "";
+        switch(item.TPLANID)
+        {
+            case "28":
+                plantype = "1";
+                break;
+            case "06":
+                plantype = "2";
+                break;
+            case "70":
+                plantype = "5";
+                break;
+        }
+    <li><a href="javascript:showClassDetail(@plantype,@item.OCID);" title="@item.CLASSCNAME">@item.CLASSCNAME</a></li>
+    }
+
+}
+else
+{
+    @*<div>尚無資料</div>*@
+    <li><center>尚無資料</center></li>
+}

@@ -1,0 +1,28 @@
+﻿@using WDAIIP.WEB.Commons
+@model WDAIIP.WEB.Models.TrainingHistoryViewModel
+
+@if (Model == null || Model.Grid2 == null || Model.Grid2.Count == 0)
+{
+    <tr>
+        <td colspan="9" class="text-center text-danger">尚無參訓紀錄</td>
+    </tr>
+}
+else
+{
+    for (int i = 0; i < Model.Grid2.Count; i++)
+    {
+        var item = Model.Grid2[i];
+
+        <tr>
+            <td style="text-align:left">@item.DISTNAME</td>
+            <td style="text-align:center">@item.YEARS_TW</td>
+            <td>@Html.Raw(item.PLANNAME)</td>
+            <td>@item.ORGNAME</td>
+            <td>@item.CLASSNAME</td>
+            <td style="text-align:center">@Html.Raw(item.THOURS)</td>
+            <td style="text-align:center">@Html.Raw(item.TROUND)</td>
+            <td>@item.WEEKS</td>
+            <td style="text-align:center">@Html.Raw(@item.STUDSTATUS_TEXT)</td>
+        </tr>
+    }
+}

@@ -1,0 +1,85 @@
+﻿@model WDAIIP.WEB.Models.ContentViewModel
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+
+
+@{
+    ViewBag.Title = "最新消息--計畫公告明細";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    SessionModel sm = SessionModel.Get();
+
+    var item = Model.Detail;
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 最新消息 / 計畫公告</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fa fa-newspaper space-right"></i>計畫公告</h3>
+    <!-- news content start -->
+    @Html.Partial("_NewsDetail", Model)
+    <!-- news content end -->
+</div>
+<script type="text/javascript">
+    $(function () {
+        @*$("button#GoBack").on("click",function () {
+            var url = '@sm.NewsIndexController';
+            location.href = url;
+        });
+
+        $("button#GoList").on("click",function () {
+            var url = '@Url.Action("Index","News")';
+            location.href = url;
+        });*@
+    })
+
+    // 回前一頁
+    function goBack() {
+        var url = '@sm.NewsIndexController';
+        location.href = url;
+    }
+
+    // 回新聞列表
+    function goList() {
+        var url = '@Url.Action("Index")';
+        location.href = url;
+    }
+
+	//<!-- *****************  使用範例內容-開始 ****************** -->
+    /* TTS 語音撥放 */
+    function playTTS() {
+        // uTTS Api 主機
+        var host = "https://utts.turbotech.com.tw";
+        // uTTS 文字轉語音 Api
+        var actUrl = host + "/uTTS";
+        // uTTS 取得語音檔 Api
+        var audioApiUrl = host + "/uTTS/Audio";
+
+        var parms = {};
+        // 要撥放的文字內容
+        parms.text = $("div#news1").text();
+        //console.log(parms);
+
+        /* ajaxLoadMore 定義在 /Scripts/global.js */
+        ajaxLoadMore(actUrl, parms, function (result) {
+            // 回應的 result 結果是 JSON 格式
+            if (result.status == "1") {
+                // TTS 轉換成功, result.data 表示此TTS音檔的 key
+                // 組音檔的完整 URL
+                var audioFileUrl = audioApiUrl + "?key=" + result.data;
+                // 透過 HTML5 audio 撥放
+                var container = $("div#playerContainer");
+                var player = '<audio id="TTSPlayer" controls="controls" autoplay="autoplay" style="width:200px;height:36px;">' +
+                        '<source src="' + audioFileUrl + '" type="audio/wav" />' +
+                        '您的 Browser 不支援 &lt;audio&gt; 音檔撥放' +
+                        '</audio>';
+                container.html(player);
+            }
+            else {
+                alert("TTS 轉換失敗: " + result.message);
+            }
+        });
+    }
+    //<!-- *****************  使用範例內容-結束 ****************** -->
+</script>

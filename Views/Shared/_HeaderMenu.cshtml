@@ -1,0 +1,132 @@
+﻿@using WDAIIP.WEB.Models
+@{
+    SessionModel sm = SessionModel.Get();
+    bool f_ClassMapSch1 = ConfigModel.As_ClassMapSch1.Equals("Y") ? true : false; //bool f_ClassMapSch1 = true;
+    bool f_TrainCert1 = ConfigModel.As_TrainCert1.Equals("Y") ? true : false; //下載訓練證明 TrainCert
+    bool f_StudOnline1 = (ConfigModel.As_StudOnline1 ?? "").Equals("Y") ? true : false; //「學員線上表單」功能
+    string s_tplanid28_url1 = ConfigModel.tplanid28_url1;
+    string s_tplanid54_url1 = ConfigModel.tplanid54_url1;
+    string s_tplanid06_url1 = ConfigModel.tplanid06_url1;
+    string s_core_url1 = ConfigModel.core_url1;
+    string s_coursefly_url1 = ConfigModel.coursefly_url1;
+    string s_Othgovuntclass_url1 = ConfigModel.Othgovuntclass_url1;
+    bool fg_As_DigiCert1 = ((ConfigModel.As_DigiCert1 ?? "") == "Y");
+
+}
+
+<!-- HeaderMenu Start -->
+<ul class="nav navbar-nav">
+    <li data-role="mainmenu_01" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="最新消息"><i class="fa fa-newspaper space-right"></i>最新消息</a>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Content("~/News")" title="前往焦點消息">焦點消息</a></li>
+            <li><a href="@Url.Content("~/Plan")" title="前往計畫公告">計畫公告</a></li>
+            <li><a href="@Url.Content("~/StudQuestion")" title="前往課後意見調查">課後意見調查</a></li>
+            @*<li><a href="@Url.Content("~/GainCollection")" title="前往成果集錦">成果集錦</a></li>*@
+        </ul>
+    </li>
+    <li data-role="mainmenu_02" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="連結計畫簡介"><span class="sr-only">連結計畫簡介</span><i class="far fa-clipboard space-right"></i>計畫簡介</a>
+        <ul class="dropdown-menu">
+            <li><a href="@s_tplanid28_url1" target="_blank" rel="noreferrer noopener" title="前往產業人才投資方案(另開新視窗)"><span class="sr-only">(另開新視窗)</span>產業人才投資方案</a></li>
+            <li><a href="@s_tplanid54_url1" target="_blank" rel="noreferrer noopener" title="前往充電起飛計畫(另開新視窗)"><span class="sr-only">(另開新視窗)</span>充電起飛計畫</a></li>
+            <li><a href="@s_tplanid06_url1" target="_blank" rel="noreferrer noopener" title="前往分署自辦在職訓練(另開新視窗)"><span class="sr-only">(另開新視窗)</span>分署自辦在職訓練</a></li>
+            @*<li><a href="https://www.wda.gov.tw/News_Content.aspx?n=C3D5B0EEB25C0694&sms=6CA2172C29FEDCE9&s=86CB953436A321E1" target="_blank" title="前往分署接受企業委託辦理訓練(另開新視窗)">分署接受企業委託辦理訓練</a></li>*@
+            @*<li><a href="http://163.29.199.223:8080" target="_blank" title="前往共通核心職能課程(另開新視窗)">共通核心職能課程</a></li>*@
+            @*<li><a href="https://corecompetencies.wda.gov.tw/" target="_blank" title="前往共通核心職能課程(另開新視窗)"><span class="sr-only">(另開新視窗)</span>共通核心職能課程</a></li>*@
+            <li><a href="@s_core_url1" target="_blank" rel="noreferrer noopener" title="前往關鍵就業力課程(另開新視窗)"><span class="sr-only">(另開新視窗)</span>關鍵就業力課程</a></li>
+            <li><a href="@s_coursefly_url1" target="_blank" rel="noreferrer noopener" title="前往充電再出發訓練計畫(另開新視窗)"><span class="sr-only">(另開新視窗)</span>充電再出發訓練計畫</a></li>
+            <li><a href="@Url.Content("~/PlanDownload?IX=2")" title="前往計畫表單下載">計畫表單下載</a></li>
+        </ul>
+    </li>
+    <li data-role="mainmenu_03" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="課程查詢報名"><i class="fas fa-pencil-alt space-right"></i>課程查詢報名</a>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Content("~/SignUp/Online1")" title="前往線上報名">線上報名</a></li>
+            <li><a href="@Url.Content("~/ClassSearch")" title="前往課程查詢">課程查詢</a></li>
+            <li><a href="@Url.Content("~/PlanClassSearch")" title="前往計畫課程列表">計畫課程列表</a></li>
+            <li><a href="@Url.Content("~/DistClassSearch")" title="前往分署課程列表">分署課程列表</a></li>
+            <li><a href="@Url.Content("~/KeepUseClassSearch")" title="前往適用留用外國中階技術工作人力課程列表">適用留用外國中階技術工作人力課程列表</a></li>
+            @*歷史課程查詢下架<li><a href="@Url.Content("~/HistoryClassSearch")" title="前往歷史課程查詢">歷史課程查詢</a></li>*@
+            <li><a href="@Url.Content("~/ClassMapSch")" title="前往地圖找課程">地圖找課程</a></li>
+            <li><a href="@s_Othgovuntclass_url1" target="_blank" rel="noreferrer noopener" title="前往其他政府單位課程(另開新視窗)"><span class="sr-only">(另開新視窗)</span>其他政府單位課程</a></li>
+            @if (f_ClassMapSch1)
+            {
+                <li><a href="@Url.Content("~/OrgMapSch")" title="前往 服務據點-地圖查詢">服務據點-地圖查詢</a></li>
+            }
+        </ul>
+    </li>
+    <li data-role="mainmenu_04" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="課程錄訓名單"><i class="far fa-list-alt space-right"></i>課程錄訓名單</a>
+        <ul class="dropdown-menu">
+            @*<li><a href="@Url.Content("~/ClassConfirm002")" title="前往分署自辦在職訓練">分署自辦在職訓練</a></li>*@
+            <li><a href="@Url.Content("~/ClassConfirm001")" title="前往產業人才投資方案">產業人才投資方案</a></li>
+            <li><a href="@Url.Content("~/ClassConfirm003")" title="前往充電起飛計畫">充電起飛計畫</a></li>
+            <li><a href="@Url.Content("~/ClassConfirm005")" title="前往區域產業據點">區域產業據點</a></li>
+        </ul>
+    </li>
+    <li data-role="mainmenu_05" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="相關連結"><i class="fas fa-link space-right"></i>相關連結</a>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Content("~/TrainingLink")" title="前往訓練資源連結">訓練資源連結</a></li>
+            <li><a href="@Url.Content("~/JobLink")" title="前往求職求才資源連結">求職求才資源連結</a></li>
+            <li><a href="@Url.Content("~/OtherLink")" title="前往其他資源連結">其他資源連結</a></li>
+        </ul>
+    </li>
+    <li data-role="mainmenu_06" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="資料下載"><i class="fas fa-download space-right"></i>資料下載</a>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Content("~/PlanDownload")" title="前往計畫表單">計畫表單</a></li>
+            @*<li><a href="@Url.Content("~/OtherDownload")" title="前往其他資料">其他資料</a></li>*@
+        </ul>
+    </li>
+    @if (fg_As_DigiCert1)
+    {
+        <li data-role="mainmenu_09" class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="數位結訓證明"><i class="fas fa-download space-right"></i>數位結訓證明</a>
+            <ul class="dropdown-menu">
+                <li><a href="@Url.Content("~/DigiCertOnline/Detail")" title="前往線上申請">線上申請</a></li>
+                <li><a href="@Url.Content("~/DigiCertDownload")" title="前往數位結訓證明下載">數位結訓證明下載</a></li>
+                <li><a href="@Url.Content("~/DCVerify")" title="前往線上查驗">線上查驗</a></li>
+            </ul>
+        </li>
+    }
+    <li data-role="mainmenu_07" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="會員專區"><i class="fas fa-user-circle space-right"></i>會員專區</a>
+        <ul class="dropdown-menu">
+            @if (string.IsNullOrEmpty(sm.UserID))
+            {
+                <li><a href="@Url.Action("Login", "Member")" title="前往會員登入">會員登入</a></li>
+            }
+            else
+            {
+                <li><a href="@Url.Content("~/EnterType")" title="前往會員資料維護">會員資料維護</a></li>
+                <li><a href="@Url.Content("~/TrainingHistory")" title="前往參訓歷程紀錄">參訓歷程紀錄</a></li>
+                if (f_StudOnline1)
+                {
+                    <li><a href="@Url.Content("~/StudOnlineSign")" title="前往學員線上表單">學員線上表單</a></li>
+                }
+                @*<li><a href="@Url.Content("~/ClassMatch")" title="前往速配課程設定">速配課程設定</a></li><li><a href="@Url.Content("~/ClassMatchPlan06")" title="前往速配課程清單">速配課程清單</a></li>*@
+                <li><a href="@Url.Content("~/TrainingSubsidy")" title="前往補助額度使用情形">補助額度使用情形</a></li>
+                <li><a href="@Url.Content("~/ClassTrace")" title="前往會員課程收藏清單">會員課程收藏清單</a></li>
+                <li><a href="@Url.Content("~/EnterClass")" title="前往報名查詢及取消">報名查詢及取消</a></li>
+                <li><a href="@Url.Content("~/EnterClassDel")" title="前往 已取消報名查詢">已取消報名查詢</a></li>
+                if (f_TrainCert1)
+                {
+                    <li><a href="@Url.Content("~/TrainCert")" title="前往 下載訓練證明">下載訓練證明</a></li>
+                }
+                <li><a href="@Url.Content("~/StudQuestion")" title="前往課後意見調查">課後意見調查</a></li>
+                @*2019-01-31 問題8：因手機版無「會員登出」功能，故於會員登入後的會員專區功能最後面加「會員登出」*@
+                @*<li><a href="@Url.Action("Logout", "Member")" class="btnLogout" title="前往會員登出">會員登出</a></li>*@
+                <li><a href="#" class="btnLogout" title="前往會員登出">會員登出</a></li>
+            }
+        </ul>
+    </li>
+    <li data-role="mainmenu_08" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="Q&A"><i class="fas fa-question-circle space-right"></i>Q&A</a>
+        <ul class="dropdown-menu">
+            <li><a href="@Url.Content("~/QA")" title="前往常見問題">常見問題</a></li>
+        </ul>
+    </li>
+</ul>
+<!-- HeaderMenu End -->

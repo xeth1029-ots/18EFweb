@@ -1,0 +1,193 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.Commons
+@model OrgMapSchViewModel
+@{
+    //ViewBag.Title = "Index";
+    ViewBag.Title = "相關連結--服務據點-地圖查詢";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+
+    string s_liSDM = Model.Form.liSDM ?? "[]";
+
+    MyCommonUtil mcu = new MyCommonUtil();
+    string s_gosApi1 = mcu.Get_TGOS_API;
+}
+
+<!-- BarrY Add Start -->
+<!-- iCon  -->
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/vendor/icon-reGui/style.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/vendor/icon-recruit/style.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/vendor/icon-turbotech/style.css")">
+<!-- leaflet  -->
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/leaflet.css")" />
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/MarkerCluster.css")" />
+<!-- Main  -->
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/animate.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/main.css")" />
+<!-- JS Implementing Plugins -->
+<script type="text/javascript" src="@Url.Content("~/js/jquery.maskedinput/src/jquery.maskedinput.js")"></script>
+<!-- JS Mask Input -->
+<script type="text/javascript" src="@Url.Content("~/js/masked-input.js")"></script>
+<!-- BarrY Add End -->
+<script type="text/javascript" src="@Url.Content("~/js/leaflet-src.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/js/leaflet.markercluster-src.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/js/leaflet_api.js")" charset="utf-8"></script>
+@*<script type="text/javascript" src="@Html.Raw(s_gosApi1)" charset="utf-8"></script>*@
+<script type="text/javascript" src="@Url.Content("~/js/tgos_map.js")" charset="utf-8"></script>
+<script type="text/javascript" src="@Url.Content("~/js/jquery.touchSwipe.min.js")" charset="utf-8"></script>
+<script type="text/javascript" src="@Url.Content("~/js/map_list_rwd.js")" charset="utf-8"></script>
+<script type="text/javascript" src="@Url.Content("~/js/service_location_map.js")" charset="utf-8"></script>
+<script type="text/javascript" src="@Url.Content("~/js/base64.js")"></script>
+
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/all.css")" />
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/job_search_list.css")" />
+
+<script type="text/javascript">
+    var liSDM = @Html.Raw(s_liSDM);
+    @*$("#hidJobBounds").val(@Html.Raw(s_hidJobBounds));*@
+
+    function togglePanlConditions() {}
+
+    $(window).resize(function () {
+        togglePanlConditions();
+        //resizeItem('list_zone');
+    });
+</script>
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+
+@*<div class="container-fluid wrap" style="min-height: 71px;"></div>*@
+@*<form action="https://ojt.wda.gov.tw/ClassSearch" class="form-horizontal" id="main_form" method="post"></form>*@
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 相關連結 / 服務據點-地圖查詢</div>
+    <!-- bread end --->
+</div>
+
+@Html.Partial("_Condition", Model)
+
+@using (Html.BeginForm("Index", "OrgMapSch", FormMethod.Post, htmlAttributes: new { id = "main_Form", @class = "form-horizontal" }))
+{
+    <div class="col-sm-12">
+        <article class="map-main-cnt">
+            <div class="lt-map-cnt-location">
+                <div id="map" class="job_search_map">
+                    <div class="search_map_toolbar">
+                        <button type="button" id="btnBoundSearch" class="toolbar-btn" onclick="btnBoundSearchClick()">
+                            <i class="tu-map"></i>搜尋地圖區域
+                        </button>
+                        <button type="button" id="btnLocate" class="toolbar-btn" onclick="btnLocateClick()">
+                            <i class="tu-navigation"></i>定位您的地點
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- right side list -->
+            <div style="display:none;">
+                <div class="templete-result">
+                    <i id="location_item_templete">
+                        <ul id="{TB_ORGID}">
+                            <li>
+                                <figure class="rt-location-card {TBC_CSS}">
+                                    <h6 class="title"> {TB_ORGNAME} </h6>
+                                    <figcaption>
+                                        <div class="address">{TB_ADDRESS1}</div>
+                                        <dl class="tel">
+                                            <dt>電話</dt>
+                                            <dd><a href="tel:{TB_TEL1}">{TB_PHONE}</a></dd>
+                                        </dl>
+                                    </figcaption>
+                                </figure>
+                            </li>
+                        </ul>
+                    </i>
+                </div>
+            </div>
+            <div class="rt-location-result-cnt">
+                <h3 class="heading-v1">
+                    <span>服務據點列表</span>
+                </h3>
+                <div class="rt-location-card-list">
+                    <div class="location_zone"></div>
+                    @*<figure class="rt-location-card primary">
+                            <h6 class="title">
+                                北基宜花金馬分署
+                            </h6>
+                            <figcaption>
+                                <div class="address">新北市 新莊區 中平路439號南棟3樓</div>
+                                <dl class="tel">
+                                    <dt>電話</dt>
+                                    <dd><a href="tel:0289956399">02-89956399</a></dd>
+                                </dl>
+                            </figcaption>
+                        </figure>
+
+                        <figure class="rt-location-card secondary">
+                            <h6 class="title">
+                                北基宜花金馬分署
+                            </h6>
+                            <figcaption>
+                                <div class="address">新北市 新莊區 中平路439號南棟3樓</div>
+                                <dl class="tel">
+                                    <dt>電話</dt>
+                                    <dd><a href="tel:0289956399">02-89956399</a></dd>
+                                </dl>
+                            </figcaption>
+                        </figure>*@
+
+                </div>
+            </div>
+        </article>
+        <!-- BarrY Add End -->
+    </div>
+
+    @Html.HiddenFor(m => m.Form.hidCityID, new { @id = "hidCityID" })
+    @Html.HiddenFor(m => m.Form.hidStationID, new { @id = "hidStationID" })
+
+    @Html.HiddenFor(m => m.Form.CTID, new { @id = "hid_Form_CTID" })
+    @Html.HiddenFor(m => m.Form.ZIPCODE, new { @id = "hid_Form_ZIPCODE" })
+    @Html.HiddenFor(m => m.Form.BranchOffice, new { @id = "hid_Form_BranchOffice" })
+    @Html.HiddenFor(m => m.Form.TrainingOrg, new { @id = "hid_Form_TrainingOrg" })
+
+}
+
+<!-- content end -->
+
+<script type="text/javascript">
+    // 上方搜尋框下拉選單 點擊變換顏色
+    $('#map_search select').on('change', function () {
+        var $this = $(this);
+        $this.css('color', $this.val() === '' ? '#838588' : '#212529');
+    });
+
+    function saveQueryCondition(){
+        $("#hid_Form_CTID").val($("#Form_CTID").val());
+        $("#hid_Form_ZIPCODE").val($("#Form_ZIPCODE").val());
+        $("#hid_Form_BranchOffice").val($("#Form_IsBranchOffice").prop("checked") ? "Y" : "N");
+        $("#hid_Form_TrainingOrg").val($("#Form_IsTrainingOrg").prop("checked") ? "Y" : "N");
+    }
+
+    /* 搜尋 */
+    function doSearch() {
+        //清掉 hidJobBounds 及 hidSearchLoc JSON 字串, 不然會觸發資安 filter rule
+        //$("input[id*=hidJobBounds]").val("");
+        //var hidSearchLoc = $("input[id*=hidSearchLoc]");
+        //if (hidSearchLoc.val().indexOf("/") == -1) { hidSearchLoc.val(""); }
+
+        // 原本的動作
+
+        // 送回後端查詢
+        saveQueryCondition();
+
+        var form = $("#main_Form");
+        form.submit();
+    }
+
+    $(document).ready(function () {
+        btnBoundSearchClick();
+        //$("#location_item_templete").hide().removeClass("show").css("display", "none");
+    });
+</script>

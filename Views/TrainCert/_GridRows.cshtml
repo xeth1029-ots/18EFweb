@@ -1,0 +1,92 @@
+﻿@using WDAIIP.WEB.Models
+@model TrainCertViewModel
+
+@{
+    //下載訓練證明 民國版/ C、西元版 / E
+    string tipsC2 = "下載訓練證明 pdf 民國版「另開新視窗」";
+    string tipsC = "下載訓練證明 民國版 pdf「另開新視窗」";
+    string btnROC = "民國版";
+    string tipsE2 = "下載訓練證明 pdf 西元版「另開新視窗」";
+    string tipsE = "下載訓練證明 西元版 pdf「另開新視窗」";
+    string btnVID = "西元版";
+}
+
+@if (Model == null || Model.Grid == null || Model.Grid.Count == 0)
+{
+    <tr>
+        <td colspan="5" class="text-center">查無資料</td>
+    </tr>
+}
+else
+{
+    for (int i = 0; i < Model.Grid.Count; i++)
+    {
+        var item = Model.Grid[i];
+        string s_yearROC = string.Concat(@item.PLANYEAR_TW, "年");
+
+        <tr class="que-row">
+            @*<div align="center">@s_yearROC</div>*@
+            <td align="center">@s_yearROC</td>
+            <td>@item.ORGNAME</td>
+            <td>@item.CLASSCNAME2</td>
+            <td>@item.STUDSTATUS2</td>
+            <td>
+                <a href="javascript:void(0);" data-role="GoPrintOjtInclassEC" data-rte="C" data-tmd="@item.TMD" data-socid="@item.SOCID" data-ocid="@item.OCID" data-clsid="@item.CLSID" data-studstatus="@item.STUDSTATUS" class="btn btn-vert btn-justified" title="@tipsC"><span class="sr-only">@tipsC2</span>@btnROC</a>
+                <a href="javascript:void(0);" data-role="GoPrintOjtInclassEC" data-rte="E" data-tmd="@item.TMD" data-socid="@item.SOCID" data-ocid="@item.OCID" data-clsid="@item.CLSID" data-studstatus="@item.STUDSTATUS" class="btn btn-vert btn-justified" title="@tipsE"><span class="sr-only">@tipsE2</span>@btnVID</a>
+            </td>
+        </tr>
+    }
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        //https api.jquery.com/data/
+        //https nsysumis94.pixnet.net/blog/post/40905394
+        //下載訓練證明  民國版/C、西元版/E
+        $("a[data-role=GoPrintOjtInclassEC]").click(function () {
+            var rte = $(this).data("rte");
+            var tmd = $(this).data("tmd");
+            var socid = $(this).data("socid");
+            var ocid = $(this).data("ocid");
+            var clsid = $(this).data("clsid");
+            var studstatus = $(this).data("studstatus");
+            //alert(rte + ',' + tmd + ',' + socid + ',' + ocid + ',' + clsid + ',' + studstatus);
+            doPrintOjtInclassEC(rte, tmd, socid, ocid, clsid, studstatus);
+        });
+
+    })
+
+    //下載訓練證明  民國版/C、西元版/E
+    function doPrintOjtInclassEC(rte, tmd, socid, ocid, clsid, studstatus) {
+        var url = "@Url.Action("GetOjtReportMsg", "Ajax")";
+        @*@if (Model.Detail.detail1.PLANID == null) { @:return; }*@
+        var data = { rte: rte, tmd: tmd, socid: socid, ocid: ocid, clsid: clsid, studstatus: studstatus };
+        var rptUrl = "@ConfigModel.RptQuery_URL";
+
+        ajaxLoadMore(url, data, function (resp) {
+            //debugger;
+            if (resp.data === undefined || resp.data == undefined) {
+                blockAlert("下載訓練證明失敗，請洽系統管理者!", "", function () { }); return;
+            }
+            else {
+                //console.log(resp.data);
+                var parms = "";
+                var w = window.open('', 'print1', 'toolbar=0,location=0,status=0,menubar=0,resizable=1');
+                var data1 = resp.data;
+                parms = "RptID=" + data1.PRINTFILENAME;
+                parms += "&RTE=" + data1.RTE;
+                parms += "&TMD=" + data1.TMD;
+                parms += "&SID=" + data1.SID;
+                parms += "&OCID=" + data1.OCID;
+                parms += "&SOCID=" + data1.SOCID;
+                parms += "&CLSID=" + data1.CLSID;
+                parms += "&STUDSTATUS=" + data1.STUDSTATUS;
+                //window.open(rptUrl + parms,"_blank");
+                w.location = rptUrl + parms;
+            }
+        });
+    }
+
+
+</script>

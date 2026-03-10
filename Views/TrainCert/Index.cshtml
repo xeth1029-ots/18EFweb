@@ -1,0 +1,60 @@
+﻿@model WDAIIP.WEB.Models.TrainCertViewModel
+
+@{
+    ViewBag.Title = "會員專區--下載訓練證明";
+    string s_Title1 = "下載訓練證明";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / @Html.Raw(s_Title1)</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-clipboard-list space-right"></i>@Html.Raw(s_Title1)</h3>
+    <!-- search form start -->
+    <div class="unit-border">
+        <div class="">
+            <div class="unit-bg unit-bg-green">
+                <p><strong>本功能使用說明：</strong></p>
+                <ol>
+                    <li>僅限有參訓分署自辦在職訓練課程。</li>
+                    <li>在訓證明：課程未結訓，且未離(退)訓。受訓證明：課程已結訓。</li>
+                    <li>訓練證明含有受訓者個人資料，請自行妥善保管及使用。</li>
+                </ol>
+            </div>
+            <div class="clearfix"></div>
+            <div class="submit-bar text-center">
+                @if (Model != null && Model.Grid != null)
+                {
+                    <!-- table -->
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-vert">
+                            <tr>
+                                @*年度、訓練單位、訓練班別、狀態、功能*@
+                                <th width="10%">年度</th>
+                                <th>訓練單位</th>
+                                <th>訓練班別</th>
+                                <th width="10%">狀態</th>
+                                <th width="16%">功能</th>
+                            </tr>
+                            <tbody id="rows">
+                                @Html.Partial("_GridRows", Model)
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- pager start -->
+                    @Html.Partial("_PagingLink", Model.Form)
+                    <!-- pager end -->
+                    <!-- btn -->
+                    @*<div class="submit-bar text-center">
+                        <p><button type="button" onclick="location.href ='@Url.Content("~/StudQuestion")';" class="btn-orange" title="回上一頁">回上一頁</button>
+                    </div>*@
+                }
+            </div>
+            <!-- search form end -->
+            <p><p>
+        </div>
+        <!-- search form end -->
+    </div>
+</div>

@@ -1,0 +1,11 @@
+﻿@using System.Collections.Generic
+@using System.Collections
+@using Turbo.DataLayer
+@model IList<KeyMapModel>
+
+@for (int i = 0; Model != null && i < Model.Count; i++)
+{
+    KeyMapModel row = Model[i];
+    string val = (row.CODE != null) ? "" + row.CODE : "";
+    <option value="@(val)" @(val.Equals(ViewBag.Selected) ? "selected" : "")>@row.TEXT</option>
+}

@@ -1,0 +1,49 @@
+﻿@model WDAIIP.WEB.Models.HomeViewModel
+
+<div class="col-sm-12">
+    @using (Html.BeginForm("Index", "ClassSearch", FormMethod.Post, new { id = "main_form" }))
+    {
+        @Html.HiddenFor(m => m.Form.IsHomeSearch)
+        @Html.HiddenFor(m => m.Form.IsContainsOverEnter)
+        <div class="search-bar">
+            <div class="search_select">
+                <div id="condition" class="search_select">
+                    @Html.Partial("_Condition", Model)
+                </div>
+                <div class="search_btn">
+                    <button type="submit" name="btnSch" value="查詢" id="btnSch" class="btn_set" title="查詢">查詢</button>
+                </div>
+            </div>
+            <div class="search_select">
+                <span color="red">*產業人才投資方案，快速搜尋課程區間預設為最近3個月之開訓課程，查詢後欲看更多課程，請點選「修改查詢條件」按鍵。</span>
+            </div>
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    $(function () {
+        /*類型選取項目改變事件,$("input[type=radio][name*='Form.PlanType']").on("change", function () {
+        ,$("select[id=Form_PlanType]").on("change", function () {,doChangeCondition($(this).val());,});,*/
+        @*doChangeCondition('@Model.Form.PlanType');*@
+        var planType = '@Model.Form.PlanType';
+
+        if (planType != "") {
+            @*2019-02-23 無障礙修正：8.3如果網頁能依序導覽，且導覽順序將會影響到意義或操作，則可取得焦點的元件要以能保留意義與操作性的順序，來取得焦點。
+                EV1080300：按照內容的序列及關連性來安排互動元件的放置順序,網頁載入後不可將游標焦點定位於「分署自辦在職訓練／產業人才投資方案」下拉式選單內,先mark*@
+            /*doChangePlan(planType);*/
+        }
+    });
+    /*切換計畫類別條件*/
+    function doChangePlan(plantype) {
+        var url = '@Url.Action("GetCondition","HeaderSearch")';
+        var data = { PlanType: plantype, keywords: $("#Form_KEYWORDS").val() };
+
+        ajaxLoadMore(url, data, function (resp) {
+            $('#condition').html(resp);
+            /*修改無障礙：EV1080300：按照內容的序列及關連性來安排互動元件的放置順序,fix 切換計畫別下拉選項後focus狀態會跑掉問題,*/
+            $("select#Form_PlanType").focus();
+        });
+    }
+    @*function doChangePlan2() {,var planTypeVal = $("#Form_PlanType option:selected").val();,var ctid = $("#divCTID");,var distid = $("#divDISTID");
+        ,ctid.hide();,distid.hide();,switch (planTypeVal){,case "1":,ctid.show();,break;,case "2":,distid.show();,break;,},},*@
+</script>

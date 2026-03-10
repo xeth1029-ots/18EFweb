@@ -1,0 +1,49 @@
+﻿@model WDAIIP.WEB.Models.ContentViewModel
+
+@{
+    ViewBag.Title = "最新消息--焦點消息";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+<div class="col-sm-12">
+ <!-- bread start --->
+<div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 最新消息 / 焦點消息</div>
+<!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fa fa-newspaper space-right"></i>焦點消息</h3>
+<!-- news form start -->
+    @Html.Partial("_NewsIndex", Model)
+@*<div class="table-responsive">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-responsive table-newsList">
+        <thead>
+            <tr>
+                <th style="width:20%">發布日期</th>
+                <th>標題</th>
+            </tr>
+        </thead>
+        <tbody id="rows">
+            @Html.Partial("_GridRows", Model)
+        </tbody>
+    </table>
+</div>
+@Html.Partial("_PagingLink", Model.Form)*@
+
+<!-- news form end -->
+</div>
+
+
+@using (Html.BeginForm("Detail", "News", FormMethod.Post, new { name = "newsForm" }))
+{
+    @Html.Hidden("seqno")
+}
+
+<script type="text/javascript">
+    //檢視最新消息明細
+    function showContent(seqno) {
+        //var form = $("form[name=newsForm]");
+        //form.find("input[name=seqno]").val(seqno);
+        //form.submit();
+
+        var data = { "seqno": seqno };
+        var url = '@Url.Action("Detail")';
+        goForwardPage(url, data, 2, "POST");
+    }
+</script>

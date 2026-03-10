@@ -1,0 +1,8 @@
+﻿@using System.Linq
+@model SelectList
+@*配合 SelectList 使用的 Ajax 動能 Select Options Partial View *@
+@if(Model != null) {
+    foreach(var item in Model) {
+        <option value="@(item.Value)" @(item.Selected ? "selected" : "")>@item.Text</option>
+    }
+}

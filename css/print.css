@@ -1,0 +1,228 @@
+﻿/*** 列印表單 ***/
+.print-container {
+    /*
+    font-size: 14px;
+    font-family: 微軟正黑體;
+    position:absolute; 
+    left:0px; 
+    top:0px; 
+    z-index:100; 
+    width:100%; 
+    min-height: 100%;
+    background-color: #FFF; 
+    */
+    /*padding-right: 10px;*/
+}
+@media screen {
+    .print-container div.print-btn {
+        width: 100%; 
+        margin:0;
+        margin-bottom:0px; 
+        background-color:#CCCCCC; 
+        border: 0;
+        text-align: right;
+    }
+    .print-container div.print-btn button {
+        padding: 3px 20px;
+        margin: 5px 5px 5px 5px;
+    }
+}
+@media print {
+    .print-container {
+        overflow: visible !important;
+    }
+    .print-container div.print-btn {
+        display: none;
+    }
+    .print-container div.print-btn button {
+        display: none;
+    }
+}
+.print-container .quickline {
+    width: 95%;
+    margin-top: 5px;
+    margin-left:auto; 
+    margin-right:auto;
+    margin-bottom: 5px;
+    border: 0px;
+    background-color:#FFFFFF; 
+    padding: 0px;
+    color: #000000;
+    height: 25px;
+}
+.print-container .quickline span {
+    margin-right: 5px;
+}
+.print-container .table {
+    width: 99% !important;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0;
+    margin-top: 0;
+    border: 0px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+    font-size: 0.6875em;
+    font-family: 微軟正黑體;
+}
+.print-container .page {
+    page-break-after: always;
+}
+.print-container tr.grid {
+ }
+.print-container th {
+    background-color: transparent !important;
+    border: 1px solid #666666;
+    padding: 3px;
+    font-weight: bold;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 26px;
+}
+.print-container td {
+    background-color: transparent !important;
+    border: 1px solid #666666;
+    padding: 3px;
+    line-height: 26px;
+}
+.noboard td, .noboard th {
+    border: 0px !important;
+}
+.print-container .detail th {
+    width: 120px;
+}
+.print-container th.narrow {
+    width: 90px;
+}
+.print-container th.narrower {
+    width: 60px;
+}
+.print-container th.narrowest {
+    width: 30px;
+}
+.print-container th.w30 {
+    width: 30px;
+}
+.print-container th.w40 {
+    width: 40px;
+}
+.print-container th.w50 {
+    width: 50px;
+}
+.print-container th.w60 {
+    width: 60px;
+}
+.print-container th.w70 {
+    width: 70px;
+}
+.print-container th.w80 {
+    width: 80px;
+}
+.print-container th.w90 {
+    width: 90px;
+}
+.print-container th.w100 {
+    width: 100px;
+}
+
+.print-container .row {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
+
+/* Repor */
+body.report {
+    background-color: transparent !important;
+    padding:0;
+    margin:0;
+}
+
+@media screen {
+    .print-container div.print-btn button {
+        padding: 3px 20px;
+        margin: 5px 5px 5px 5px;
+    }
+    .print-container div.report-body {
+        width: 98%; 
+        border: 0px;
+        margin-top:5px; 
+        margin-left:5px; 
+        margin-right:5px; 
+        margin-bottom:20px; 
+        background-color: transparent !important; 
+    }
+}
+@media print {
+    .print-container div.print-btn {
+        display: none;
+    }
+    .print-container div.print-btn button  {
+        display: none;
+    }
+    .print-container div.report-body {
+        width: 100%; 
+        border: 0px;
+        margin: 0px; 
+        background-color: transparent !important; 
+    }
+}
+
+.print-container .report-title {
+    width: 100%;
+    font-size: 1em;
+    font-weight: bold;
+    border: 0px !important;
+}
+.print-container .report-parms {
+    border: 0px !important;
+}
+.print-container .report-date {
+    width: 100%;
+    text-align: right;
+    padding-right: 10px;
+    border: 0px !important;
+}
+.print-container .report-sum {
+    font-weight: bold;
+}
+.print-container .report-footer {
+    border: 0px !important;
+}
+
+/* 查詢結果表格 */
+.grid { /* override bootstrape */
+    width: 98% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    font-size: 0.6875em;
+    font-family: 微軟正黑體;
+}
+
+.resultEmpty {
+    width: 98%;
+    font-size: 0.8125em;
+    font-family: 微軟正黑體;
+    text-align: center;
+    color: #990000;
+    padding: 5px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* wkHtmlToPDF 需要的樣式 */
+.print-container thead { display: table-header-group; }
+.print-container tfoot { display: table-row-group; }
+.print-container tr { page-break-inside: avoid; }
+
+
+
+/* override bootstrape */
+.print-container .text-left {
+    text-align: left;
+}
+.print-container .text-right {
+    text-align: right;
+}
+.print-container .text-center {
+    text-align: center;
+}

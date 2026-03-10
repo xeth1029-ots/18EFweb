@@ -1,0 +1,350 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model ClassSearchViewModel
+@{
+    ViewBag.Title = "課程查詢報名--課程清單";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    SessionModel sess = SessionModel.Get();
+}
+
+
+<style type="text/css">
+    /* 以此為排序條件 */
+    .order-mark.sel { color: yellow; font-size: 1.5em; }
+    .order-mark:hover { color: black; font-size: 1.5em; }
+</style>
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 課程查詢</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue">
+        <i class="fab fa-readme space-right"></i>課程查詢結果
+        @*<a href="@Url.Content("~/ClassSearch")" class="main-more" title="前往查詢課程">修改查詢條件</a>*@
+        <a href="#" onclick="doModifyQuery()" class="main-more" title="前往查詢課程">修改查詢條件</a>
+    </h3>
+    <!-- search result start -->
+    @*@Html.HiddenFor(m => m.Form.PlanType)
+        @Html.HiddenFor(m => m.Form.ProvideLocation)*@
+    <div class="table-responsive">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-result">
+            @Html.Partial("_ConditionList")
+        </table>
+    </div>
+    <!--  pager start -->
+    @Html.Partial("_PagingLink", Model.Form)
+    <!-- pager end -->
+    @using (Html.BeginForm("MultiAddClassTrace", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+    {
+        @Html.HiddenFor(m => m.Form.PlanType)
+        @Html.HiddenFor(m => m.Form.ProvideLocation)
+        @Html.HiddenFor(m => m.Form.SELOCD28)
+        @Html.HiddenFor(m => m.Form.IsContainsOverEnter)
+
+        @Html.HiddenFor(m => m.Form.OCID)
+        @Html.HiddenFor(m => m.Form.CJOBNO)
+        @Html.HiddenFor(m => m.Form.KEYWORDS)
+        @Html.HiddenFor(m => m.Form.CLASSCNAME)
+        @Html.HiddenFor(m => m.Form.ABILITYS)
+        @Html.HiddenFor(m => m.Form.STDATE_YEAR_SHOW)
+        @Html.HiddenFor(m => m.Form.STDATE_MON)
+        @Html.HiddenFor(m => m.Form.FTDATE_YEAR_SHOW)
+        @Html.HiddenFor(m => m.Form.FTDATE_MON)
+
+        @*switch (Model.Form.PlanType),{,case "1":,產業人才投資,break;,case "2":,自辦在職訓練,break;,case "5":,區域產業據點,break;,},*@
+
+        <!-- result table -->
+        <div class="table-responsive" id="result_table">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    @switch (Model.Form.PlanType)
+                    {
+                        case "1":
+                            <tr>
+                                <th style="width: 5%;" rowspan="2" id="tb1-a">
+                                    <p>&nbsp;<br />選取</p>
+                                </th>
+                                <th style="width: 10%;" rowspan="2" id="tb1-b">
+                                    <p>訓練班別<br />(訓練單位)</p>
+                                </th>
+                                <th style="width: 8%;" rowspan="2" id="tb1-c">
+                                    <p>課程<br />代碼</p>
+                                </th>
+                                <th style="width: 6%;" rowspan="2" id="tb1-d">
+                                    <p>訓練<br />人數</p>
+                                </th>
+                                <th style="width: 6%;" rowspan="2" id="tb1-e">
+                                    <p>訓練<br />時數</p>
+                                </th>
+                                <th style="height: 40px; width: 12%;" colspan="2" id="tb1-f">訓練費用</th>
+                                <th style="width: 8.22222%;" rowspan="2" id="tb1-g">
+                                    <p>學科/術科<br />訓練地點</p>
+                                </th>
+
+                                @if (sess.IsLogin && Model.Form != null && Model.Form.ProvideLocation == "Y")
+                                {
+                                    <th style="width: 12%;" colspan="2" id="tb1-h">距離公里數</th>
+                                }
+
+                                <th style="width: 8%;" rowspan="2" id="tb1-i">
+                                    <p>報名<br />日期</p>
+                                </th>
+                                <th style="width: 8%;" rowspan="2" id="tb1-j">
+                                    <p>招生<br />狀態</p>
+                                </th>
+                                <th style="width: 8%;" rowspan="2" id="tb1-k">
+                                    <p>預訂訓練<br />起迄日期</p>
+                                </th>
+                                <th style="width: 8%;" rowspan="2" id="tb1-l">
+                                    <p>報名繳費<br />方式</p>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th style="width: 6%;" id="tb1-f1" headers="tb1-f">
+                                    <p>學員<br />負擔</p>
+                                </th>
+                                <th style="width: 6%;" id="tb1-f2" headers="tb1-f">
+                                    <p>政府<br />負擔</p>
+                                </th>
+
+                                @if (sess.IsLogin && Model.Form != null && Model.Form.ProvideLocation == "Y")
+                                {
+                                    <th style="width: 6%;" id="tb1-m">
+                                        <div>學科</div>
+                                        <div>
+                                            <a href="javascript: doSort('asc1', 'Distance1', 'ASC');">
+                                                <i data-asc1 class="fa fa-caret-up text-primary order-mark" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript: doSort('desc1', 'Distance1', 'DESC');">
+                                                <i data-desc1 class="fa fa-caret-down text-primary order-mark" aria-hidden="true"></i>
+                                            </a>
+                                        </div>
+                                    </th>
+                                    <th style="width: 6%;" id="tb1-n">
+                                        <div>術科</div>
+                                        <div>
+                                            <a href="javascript: doSort('asc2', 'Distance2', 'ASC');">
+                                                <i data-asc2 class="fa fa-caret-up text-primary order-mark" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript: doSort('desc2', 'Distance2', 'DESC');">
+                                                <i data-desc2 class="fa fa-caret-down text-primary order-mark" aria-hidden="true"></i>
+                                            </a>
+                                        </div>
+                                    </th>
+                                }
+                            </tr>
+                            break;
+
+                        case "2":
+                            <tr>
+                                <th width="2%" rowspan="2">&nbsp;</th>
+                                <th width="15%">訓練班別</th>
+                                <th width="15%">訓練單位</th>
+                                <th>上課地點</th>
+                                @if (!string.IsNullOrEmpty(Model.Form.ProvideLocation) && Model.Form.ProvideLocation == "Y")
+                                {
+                                    <th width="8%" rowspan="2">
+                                        距離公里數
+                                        <a href="javascript: doSort();"><i class="fa fa-caret-up text-primary" aria-hidden="true"></i></a>
+                                        <a href="javascript: doSort();"><i class="fa fa-caret-down text-primary" aria-hidden="true"></i></a>
+                                    </th>
+                                }
+                                <th width="12%">通俗職類</th>
+                                <th width="10%">報名起迄日</th>
+                                <th width="10%">訓練起迄日</th>
+                                <th width="10%">上課時間</th>
+                                <th width="10%">學歷資格</th>
+                            </tr>
+                            break;
+
+                        case "5": @*2018-12-26 add 區域據點*@
+                        <tr>
+                            <th width="15%">訓練班別</th>
+                            <th width="15%">訓練單位</th>
+                            <th>上課地點</th>
+                            <th width="12%">通俗職類</th>
+                            <th width="10%">報名起迄日</th>
+                            <th width="10%">訓練起迄日</th>
+                            <th width="10%">訓練時段</th>
+                            <th width="10%">學歷資格</th>
+                        </tr>
+                        break;
+                }
+                </thead>
+                <tbody id="rows">
+                    @Html.Partial("_GridRows")
+                </tbody>
+            </table>
+        </div>
+    }
+    <!--  pager start -->
+    @Html.Partial("_PagingLink", Model.Form)
+    <!-- pager end -->
+    <h3 class="main-title main-title-blue2"><i>@Html.Raw("&nbsp;")</i><a href="@Url.Content("~/ClassSearch")" class="main-more" title="前往查詢課程">修改查詢條件</a></h3>
+</div>
+
+@using (Html.BeginForm("Detail", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoDetailForm" }))
+{
+    @Html.Hidden("PlanType")
+    @Html.Hidden("ProvideLocation")
+    @Html.Hidden("OCID")
+    @Html.Hidden("OCID2")
+}
+
+@using (Html.BeginForm("ModifyQuery", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoModifyQueryForm" }))
+{
+    @Html.Hidden("qPlanType")
+    @Html.Hidden("qProvideLocation")
+    @Html.Hidden("qSELOCD28")
+    @Html.Hidden("qIsContainsOverEnter")
+    @Html.Hidden("qOCID")
+    @Html.Hidden("qCJOBNO")
+    @Html.Hidden("qKEYWORDS")
+    @Html.Hidden("qCLASSCNAME")
+    @Html.Hidden("qABILITYS")
+    @Html.Hidden("qSTDATE_YEAR_SHOW")
+    @Html.Hidden("qSTDATE_MON")
+    @Html.Hidden("qFTDATE_YEAR_SHOW")
+    @Html.Hidden("qFTDATE_MON")
+}
+
+<script type="text/javascript">
+    // TODO: 依距離排序
+    function doSort(target, name, type) {
+        //console.log(name); //console.log(type);
+        $.ajax({
+            url: '@Url.Action("SortField")',
+            method: 'POST',
+            data: { FieldName: name, Desc: type }
+        }).then(function (data) {
+            setPageContent(data);
+            $('.order-mark').removeClass('sel');
+            $('i.fa[data-' + target + ']').addClass('sel');
+        });
+    }
+
+    //修改查詢條件
+    function doModifyQuery() {
+        var form = $("#GoModifyQueryForm");
+        //debugger;
+        var $FormPlanType = $.trim($('#Form_PlanType').val());
+        var $FormProvideLocation = $.trim($('#Form_ProvideLocation').val());
+        var $FormSELOCD28 = $.trim($('#Form_SELOCD28').val());
+        var $FormIsContainsOverEnter = $.trim($('#Form_IsContainsOverEnter').val());
+        var $FormOCID = $.trim($('#Form_OCID').val());
+        var $FormCJOBNO = $.trim($('#Form_CJOBNO').val());
+        var $FormKEYWORDS = $.trim($('#Form_KEYWORDS').val());
+        var $FormCLASSCNAME = $.trim($('#Form_CLASSCNAME').val());
+        var $FormABILITYS = $.trim($('#Form_ABILITYS').val());
+        var $FormSTDATE_YEAR_SHOW = $.trim($('#Form_STDATE_YEAR_SHOW').val());
+        var $FormSTDATE_MON = $.trim($('#Form_STDATE_MON').val());
+        var $FormFTDATE_YEAR_SHOW = $.trim($('#Form_FTDATE_YEAR_SHOW').val());
+        var $FormFTDATE_MON = $.trim($('#Form_FTDATE_MON').val());
+        //debugger;
+        form.find("input[name='qPlanType']").val($FormPlanType);
+        form.find("input[name='qProvideLocation']").val($FormProvideLocation);
+        form.find("input[name='qSELOCD28']").val($FormSELOCD28);
+        form.find("input[name='qIsContainsOverEnter']").val($FormIsContainsOverEnter);
+        form.find("input[name='qOCID']").val($FormOCID);
+        form.find("input[name='qCJOBNO']").val($FormCJOBNO);
+        form.find("input[name='qKEYWORDS']").val($FormKEYWORDS);
+        form.find("input[name='qCLASSCNAME']").val($FormCLASSCNAME);
+        form.find("input[name='qABILITYS']").val($FormABILITYS);
+        form.find("input[name='qSTDATE_YEAR_SHOW']").val($FormSTDATE_YEAR_SHOW);
+        form.find("input[name='qSTDATE_MON']").val($FormSTDATE_MON);
+        form.find("input[name='qFTDATE_YEAR_SHOW']").val($FormFTDATE_YEAR_SHOW);
+        form.find("input[name='qFTDATE_MON']").val($FormFTDATE_MON);
+        form.submit();
+    }
+
+    // 課程收藏前檢核是否已勾選兩筆資料
+    function checkTraceVaild() {
+        //debugger;
+        //Model.Form.PlanType "1":產投 "2":分署自辦在職訓練 "5": //區域據點
+        var v_PlanType = $("#Form_PlanType").val();
+        var count = 0;
+        var s_OCID28 = "";
+        $("#rows input[type=checkbox]").each(function () {
+            if ($(this).prop("checked")) {
+                if ($(this).val() != "" && $(this).val() != "true") {
+                    if (s_OCID28 != "") { s_OCID28 += ","; }
+                    s_OCID28 += $(this).val();
+                }
+                count += 1;
+            }
+        });
+        if (count == 0) {
+            blockAlert("請至少勾選一筆課程");
+            return;
+        }
+        //debugger;
+        if (v_PlanType == "1") { $("#Form_SELOCD28").val(s_OCID28); }
+
+        $("form#main_form").submit();
+    }
+
+    //課程比一比前檢核是否已勾選兩筆資料
+    function checkCompareVaild() {
+        //Model.Form.PlanType "1":產投 "2":分署自辦在職訓練 "5": //區域據點
+        var v_PlanType = $("#Form_PlanType").val();
+        var count = 0;
+        var ocidlist = [];
+        if (v_PlanType == "1") {
+            //var s_OCID28 = "";
+            $("#rows tr input[type=checkbox]").each(function () {
+                if ($(this).prop("checked")) {
+                    if ($(this).val() != "" && $(this).val() != "true") {
+                        ocidlist.push($(this).val());
+                        count += 1;
+                    }
+                }
+            });
+            if (count != 2 || ocidlist.length == 0 || ocidlist.length != 2) {
+                blockAlert("請勾選兩筆課程");
+                return;
+            }
+        }
+        else {
+            $("#rows tr").each(function () {
+                var chk = $(this).find("input[name*=SELECTIS]");
+                if (chk.prop("checked")) {
+                    ocidlist.push($(this).find("input[name*=OCID]").val());
+                }
+            });
+            if (ocidlist.length == 0 || ocidlist.length != 2) {
+                blockAlert("請勾選兩筆課程");
+                return;
+            }
+        }
+
+        $("#PlanType").val($("#Form_PlanType").val());
+        $("#ProvideLocation").val($("#Form_ProvideLocation").val());
+        $("#OCID").val(ocidlist[0]);
+        $("#OCID2").val(ocidlist[1]);
+        $("form#GoDetailForm").attr("action", "@Url.Action("Compare")").submit();
+
+    }
+
+    //瀏覽課程明細
+    function doDetail(plantype, providelocation, ocid) {
+        $("#PlanType").val(plantype);
+        $("#ProvideLocation").val(providelocation);
+        $("#OCID").val(ocid);
+
+        if (window.history) {
+            var url = '@Url.Action("LastResult", "ClassSearch", new { rnd=DateTime.Now.Ticks })'; + '#reversession';
+            window.history.pushState(null, null, url);
+        }
+
+        $("form#GoDetailForm").attr("action", "@Url.Action("Detail")").submit();
+    }
+
+    $(function () {
+        var desc = '@Model.Form.ORDERDESC';
+        var field = '@Model.Form.ORDERBY';
+        var s_desc = (desc == 'DESC') ? 'desc' : 'asc';
+        var s_field = (field == 'Distance1') ? '1' : '2';
+        var selProp = s_desc + s_field;
+        $('i.fa[data-' + selProp + ']').addClass('sel');
+    });
+</script>

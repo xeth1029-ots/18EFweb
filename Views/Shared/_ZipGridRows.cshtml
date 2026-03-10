@@ -1,0 +1,25 @@
+﻿@using WDAIIP.WEB.Models
+@model ZipViewModel
+
+@if (Model.Grid != null && Model.Grid.Count > 0)
+{
+    for (int i = 0; i < Model.Grid.Count; i++)
+    {
+        var item = Model.Grid[i];
+        string ctname = string.IsNullOrEmpty(item.CTNAME) ? "" : item.CTNAME.Trim();
+        string zipname = string.IsNullOrEmpty(item.ZIPNAME) ? "" : item.ZIPNAME.Trim();
+        <tr>
+            <td><button type="button" class="btn btn-info" onclick="doSetDetail('@(item.ZIPCODE)', '@(item.ZIPCODE2)','@(ctname)','@(zipname)','@(item.ROAD)')">選</button></td>
+            <td>@(item.ZIPCODE + item.ZIPCODE2)</td>
+            <td>@(ctname + " " + zipname)</td>
+            <td>@(item.ROAD)</td>
+            <td>@(item.NOTE)</td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="5" style="text-align:center;">尚無資料</td>
+    </tr>
+}

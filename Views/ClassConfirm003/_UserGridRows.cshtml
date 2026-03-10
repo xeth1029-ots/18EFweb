@@ -1,0 +1,22 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassConfirm003ViewModel
+
+@if (Model.StudGrid_list != null && Model.StudGrid_list.Count > 0)
+{
+    for (int i = 0; i < Model.StudGrid_list.Count; i++)
+    {
+        ClassConfirm003StudGridModel item = Model.StudGrid_list[i];
+        int seq = i + 1;
+
+        <tr>
+            <td><div align="center">@(i + 1)</div></td>
+            <td>@Html.Raw(item.STUDNAME2.Replace("○", "<i class=\"far fa-circle\"></i>"))</td>
+            <td>@item.IDNO2</td>
+            <td>@item.STUDMODE_N</td>
+        </tr>
+    }
+}
+else
+{
+    <tr><td colspan="4"><center>查無資料</center></td></tr>
+}

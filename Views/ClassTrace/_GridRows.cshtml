@@ -1,0 +1,61 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model ClassTraceViewModel
+
+@if (Model == null || Model.Grid == null || Model.Grid.Count == 0)
+{
+    <tr valign="middle">
+        <td colspan="9" style="text-align:center;">尚無資料</td>
+    </tr>
+}
+else
+{
+    for (int i = 0; i < Model.Grid.Count; i++)
+    {
+        var item = Model.Grid[i];
+        string strTPropertyName = ("0".Equals(Convert.ToString(item.TPROPERTYID)) ? "(職前)" : ("1".Equals(Convert.ToString(item.TPROPERTYID)) ? "(在職)" : ""));
+        DateTime sedate = Convert.ToDateTime(item.SENTERDATE);
+        DateTime fedate = Convert.ToDateTime(item.FENTERDATE);
+        DateTime stdate = Convert.ToDateTime(item.STDATE);
+        string sedateTW = (item.SENTERDATE != null ? (sedate.Year - 1911).ToString() + sedate.ToString("/MM/dd") : "");
+        string fedateTW = (item.FENTERDATE != null ? (fedate.Year - 1911).ToString() + fedate.ToString("/MM/dd") : "");
+        string stdateTW = (item.STDATE != null ? (stdate.Year - 1911).ToString() + stdate.ToString("/MM/dd") : "");
+
+        <tr>
+            <td style="text-align:center;">
+                @*@Html.CheckBoxFor(m => item.SELECTIS, new { title = "請勾選" })*@
+                @Html.EditorFor(m => Model.Grid[i].SELECTIS, new { title = "請勾選" })
+                @Html.HiddenFor(m => Model.Grid[i].OCID)
+                @Html.HiddenFor(m => Model.Grid[i].TRCSN)
+            </td>
+            <td style="text-align:center;">@(item.PLANNAME)</td>
+            <td style="text-align:center;">@(sedateTW)</td>
+            <td style="text-align:center;">@(fedateTW)</td>
+            <td style="text-align:center;">@(stdateTW)</td>
+            <td style="text-align:left">
+                @if (string.IsNullOrEmpty(item.EVTANOSHOW) && "Y".Equals(item.ISSUCCESS) && "N".Equals(item.NOTOPEN))
+                {
+                    <a href="javascript:doDetail('@(item.PLANTYPE)','@(item.OCID)')" title="@(item.CLASSCNAME + strTPropertyName)">@(item.CLASSCNAME)</a>
+                }
+                else
+                {
+                    @*就業通2015-04-20-如果該課程在Tims已列為不顯示, 畫面上不要出現連結*@
+                    <a href="javascript:void(0);" style="text-decoration:none;cursor:text;color:#0c7798" target="_self" title="@(item.CLASSCNAME + strTPropertyName)">@(item.CLASSCNAME)</a>
+                }
+            </td>
+            <td style="text-align:left">@(item.ORGNAME)</td>
+            <td style="text-align:center;">@(item.CTNAME)</td>
+            <td style="text-align:center;"><a href="javascript:removeTrace('@(item.TRCSN)')" title="刪除"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+            @*<td style="text-align:center;">
+                @if (item.ISSHARE == "Y")
+                {
+                    <a href="javascript:shareTrace('N','@(item.TRCSN)','@(item.OCID)')" title="取消分享"><i class="fa fa-times" aria-hidden="true" style="color:red;"></i></a>
+                }
+                else
+                {
+                    <a href="javascript:shareTrace('Y','@(item.TRCSN)','@(item.OCID)')" title="分享"><i class="fa fa-share-square" aria-hidden="true"></i></a>
+                }
+            </td>*@
+        </tr>
+    }
+}

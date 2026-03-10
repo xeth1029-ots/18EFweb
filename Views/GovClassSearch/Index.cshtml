@@ -1,0 +1,66 @@
+﻿@model WDAIIP.WEB.Models.GovClassSearchViewModel
+
+@{
+    ViewBag.Title = "其他政府單位職訓課程";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+<style type="text/css">
+    .group-width input {
+        margin-right: 8px;
+    }
+
+    .group-width label {
+        margin-right: 13px;
+    }
+</style>
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 其他政府單位職訓課程</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fas fa-search space-right"></i>課程查詢</h3>
+    <!-- search form start -->
+    <div class="unit-border">
+        @using (Html.BeginForm("Index", "GovClassSearch", FormMethod.Post, new { id = "main_form", @class = "form-horizontal" }))
+        {
+            <!-- 條件 start -->
+            <div id="condition">
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.CLASSCNAME, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.TextBoxFor(m => m.Form.CLASSCNAME, new { @class = "form-control" , placeholder = "請輸入關鍵字，範例：銲接/裝潢", title = "請輸入課程關鍵字" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.ORGIDITEM, new { @class = "form-label-search" })
+                    <div class="form-input form-inline"  style="padding-left:16px;">
+                        @Html.CheckBoxListFor(m => m.Form.ORGIDITEM_SHOW, Model.ORGID_list, new { @class = "group-width", title="請勾選訓練單位" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label class="form-label-search">訓練期間</label>
+                    <div class="form-input">
+                        @Html.DropDownListFor(m => m.Form.STDATE_YEAR, Model.YEAR_list, new { @class = "form-normal", title = "請選擇訓練期間起日年份" })
+                        年
+                        @Html.DropDownListFor(m => m.Form.STDATE_MON, Model.MON_list, new { @class = "form-normal", title = "請選擇訓練期間起日月份" })
+                        月至
+                        @Html.DropDownListFor(m => m.Form.FTDATE_YEAR, Model.YEAR_list, new { @class = "form-normal", title = "請選擇訓練期間迄日年份" })
+                        年
+                        @Html.DropDownListFor(m => m.Form.FTDATE_MON, Model.MON_list, new { @class = "form-normal", title="請選擇訓練期間迄日月份" })
+                        月
+                    </div>
+                </div>
+            </div>
+            <!-- 條件 end -->
+            <br /><br />
+            <div class="clearfix"></div>
+            <div class="submit-bar">
+                <button type="submit" class="btn-orange" title="送出">送出</button>
+                <button type="button" class="btn-refill" onclick="location='@Url.Content("~/GovClassSearch")'" title="取消" >取消</button>
+            </div>
+
+        }
+    </div>
+    <!-- search form end -->
+
+</div>

@@ -1,0 +1,16 @@
+﻿@model WDAIIP.WEB.Models.HomeViewModel
+@using WDAIIP.WEB.Models
+
+@*//onfocus="alert('onfocus-carousel-inner');"*@
+@if (Model.BigBannerGrid != null)
+{
+    for (int i = 0; i < Model.BigBannerGrid.Count; i++)
+    {
+        var item = Model.BigBannerGrid[i];
+        @*<div class="item @(i == 0 ? "active" : "")" title="@item.B_TITLE"></div>*@
+        <a href="@(string.IsNullOrEmpty(item.B_URL) ? "javascript:void(0)" : item.B_URL)" title="@item.B_TITLE" class="item @(i == 0 ? "active" : "")">
+            <span class="sr-only">開啟連結</span><img src="@Url.Content(ConfigModel.UploadTempPath + "/BANNER/")@item.FILE_NAME" alt="@item.B_ALT" style="width:100%;">
+        </a>
+    }
+}
+

@@ -1,0 +1,3630 @@
+@import "variables";
+
+@font-face {
+  font-family: '#{$icomoon-font-family}';
+  src:  url('#{$icomoon-font-path}/#{$icomoon-font-family}.eot?mjv2tx');
+  src:  url('#{$icomoon-font-path}/#{$icomoon-font-family}.eot?mjv2tx#iefix') format('embedded-opentype'),
+    url('#{$icomoon-font-path}/#{$icomoon-font-family}.ttf?mjv2tx') format('truetype'),
+    url('#{$icomoon-font-path}/#{$icomoon-font-family}.woff?mjv2tx') format('woff'),
+    url('#{$icomoon-font-path}/#{$icomoon-font-family}.svg?mjv2tx##{$icomoon-font-family}') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="tu-"], [class*=" tu-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: '#{$icomoon-font-family}' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.tu-alarm {
+  &:before {
+    content: $tu-alarm; 
+  }
+}
+.tu-alert {
+  &:before {
+    content: $tu-alert; 
+  }
+}
+.tu-app-notification {
+  &:before {
+    content: $tu-app-notification; 
+  }
+}
+.tu-block {
+  &:before {
+    content: $tu-block; 
+  }
+}
+.tu-bookmark {
+  &:before {
+    content: $tu-bookmark; 
+  }
+}
+.tu-bug {
+  &:before {
+    content: $tu-bug; 
+  }
+}
+.tu-check-double {
+  &:before {
+    content: $tu-check-double; 
+  }
+}
+.tu-check {
+  &:before {
+    content: $tu-check; 
+  }
+}
+.tu-cloud-disable {
+  &:before {
+    content: $tu-cloud-disable; 
+  }
+}
+.tu-cloud-download {
+  &:before {
+    content: $tu-cloud-download; 
+  }
+}
+.tu-cloud-upload {
+  &:before {
+    content: $tu-cloud-upload; 
+  }
+}
+.tu-cloud {
+  &:before {
+    content: $tu-cloud; 
+  }
+}
+.tu-cogwheel-alt {
+  &:before {
+    content: $tu-cogwheel-alt; 
+  }
+}
+.tu-cogwheel {
+  &:before {
+    content: $tu-cogwheel; 
+  }
+}
+.tu-copy {
+  &:before {
+    content: $tu-copy; 
+  }
+}
+.tu-cross {
+  &:before {
+    content: $tu-cross; 
+  }
+}
+.tu-cut {
+  &:before {
+    content: $tu-cut; 
+  }
+}
+.tu-dashboard {
+  &:before {
+    content: $tu-dashboard; 
+  }
+}
+.tu-down-alt {
+  &:before {
+    content: $tu-down-alt; 
+  }
+}
+.tu-down {
+  &:before {
+    content: $tu-down; 
+  }
+}
+.tu-download-queue {
+  &:before {
+    content: $tu-download-queue; 
+  }
+}
+.tu-download {
+  &:before {
+    content: $tu-download; 
+  }
+}
+.tu-draft {
+  &:before {
+    content: $tu-draft; 
+  }
+}
+.tu-exit-fullscreen {
+  &:before {
+    content: $tu-exit-fullscreen; 
+  }
+}
+.tu-eye-close {
+  &:before {
+    content: $tu-eye-close; 
+  }
+}
+.tu-eye-open {
+  &:before {
+    content: $tu-eye-open; 
+  }
+}
+.tu-female-user-alt {
+  &:before {
+    content: $tu-female-user-alt; 
+  }
+}
+.tu-female-user {
+  &:before {
+    content: $tu-female-user; 
+  }
+}
+.tu-file {
+  &:before {
+    content: $tu-file; 
+  }
+}
+.tu-filter {
+  &:before {
+    content: $tu-filter; 
+  }
+}
+.tu-flag-alt {
+  &:before {
+    content: $tu-flag-alt; 
+  }
+}
+.tu-flag {
+  &:before {
+    content: $tu-flag; 
+  }
+}
+.tu-fullscreen {
+  &:before {
+    content: $tu-fullscreen; 
+  }
+}
+.tu-heart {
+  &:before {
+    content: $tu-heart; 
+  }
+}
+.tu-help {
+  &:before {
+    content: $tu-help; 
+  }
+}
+.tu-home-alt {
+  &:before {
+    content: $tu-home-alt; 
+  }
+}
+.tu-home {
+  &:before {
+    content: $tu-home; 
+  }
+}
+.tu-information {
+  &:before {
+    content: $tu-information; 
+  }
+}
+.tu-left-alt {
+  &:before {
+    content: $tu-left-alt; 
+  }
+}
+.tu-left {
+  &:before {
+    content: $tu-left; 
+  }
+}
+.tu-lifebuoy {
+  &:before {
+    content: $tu-lifebuoy; 
+  }
+}
+.tu-list {
+  &:before {
+    content: $tu-list; 
+  }
+}
+.tu-loading {
+  &:before {
+    content: $tu-loading; 
+  }
+}
+.tu-lock {
+  &:before {
+    content: $tu-lock; 
+  }
+}
+.tu-login {
+  &:before {
+    content: $tu-login; 
+  }
+}
+.tu-logout {
+  &:before {
+    content: $tu-logout; 
+  }
+}
+.tu-menu-burger {
+  &:before {
+    content: $tu-menu-burger; 
+  }
+}
+.tu-menu-dots {
+  &:before {
+    content: $tu-menu-dots; 
+  }
+}
+.tu-microphone-disable {
+  &:before {
+    content: $tu-microphone-disable; 
+  }
+}
+.tu-microphone {
+  &:before {
+    content: $tu-microphone; 
+  }
+}
+.tu-minus {
+  &:before {
+    content: $tu-minus; 
+  }
+}
+.tu-note {
+  &:before {
+    content: $tu-note; 
+  }
+}
+.tu-notification-disable {
+  &:before {
+    content: $tu-notification-disable; 
+  }
+}
+.tu-notification {
+  &:before {
+    content: $tu-notification; 
+  }
+}
+.tu-paste {
+  &:before {
+    content: $tu-paste; 
+  }
+}
+.tu-plus {
+  &:before {
+    content: $tu-plus; 
+  }
+}
+.tu-power-sign {
+  &:before {
+    content: $tu-power-sign; 
+  }
+}
+.tu-print-alt {
+  &:before {
+    content: $tu-print-alt; 
+  }
+}
+.tu-print {
+  &:before {
+    content: $tu-print; 
+  }
+}
+.tu-puzzle {
+  &:before {
+    content: $tu-puzzle; 
+  }
+}
+.tu-refresh {
+  &:before {
+    content: $tu-refresh; 
+  }
+}
+.tu-reply-all {
+  &:before {
+    content: $tu-reply-all; 
+  }
+}
+.tu-reply {
+  &:before {
+    content: $tu-reply; 
+  }
+}
+.tu-right-alt {
+  &:before {
+    content: $tu-right-alt; 
+  }
+}
+.tu-right {
+  &:before {
+    content: $tu-right; 
+  }
+}
+.tu-save {
+  &:before {
+    content: $tu-save; 
+  }
+}
+.tu-screenshot {
+  &:before {
+    content: $tu-screenshot; 
+  }
+}
+.tu-search-alt {
+  &:before {
+    content: $tu-search-alt; 
+  }
+}
+.tu-search-check-alt {
+  &:before {
+    content: $tu-search-check-alt; 
+  }
+}
+.tu-search-check {
+  &:before {
+    content: $tu-search-check; 
+  }
+}
+.tu-search-cross-alt {
+  &:before {
+    content: $tu-search-cross-alt; 
+  }
+}
+.tu-search-cross {
+  &:before {
+    content: $tu-search-cross; 
+  }
+}
+.tu-search-minus-alt {
+  &:before {
+    content: $tu-search-minus-alt; 
+  }
+}
+.tu-search-minus {
+  &:before {
+    content: $tu-search-minus; 
+  }
+}
+.tu-search-plus-alt {
+  &:before {
+    content: $tu-search-plus-alt; 
+  }
+}
+.tu-search-plus {
+  &:before {
+    content: $tu-search-plus; 
+  }
+}
+.tu-search {
+  &:before {
+    content: $tu-search; 
+  }
+}
+.tu-share {
+  &:before {
+    content: $tu-share; 
+  }
+}
+.tu-shield {
+  &:before {
+    content: $tu-shield; 
+  }
+}
+.tu-snooze {
+  &:before {
+    content: $tu-snooze; 
+  }
+}
+.tu-star {
+  &:before {
+    content: $tu-star; 
+  }
+}
+.tu-stars {
+  &:before {
+    content: $tu-stars; 
+  }
+}
+.tu-sync {
+  &:before {
+    content: $tu-sync; 
+  }
+}
+.tu-task {
+  &:before {
+    content: $tu-task; 
+  }
+}
+.tu-time {
+  &:before {
+    content: $tu-time; 
+  }
+}
+.tu-trash-empty {
+  &:before {
+    content: $tu-trash-empty; 
+  }
+}
+.tu-trash-full {
+  &:before {
+    content: $tu-trash-full; 
+  }
+}
+.tu-trash {
+  &:before {
+    content: $tu-trash; 
+  }
+}
+.tu-umbrella {
+  &:before {
+    content: $tu-umbrella; 
+  }
+}
+.tu-unlock {
+  &:before {
+    content: $tu-unlock; 
+  }
+}
+.tu-up-alt {
+  &:before {
+    content: $tu-up-alt; 
+  }
+}
+.tu-up {
+  &:before {
+    content: $tu-up; 
+  }
+}
+.tu-upload-queue {
+  &:before {
+    content: $tu-upload-queue; 
+  }
+}
+.tu-upload {
+  &:before {
+    content: $tu-upload; 
+  }
+}
+.tu-user-alt {
+  &:before {
+    content: $tu-user-alt; 
+  }
+}
+.tu-user {
+  &:before {
+    content: $tu-user; 
+  }
+}
+.tu-verification-fail {
+  &:before {
+    content: $tu-verification-fail; 
+  }
+}
+.tu-verification {
+  &:before {
+    content: $tu-verification; 
+  }
+}
+.tu-wrench {
+  &:before {
+    content: $tu-wrench; 
+  }
+}
+.tu-write {
+  &:before {
+    content: $tu-write; 
+  }
+}
+.tu-airplane {
+  &:before {
+    content: $tu-airplane; 
+  }
+}
+.tu-arrival {
+  &:before {
+    content: $tu-arrival; 
+  }
+}
+.tu-backpack {
+  &:before {
+    content: $tu-backpack; 
+  }
+}
+.tu-bag-trolley {
+  &:before {
+    content: $tu-bag-trolley; 
+  }
+}
+.tu-beach {
+  &:before {
+    content: $tu-beach; 
+  }
+}
+.tu-bicycle {
+  &:before {
+    content: $tu-bicycle; 
+  }
+}
+.tu-cabin-bag {
+  &:before {
+    content: $tu-cabin-bag; 
+  }
+}
+.tu-car {
+  &:before {
+    content: $tu-car; 
+  }
+}
+.tu-compass {
+  &:before {
+    content: $tu-compass; 
+  }
+}
+.tu-cruise {
+  &:before {
+    content: $tu-cruise; 
+  }
+}
+.tu-departure {
+  &:before {
+    content: $tu-departure; 
+  }
+}
+.tu-direction {
+  &:before {
+    content: $tu-direction; 
+  }
+}
+.tu-footstep {
+  &:before {
+    content: $tu-footstep; 
+  }
+}
+.tu-forest {
+  &:before {
+    content: $tu-forest; 
+  }
+}
+.tu-gasoline {
+  &:before {
+    content: $tu-gasoline; 
+  }
+}
+.tu-globe {
+  &:before {
+    content: $tu-globe; 
+  }
+}
+.tu-hotel {
+  &:before {
+    content: $tu-hotel; 
+  }
+}
+.tu-location-area {
+  &:before {
+    content: $tu-location-area; 
+  }
+}
+.tu-location-pin {
+  &:before {
+    content: $tu-location-pin; 
+  }
+}
+.tu-luggage {
+  &:before {
+    content: $tu-luggage; 
+  }
+}
+.tu-map-alt {
+  &:before {
+    content: $tu-map-alt; 
+  }
+}
+.tu-map {
+  &:before {
+    content: $tu-map; 
+  }
+}
+.tu-multiple-destinations {
+  &:before {
+    content: $tu-multiple-destinations; 
+  }
+}
+.tu-navigation {
+  &:before {
+    content: $tu-navigation; 
+  }
+}
+.tu-passport {
+  &:before {
+    content: $tu-passport; 
+  }
+}
+.tu-plugs {
+  &:before {
+    content: $tu-plugs; 
+  }
+}
+.tu-pocket-knife {
+  &:before {
+    content: $tu-pocket-knife; 
+  }
+}
+.tu-sandals {
+  &:before {
+    content: $tu-sandals; 
+  }
+}
+.tu-ship {
+  &:before {
+    content: $tu-ship; 
+  }
+}
+.tu-shirt {
+  &:before {
+    content: $tu-shirt; 
+  }
+}
+.tu-shorts {
+  &:before {
+    content: $tu-shorts; 
+  }
+}
+.tu-suitcase {
+  &:before {
+    content: $tu-suitcase; 
+  }
+}
+.tu-sunblock {
+  &:before {
+    content: $tu-sunblock; 
+  }
+}
+.tu-surfboard {
+  &:before {
+    content: $tu-surfboard; 
+  }
+}
+.tu-tee {
+  &:before {
+    content: $tu-tee; 
+  }
+}
+.tu-tent {
+  &:before {
+    content: $tu-tent; 
+  }
+}
+.tu-tracks {
+  &:before {
+    content: $tu-tracks; 
+  }
+}
+.tu-train {
+  &:before {
+    content: $tu-train; 
+  }
+}
+.tu-travel-ticket {
+  &:before {
+    content: $tu-travel-ticket; 
+  }
+}
+.tu-wave {
+  &:before {
+    content: $tu-wave; 
+  }
+}
+.tu-american-football {
+  &:before {
+    content: $tu-american-football; 
+  }
+}
+.tu-archery {
+  &:before {
+    content: $tu-archery; 
+  }
+}
+.tu-barbell {
+  &:before {
+    content: $tu-barbell; 
+  }
+}
+.tu-baseball-bat {
+  &:before {
+    content: $tu-baseball-bat; 
+  }
+}
+.tu-baseball-field {
+  &:before {
+    content: $tu-baseball-field; 
+  }
+}
+.tu-baseball {
+  &:before {
+    content: $tu-baseball; 
+  }
+}
+.tu-basket-ring {
+  &:before {
+    content: $tu-basket-ring; 
+  }
+}
+.tu-basketball-field {
+  &:before {
+    content: $tu-basketball-field; 
+  }
+}
+.tu-basketball-jersey {
+  &:before {
+    content: $tu-basketball-jersey; 
+  }
+}
+.tu-basketball {
+  &:before {
+    content: $tu-basketball; 
+  }
+}
+.tu-billiard-ball {
+  &:before {
+    content: $tu-billiard-ball; 
+  }
+}
+.tu-bowling-ball {
+  &:before {
+    content: $tu-bowling-ball; 
+  }
+}
+.tu-boxing {
+  &:before {
+    content: $tu-boxing; 
+  }
+}
+.tu-diving {
+  &:before {
+    content: $tu-diving; 
+  }
+}
+.tu-fencing-helmet {
+  &:before {
+    content: $tu-fencing-helmet; 
+  }
+}
+.tu-fencing {
+  &:before {
+    content: $tu-fencing; 
+  }
+}
+.tu-gymnastic {
+  &:before {
+    content: $tu-gymnastic; 
+  }
+}
+.tu-hockey {
+  &:before {
+    content: $tu-hockey; 
+  }
+}
+.tu-ice-skate {
+  &:before {
+    content: $tu-ice-skate; 
+  }
+}
+.tu-karate {
+  &:before {
+    content: $tu-karate; 
+  }
+}
+.tu-kayak {
+  &:before {
+    content: $tu-kayak; 
+  }
+}
+.tu-medal {
+  &:before {
+    content: $tu-medal; 
+  }
+}
+.tu-podium {
+  &:before {
+    content: $tu-podium; 
+  }
+}
+.tu-racing-flag {
+  &:before {
+    content: $tu-racing-flag; 
+  }
+}
+.tu-racing-helmet {
+  &:before {
+    content: $tu-racing-helmet; 
+  }
+}
+.tu-racket {
+  &:before {
+    content: $tu-racket; 
+  }
+}
+.tu-rugby-ball {
+  &:before {
+    content: $tu-rugby-ball; 
+  }
+}
+.tu-running-shoe {
+  &:before {
+    content: $tu-running-shoe; 
+  }
+}
+.tu-scoreboard {
+  &:before {
+    content: $tu-scoreboard; 
+  }
+}
+.tu-shuttlecock {
+  &:before {
+    content: $tu-shuttlecock; 
+  }
+}
+.tu-soccer-ball {
+  &:before {
+    content: $tu-soccer-ball; 
+  }
+}
+.tu-soccer-field {
+  &:before {
+    content: $tu-soccer-field; 
+  }
+}
+.tu-soccer-jersey {
+  &:before {
+    content: $tu-soccer-jersey; 
+  }
+}
+.tu-soccer-shoe {
+  &:before {
+    content: $tu-soccer-shoe; 
+  }
+}
+.tu-stopwatch {
+  &:before {
+    content: $tu-stopwatch; 
+  }
+}
+.tu-team-strategy6 {
+  &:before {
+    content: $tu-team-strategy6; 
+  }
+}
+.tu-tennis-ball {
+  &:before {
+    content: $tu-tennis-ball; 
+  }
+}
+.tu-tennis-field {
+  &:before {
+    content: $tu-tennis-field; 
+  }
+}
+.tu-trophy {
+  &:before {
+    content: $tu-trophy; 
+  }
+}
+.tu-volley-ball {
+  &:before {
+    content: $tu-volley-ball; 
+  }
+}
+.tu-activity-log {
+  &:before {
+    content: $tu-activity-log; 
+  }
+}
+.tu-add-friend {
+  &:before {
+    content: $tu-add-friend; 
+  }
+}
+.tu-appointment {
+  &:before {
+    content: $tu-appointment; 
+  }
+}
+.tu-authentication {
+  &:before {
+    content: $tu-authentication; 
+  }
+}
+.tu-binocular-disable {
+  &:before {
+    content: $tu-binocular-disable; 
+  }
+}
+.tu-binocular {
+  &:before {
+    content: $tu-binocular; 
+  }
+}
+.tu-bio {
+  &:before {
+    content: $tu-bio; 
+  }
+}
+.tu-block-group {
+  &:before {
+    content: $tu-block-group; 
+  }
+}
+.tu-blocked-user {
+  &:before {
+    content: $tu-blocked-user; 
+  }
+}
+.tu-blog {
+  &:before {
+    content: $tu-blog; 
+  }
+}
+.tu-business-account {
+  &:before {
+    content: $tu-business-account; 
+  }
+}
+.tu-calendar-add-event-alt {
+  &:before {
+    content: $tu-calendar-add-event-alt; 
+  }
+}
+.tu-calendar-add-event {
+  &:before {
+    content: $tu-calendar-add-event; 
+  }
+}
+.tu-calendar-alert-alt {
+  &:before {
+    content: $tu-calendar-alert-alt; 
+  }
+}
+.tu-calendar-alert {
+  &:before {
+    content: $tu-calendar-alert; 
+  }
+}
+.tu-calendar-alt {
+  &:before {
+    content: $tu-calendar-alt; 
+  }
+}
+.tu-calendar-favorite-alt {
+  &:before {
+    content: $tu-calendar-favorite-alt; 
+  }
+}
+.tu-calendar-favorite {
+  &:before {
+    content: $tu-calendar-favorite; 
+  }
+}
+.tu-calendar-remove-event-alt {
+  &:before {
+    content: $tu-calendar-remove-event-alt; 
+  }
+}
+.tu-calendar-remove-event {
+  &:before {
+    content: $tu-calendar-remove-event; 
+  }
+}
+.tu-calendar {
+  &:before {
+    content: $tu-calendar; 
+  }
+}
+.tu-close-friend {
+  &:before {
+    content: $tu-close-friend; 
+  }
+}
+.tu-collections {
+  &:before {
+    content: $tu-collections; 
+  }
+}
+.tu-comment {
+  &:before {
+    content: $tu-comment; 
+  }
+}
+.tu-create-group {
+  &:before {
+    content: $tu-create-group; 
+  }
+}
+.tu-dislike {
+  &:before {
+    content: $tu-dislike; 
+  }
+}
+.tu-edit-profile-alt {
+  &:before {
+    content: $tu-edit-profile-alt; 
+  }
+}
+.tu-edit-profile {
+  &:before {
+    content: $tu-edit-profile; 
+  }
+}
+.tu-feeling {
+  &:before {
+    content: $tu-feeling; 
+  }
+}
+.tu-follow {
+  &:before {
+    content: $tu-follow; 
+  }
+}
+.tu-followers {
+  &:before {
+    content: $tu-followers; 
+  }
+}
+.tu-following {
+  &:before {
+    content: $tu-following; 
+  }
+}
+.tu-friend-list {
+  &:before {
+    content: $tu-friend-list; 
+  }
+}
+.tu-gift {
+  &:before {
+    content: $tu-gift; 
+  }
+}
+.tu-group {
+  &:before {
+    content: $tu-group; 
+  }
+}
+.tu-hashtag {
+  &:before {
+    content: $tu-hashtag; 
+  }
+}
+.tu-invite-friends {
+  &:before {
+    content: $tu-invite-friends; 
+  }
+}
+.tu-language {
+  &:before {
+    content: $tu-language; 
+  }
+}
+.tu-like {
+  &:before {
+    content: $tu-like; 
+  }
+}
+.tu-linked-accounts {
+  &:before {
+    content: $tu-linked-accounts; 
+  }
+}
+.tu-live-video {
+  &:before {
+    content: $tu-live-video; 
+  }
+}
+.tu-moderator {
+  &:before {
+    content: $tu-moderator; 
+  }
+}
+.tu-news-feed {
+  &:before {
+    content: $tu-news-feed; 
+  }
+}
+.tu-password-alt {
+  &:before {
+    content: $tu-password-alt; 
+  }
+}
+.tu-password {
+  &:before {
+    content: $tu-password; 
+  }
+}
+.tu-post {
+  &:before {
+    content: $tu-post; 
+  }
+}
+.tu-private-account {
+  &:before {
+    content: $tu-private-account; 
+  }
+}
+.tu-profile-picture-alt {
+  &:before {
+    content: $tu-profile-picture-alt; 
+  }
+}
+.tu-profile-picture {
+  &:before {
+    content: $tu-profile-picture; 
+  }
+}
+.tu-push-notification {
+  &:before {
+    content: $tu-push-notification; 
+  }
+}
+.tu-quote {
+  &:before {
+    content: $tu-quote; 
+  }
+}
+.tu-recommendation {
+  &:before {
+    content: $tu-recommendation; 
+  }
+}
+.tu-remove-friend {
+  &:before {
+    content: $tu-remove-friend; 
+  }
+}
+.tu-remove-group {
+  &:before {
+    content: $tu-remove-group; 
+  }
+}
+.tu-sad {
+  &:before {
+    content: $tu-sad; 
+  }
+}
+.tu-smile {
+  &:before {
+    content: $tu-smile; 
+  }
+}
+.tu-subscribe {
+  &:before {
+    content: $tu-subscribe; 
+  }
+}
+.tu-timeline {
+  &:before {
+    content: $tu-timeline; 
+  }
+}
+.tu-unfollow {
+  &:before {
+    content: $tu-unfollow; 
+  }
+}
+.tu-unsubscribe {
+  &:before {
+    content: $tu-unsubscribe; 
+  }
+}
+.tu-ads-manager {
+  &:before {
+    content: $tu-ads-manager; 
+  }
+}
+.tu-advertiser {
+  &:before {
+    content: $tu-advertiser; 
+  }
+}
+.tu-affiliate {
+  &:before {
+    content: $tu-affiliate; 
+  }
+}
+.tu-auto-responder {
+  &:before {
+    content: $tu-auto-responder; 
+  }
+}
+.tu-backlink {
+  &:before {
+    content: $tu-backlink; 
+  }
+}
+.tu-banner-exchange {
+  &:before {
+    content: $tu-banner-exchange; 
+  }
+}
+.tu-black-hat {
+  &:before {
+    content: $tu-black-hat; 
+  }
+}
+.tu-boost {
+  &:before {
+    content: $tu-boost; 
+  }
+}
+.tu-bot {
+  &:before {
+    content: $tu-bot; 
+  }
+}
+.tu-canvas {
+  &:before {
+    content: $tu-canvas; 
+  }
+}
+.tu-channel {
+  &:before {
+    content: $tu-channel; 
+  }
+}
+.tu-click {
+  &:before {
+    content: $tu-click; 
+  }
+}
+.tu-conversation-marketing {
+  &:before {
+    content: $tu-conversation-marketing; 
+  }
+}
+.tu-conversion-rate {
+  &:before {
+    content: $tu-conversion-rate; 
+  }
+}
+.tu-copywriting {
+  &:before {
+    content: $tu-copywriting; 
+  }
+}
+.tu-cost-per-click {
+  &:before {
+    content: $tu-cost-per-click; 
+  }
+}
+.tu-cpanel {
+  &:before {
+    content: $tu-cpanel; 
+  }
+}
+.tu-crown-alt {
+  &:before {
+    content: $tu-crown-alt; 
+  }
+}
+.tu-crown {
+  &:before {
+    content: $tu-crown; 
+  }
+}
+.tu-css {
+  &:before {
+    content: $tu-css; 
+  }
+}
+.tu-desktop-alt {
+  &:before {
+    content: $tu-desktop-alt; 
+  }
+}
+.tu-desktop {
+  &:before {
+    content: $tu-desktop; 
+  }
+}
+.tu-direct-linking {
+  &:before {
+    content: $tu-direct-linking; 
+  }
+}
+.tu-directory {
+  &:before {
+    content: $tu-directory; 
+  }
+}
+.tu-domain {
+  &:before {
+    content: $tu-domain; 
+  }
+}
+.tu-draft-form-library {
+  &:before {
+    content: $tu-draft-form-library; 
+  }
+}
+.tu-export-data {
+  &:before {
+    content: $tu-export-data; 
+  }
+}
+.tu-external-link {
+  &:before {
+    content: $tu-external-link; 
+  }
+}
+.tu-fake-traffic {
+  &:before {
+    content: $tu-fake-traffic; 
+  }
+}
+.tu-form-library {
+  &:before {
+    content: $tu-form-library; 
+  }
+}
+.tu-form1 {
+  &:before {
+    content: $tu-form1; 
+  }
+}
+.tu-ftp {
+  &:before {
+    content: $tu-ftp; 
+  }
+}
+.tu-funnel {
+  &:before {
+    content: $tu-funnel; 
+  }
+}
+.tu-hit {
+  &:before {
+    content: $tu-hit; 
+  }
+}
+.tu-hosting {
+  &:before {
+    content: $tu-hosting; 
+  }
+}
+.tu-html {
+  &:before {
+    content: $tu-html; 
+  }
+}
+.tu-import-data {
+  &:before {
+    content: $tu-import-data; 
+  }
+}
+.tu-impression {
+  &:before {
+    content: $tu-impression; 
+  }
+}
+.tu-insights {
+  &:before {
+    content: $tu-insights; 
+  }
+}
+.tu-internal-link {
+  &:before {
+    content: $tu-internal-link; 
+  }
+}
+.tu-keyword-density {
+  &:before {
+    content: $tu-keyword-density; 
+  }
+}
+.tu-keyword-research {
+  &:before {
+    content: $tu-keyword-research; 
+  }
+}
+.tu-keyword {
+  &:before {
+    content: $tu-keyword; 
+  }
+}
+.tu-label {
+  &:before {
+    content: $tu-label; 
+  }
+}
+.tu-laptop-alt {
+  &:before {
+    content: $tu-laptop-alt; 
+  }
+}
+.tu-laptop {
+  &:before {
+    content: $tu-laptop; 
+  }
+}
+.tu-leads {
+  &:before {
+    content: $tu-leads; 
+  }
+}
+.tu-link-exchange {
+  &:before {
+    content: $tu-link-exchange; 
+  }
+}
+.tu-link-farm {
+  &:before {
+    content: $tu-link-farm; 
+  }
+}
+.tu-link {
+  &:before {
+    content: $tu-link; 
+  }
+}
+.tu-megaphone-alt {
+  &:before {
+    content: $tu-megaphone-alt; 
+  }
+}
+.tu-megaphone {
+  &:before {
+    content: $tu-megaphone; 
+  }
+}
+.tu-meta-tag {
+  &:before {
+    content: $tu-meta-tag; 
+  }
+}
+.tu-mini-traffic {
+  &:before {
+    content: $tu-mini-traffic; 
+  }
+}
+.tu-organic {
+  &:before {
+    content: $tu-organic; 
+  }
+}
+.tu-paid {
+  &:before {
+    content: $tu-paid; 
+  }
+}
+.tu-pay-per-click {
+  &:before {
+    content: $tu-pay-per-click; 
+  }
+}
+.tu-php {
+  &:before {
+    content: $tu-php; 
+  }
+}
+.tu-post-engagements {
+  &:before {
+    content: $tu-post-engagements; 
+  }
+}
+.tu-promote {
+  &:before {
+    content: $tu-promote; 
+  }
+}
+.tu-publish {
+  &:before {
+    content: $tu-publish; 
+  }
+}
+.tu-publisher {
+  &:before {
+    content: $tu-publisher; 
+  }
+}
+.tu-reach {
+  &:before {
+    content: $tu-reach; 
+  }
+}
+.tu-script {
+  &:before {
+    content: $tu-script; 
+  }
+}
+.tu-search-engine-result-page {
+  &:before {
+    content: $tu-search-engine-result-page; 
+  }
+}
+.tu-server {
+  &:before {
+    content: $tu-server; 
+  }
+}
+.tu-shared-hosting {
+  &:before {
+    content: $tu-shared-hosting; 
+  }
+}
+.tu-smartphone-alt {
+  &:before {
+    content: $tu-smartphone-alt; 
+  }
+}
+.tu-smartphone {
+  &:before {
+    content: $tu-smartphone; 
+  }
+}
+.tu-speedometer {
+  &:before {
+    content: $tu-speedometer; 
+  }
+}
+.tu-statistic-alt {
+  &:before {
+    content: $tu-statistic-alt; 
+  }
+}
+.tu-statistic {
+  &:before {
+    content: $tu-statistic; 
+  }
+}
+.tu-subdomain {
+  &:before {
+    content: $tu-subdomain; 
+  }
+}
+.tu-target-alt {
+  &:before {
+    content: $tu-target-alt; 
+  }
+}
+.tu-target {
+  &:before {
+    content: $tu-target; 
+  }
+}
+.tu-template {
+  &:before {
+    content: $tu-template; 
+  }
+}
+.tu-tracking-code {
+  &:before {
+    content: $tu-tracking-code; 
+  }
+}
+.tu-traffic {
+  &:before {
+    content: $tu-traffic; 
+  }
+}
+.tu-viral-marketing {
+  &:before {
+    content: $tu-viral-marketing; 
+  }
+}
+.tu-white-hat {
+  &:before {
+    content: $tu-white-hat; 
+  }
+}
+.tu-d-glasses {
+  &:before {
+    content: $tu-d-glasses; 
+  }
+}
+.tu-action-cam {
+  &:before {
+    content: $tu-action-cam; 
+  }
+}
+.tu-audio-player {
+  &:before {
+    content: $tu-audio-player; 
+  }
+}
+.tu-audio {
+  &:before {
+    content: $tu-audio; 
+  }
+}
+.tu-back {
+  &:before {
+    content: $tu-back; 
+  }
+}
+.tu-camera-lens {
+  &:before {
+    content: $tu-camera-lens; 
+  }
+}
+.tu-camera {
+  &:before {
+    content: $tu-camera; 
+  }
+}
+.tu-cassette {
+  &:before {
+    content: $tu-cassette; 
+  }
+}
+.tu-cpu {
+  &:before {
+    content: $tu-cpu; 
+  }
+}
+.tu-drone {
+  &:before {
+    content: $tu-drone; 
+  }
+}
+.tu-dvd-player {
+  &:before {
+    content: $tu-dvd-player; 
+  }
+}
+.tu-dvd {
+  &:before {
+    content: $tu-dvd; 
+  }
+}
+.tu-earphone-alt {
+  &:before {
+    content: $tu-earphone-alt; 
+  }
+}
+.tu-earphone {
+  &:before {
+    content: $tu-earphone; 
+  }
+}
+.tu-eject {
+  &:before {
+    content: $tu-eject; 
+  }
+}
+.tu-film {
+  &:before {
+    content: $tu-film; 
+  }
+}
+.tu-flash {
+  &:before {
+    content: $tu-flash; 
+  }
+}
+.tu-flashdisk {
+  &:before {
+    content: $tu-flashdisk; 
+  }
+}
+.tu-gameboy {
+  &:before {
+    content: $tu-gameboy; 
+  }
+}
+.tu-gamepad {
+  &:before {
+    content: $tu-gamepad; 
+  }
+}
+.tu-hdd {
+  &:before {
+    content: $tu-hdd; 
+  }
+}
+.tu-hdmi-port {
+  &:before {
+    content: $tu-hdmi-port; 
+  }
+}
+.tu-headphone-alt {
+  &:before {
+    content: $tu-headphone-alt; 
+  }
+}
+.tu-headphone {
+  &:before {
+    content: $tu-headphone; 
+  }
+}
+.tu-home-theater {
+  &:before {
+    content: $tu-home-theater; 
+  }
+}
+.tu-joystick {
+  &:before {
+    content: $tu-joystick; 
+  }
+}
+.tu-keyboard-alt {
+  &:before {
+    content: $tu-keyboard-alt; 
+  }
+}
+.tu-keyboard {
+  &:before {
+    content: $tu-keyboard; 
+  }
+}
+.tu-monopod {
+  &:before {
+    content: $tu-monopod; 
+  }
+}
+.tu-mouse-alt {
+  &:before {
+    content: $tu-mouse-alt; 
+  }
+}
+.tu-mouse {
+  &:before {
+    content: $tu-mouse; 
+  }
+}
+.tu-movie-ticket {
+  &:before {
+    content: $tu-movie-ticket; 
+  }
+}
+.tu-next {
+  &:before {
+    content: $tu-next; 
+  }
+}
+.tu-nintendo-switch {
+  &:before {
+    content: $tu-nintendo-switch; 
+  }
+}
+.tu-nintendo-wii {
+  &:before {
+    content: $tu-nintendo-wii; 
+  }
+}
+.tu-pause {
+  &:before {
+    content: $tu-pause; 
+  }
+}
+.tu-picture {
+  &:before {
+    content: $tu-picture; 
+  }
+}
+.tu-play {
+  &:before {
+    content: $tu-play; 
+  }
+}
+.tu-playstation {
+  &:before {
+    content: $tu-playstation; 
+  }
+}
+.tu-projector {
+  &:before {
+    content: $tu-projector; 
+  }
+}
+.tu-radio {
+  &:before {
+    content: $tu-radio; 
+  }
+}
+.tu-record {
+  &:before {
+    content: $tu-record; 
+  }
+}
+.tu-remote {
+  &:before {
+    content: $tu-remote; 
+  }
+}
+.tu-repeat {
+  &:before {
+    content: $tu-repeat; 
+  }
+}
+.tu-shuffle {
+  &:before {
+    content: $tu-shuffle; 
+  }
+}
+.tu-stop {
+  &:before {
+    content: $tu-stop; 
+  }
+}
+.tu-tape-recorder {
+  &:before {
+    content: $tu-tape-recorder; 
+  }
+}
+.tu-television-alt {
+  &:before {
+    content: $tu-television-alt; 
+  }
+}
+.tu-television {
+  &:before {
+    content: $tu-television; 
+  }
+}
+.tu-tripod {
+  &:before {
+    content: $tu-tripod; 
+  }
+}
+.tu-usb-port {
+  &:before {
+    content: $tu-usb-port; 
+  }
+}
+.tu-vga-port {
+  &:before {
+    content: $tu-vga-port; 
+  }
+}
+.tu-video-recorder {
+  &:before {
+    content: $tu-video-recorder; 
+  }
+}
+.tu-video {
+  &:before {
+    content: $tu-video; 
+  }
+}
+.tu-volume-disable {
+  &:before {
+    content: $tu-volume-disable; 
+  }
+}
+.tu-volume-down {
+  &:before {
+    content: $tu-volume-down; 
+  }
+}
+.tu-volume-up {
+  &:before {
+    content: $tu-volume-up; 
+  }
+}
+.tu-volume {
+  &:before {
+    content: $tu-volume; 
+  }
+}
+.tu-vr-box {
+  &:before {
+    content: $tu-vr-box; 
+  }
+}
+.tu-webcam {
+  &:before {
+    content: $tu-webcam; 
+  }
+}
+.tu-ambulance {
+  &:before {
+    content: $tu-ambulance; 
+  }
+}
+.tu-bandage {
+  &:before {
+    content: $tu-bandage; 
+  }
+}
+.tu-blood-donation {
+  &:before {
+    content: $tu-blood-donation; 
+  }
+}
+.tu-blood-transfusion {
+  &:before {
+    content: $tu-blood-transfusion; 
+  }
+}
+.tu-blood {
+  &:before {
+    content: $tu-blood; 
+  }
+}
+.tu-bone {
+  &:before {
+    content: $tu-bone; 
+  }
+}
+.tu-bones {
+  &:before {
+    content: $tu-bones; 
+  }
+}
+.tu-brain {
+  &:before {
+    content: $tu-brain; 
+  }
+}
+.tu-cardiogram {
+  &:before {
+    content: $tu-cardiogram; 
+  }
+}
+.tu-dna {
+  &:before {
+    content: $tu-dna; 
+  }
+}
+.tu-enema {
+  &:before {
+    content: $tu-enema; 
+  }
+}
+.tu-eye-chart {
+  &:before {
+    content: $tu-eye-chart; 
+  }
+}
+.tu-flask {
+  &:before {
+    content: $tu-flask; 
+  }
+}
+.tu-handicap {
+  &:before {
+    content: $tu-handicap; 
+  }
+}
+.tu-heart-rate {
+  &:before {
+    content: $tu-heart-rate; 
+  }
+}
+.tu-hiv-ribbon {
+  &:before {
+    content: $tu-hiv-ribbon; 
+  }
+}
+.tu-hospital-sign {
+  &:before {
+    content: $tu-hospital-sign; 
+  }
+}
+.tu-hospital {
+  &:before {
+    content: $tu-hospital; 
+  }
+}
+.tu-infusion {
+  &:before {
+    content: $tu-infusion; 
+  }
+}
+.tu-kidney {
+  &:before {
+    content: $tu-kidney; 
+  }
+}
+.tu-liver {
+  &:before {
+    content: $tu-liver; 
+  }
+}
+.tu-lungs {
+  &:before {
+    content: $tu-lungs; 
+  }
+}
+.tu-medical-bag {
+  &:before {
+    content: $tu-medical-bag; 
+  }
+}
+.tu-medicine {
+  &:before {
+    content: $tu-medicine; 
+  }
+}
+.tu-microscope {
+  &:before {
+    content: $tu-microscope; 
+  }
+}
+.tu-mortar {
+  &:before {
+    content: $tu-mortar; 
+  }
+}
+.tu-petri-dish {
+  &:before {
+    content: $tu-petri-dish; 
+  }
+}
+.tu-pills {
+  &:before {
+    content: $tu-pills; 
+  }
+}
+.tu-potion {
+  &:before {
+    content: $tu-potion; 
+  }
+}
+.tu-scale {
+  &:before {
+    content: $tu-scale; 
+  }
+}
+.tu-skull {
+  &:before {
+    content: $tu-skull; 
+  }
+}
+.tu-sperm {
+  &:before {
+    content: $tu-sperm; 
+  }
+}
+.tu-stethoscope {
+  &:before {
+    content: $tu-stethoscope; 
+  }
+}
+.tu-termometer {
+  &:before {
+    content: $tu-termometer; 
+  }
+}
+.tu-test-tube {
+  &:before {
+    content: $tu-test-tube; 
+  }
+}
+.tu-tooth {
+  &:before {
+    content: $tu-tooth; 
+  }
+}
+.tu-vaccine {
+  &:before {
+    content: $tu-vaccine; 
+  }
+}
+.tu-virus {
+  &:before {
+    content: $tu-virus; 
+  }
+}
+.tu-wheelchair {
+  &:before {
+    content: $tu-wheelchair; 
+  }
+}
+.tu-x-ray {
+  &:before {
+    content: $tu-x-ray; 
+  }
+}
+.tu-apple {
+  &:before {
+    content: $tu-apple; 
+  }
+}
+.tu-asparagus {
+  &:before {
+    content: $tu-asparagus; 
+  }
+}
+.tu-avocado {
+  &:before {
+    content: $tu-avocado; 
+  }
+}
+.tu-banana {
+  &:before {
+    content: $tu-banana; 
+  }
+}
+.tu-bell-pepper {
+  &:before {
+    content: $tu-bell-pepper; 
+  }
+}
+.tu-biscuit {
+  &:before {
+    content: $tu-biscuit; 
+  }
+}
+.tu-bread {
+  &:before {
+    content: $tu-bread; 
+  }
+}
+.tu-burger {
+  &:before {
+    content: $tu-burger; 
+  }
+}
+.tu-cake {
+  &:before {
+    content: $tu-cake; 
+  }
+}
+.tu-carrot {
+  &:before {
+    content: $tu-carrot; 
+  }
+}
+.tu-cereal {
+  &:before {
+    content: $tu-cereal; 
+  }
+}
+.tu-cheese {
+  &:before {
+    content: $tu-cheese; 
+  }
+}
+.tu-chicken {
+  &:before {
+    content: $tu-chicken; 
+  }
+}
+.tu-chili-pepper {
+  &:before {
+    content: $tu-chili-pepper; 
+  }
+}
+.tu-chocolate {
+  &:before {
+    content: $tu-chocolate; 
+  }
+}
+.tu-cookie {
+  &:before {
+    content: $tu-cookie; 
+  }
+}
+.tu-corn {
+  &:before {
+    content: $tu-corn; 
+  }
+}
+.tu-croissant {
+  &:before {
+    content: $tu-croissant; 
+  }
+}
+.tu-donut {
+  &:before {
+    content: $tu-donut; 
+  }
+}
+.tu-egg {
+  &:before {
+    content: $tu-egg; 
+  }
+}
+.tu-fish {
+  &:before {
+    content: $tu-fish; 
+  }
+}
+.tu-french-fries {
+  &:before {
+    content: $tu-french-fries; 
+  }
+}
+.tu-grape {
+  &:before {
+    content: $tu-grape; 
+  }
+}
+.tu-honey {
+  &:before {
+    content: $tu-honey; 
+  }
+}
+.tu-hot-coffee {
+  &:before {
+    content: $tu-hot-coffee; 
+  }
+}
+.tu-ice-coffee {
+  &:before {
+    content: $tu-ice-coffee; 
+  }
+}
+.tu-ice-cream-cone {
+  &:before {
+    content: $tu-ice-cream-cone; 
+  }
+}
+.tu-juice {
+  &:before {
+    content: $tu-juice; 
+  }
+}
+.tu-kiwi {
+  &:before {
+    content: $tu-kiwi; 
+  }
+}
+.tu-lemon {
+  &:before {
+    content: $tu-lemon; 
+  }
+}
+.tu-lettuce {
+  &:before {
+    content: $tu-lettuce; 
+  }
+}
+.tu-lollipop {
+  &:before {
+    content: $tu-lollipop; 
+  }
+}
+.tu-melon {
+  &:before {
+    content: $tu-melon; 
+  }
+}
+.tu-milk {
+  &:before {
+    content: $tu-milk; 
+  }
+}
+.tu-mocktail {
+  &:before {
+    content: $tu-mocktail; 
+  }
+}
+.tu-muffin {
+  &:before {
+    content: $tu-muffin; 
+  }
+}
+.tu-noodle {
+  &:before {
+    content: $tu-noodle; 
+  }
+}
+.tu-olive-oil {
+  &:before {
+    content: $tu-olive-oil; 
+  }
+}
+.tu-onion {
+  &:before {
+    content: $tu-onion; 
+  }
+}
+.tu-orange {
+  &:before {
+    content: $tu-orange; 
+  }
+}
+.tu-pasta {
+  &:before {
+    content: $tu-pasta; 
+  }
+}
+.tu-pear {
+  &:before {
+    content: $tu-pear; 
+  }
+}
+.tu-pepper {
+  &:before {
+    content: $tu-pepper; 
+  }
+}
+.tu-pineapple {
+  &:before {
+    content: $tu-pineapple; 
+  }
+}
+.tu-pizza {
+  &:before {
+    content: $tu-pizza; 
+  }
+}
+.tu-popcorn {
+  &:before {
+    content: $tu-popcorn; 
+  }
+}
+.tu-popsicle {
+  &:before {
+    content: $tu-popsicle; 
+  }
+}
+.tu-rice {
+  &:before {
+    content: $tu-rice; 
+  }
+}
+.tu-sandwich {
+  &:before {
+    content: $tu-sandwich; 
+  }
+}
+.tu-sauce {
+  &:before {
+    content: $tu-sauce; 
+  }
+}
+.tu-sausage {
+  &:before {
+    content: $tu-sausage; 
+  }
+}
+.tu-soda {
+  &:before {
+    content: $tu-soda; 
+  }
+}
+.tu-soup {
+  &:before {
+    content: $tu-soup; 
+  }
+}
+.tu-steak {
+  &:before {
+    content: $tu-steak; 
+  }
+}
+.tu-tea {
+  &:before {
+    content: $tu-tea; 
+  }
+}
+.tu-tomato {
+  &:before {
+    content: $tu-tomato; 
+  }
+}
+.tu-water-bottle {
+  &:before {
+    content: $tu-water-bottle; 
+  }
+}
+.tu-water-glass {
+  &:before {
+    content: $tu-water-glass; 
+  }
+}
+.tu-watermelon {
+  &:before {
+    content: $tu-watermelon; 
+  }
+}
+.tu-yogurt {
+  &:before {
+    content: $tu-yogurt; 
+  }
+}
+.tu-d-hologram {
+  &:before {
+    content: $tu-d-hologram; 
+  }
+}
+.tu-add-contact {
+  &:before {
+    content: $tu-add-contact; 
+  }
+}
+.tu-align-center {
+  &:before {
+    content: $tu-align-center; 
+  }
+}
+.tu-align-left {
+  &:before {
+    content: $tu-align-left; 
+  }
+}
+.tu-align-right {
+  &:before {
+    content: $tu-align-right; 
+  }
+}
+.tu-all-inboxes {
+  &:before {
+    content: $tu-all-inboxes; 
+  }
+}
+.tu-antenna-alt {
+  &:before {
+    content: $tu-antenna-alt; 
+  }
+}
+.tu-antenna {
+  &:before {
+    content: $tu-antenna; 
+  }
+}
+.tu-asterisk {
+  &:before {
+    content: $tu-asterisk; 
+  }
+}
+.tu-attachment {
+  &:before {
+    content: $tu-attachment; 
+  }
+}
+.tu-augmentative-communication {
+  &:before {
+    content: $tu-augmentative-communication; 
+  }
+}
+.tu-basic-kid-phone {
+  &:before {
+    content: $tu-basic-kid-phone; 
+  }
+}
+.tu-bluetooth {
+  &:before {
+    content: $tu-bluetooth; 
+  }
+}
+.tu-bold {
+  &:before {
+    content: $tu-bold; 
+  }
+}
+.tu-book {
+  &:before {
+    content: $tu-book; 
+  }
+}
+.tu-braille {
+  &:before {
+    content: $tu-braille; 
+  }
+}
+.tu-bulleted-list {
+  &:before {
+    content: $tu-bulleted-list; 
+  }
+}
+.tu-call-block {
+  &:before {
+    content: $tu-call-block; 
+  }
+}
+.tu-call {
+  &:before {
+    content: $tu-call; 
+  }
+}
+.tu-chat-check-double {
+  &:before {
+    content: $tu-chat-check-double; 
+  }
+}
+.tu-chat-check {
+  &:before {
+    content: $tu-chat-check; 
+  }
+}
+.tu-chat {
+  &:before {
+    content: $tu-chat; 
+  }
+}
+.tu-classic-phone {
+  &:before {
+    content: $tu-classic-phone; 
+  }
+}
+.tu-connect {
+  &:before {
+    content: $tu-connect; 
+  }
+}
+.tu-consultation {
+  &:before {
+    content: $tu-consultation; 
+  }
+}
+.tu-contact-list {
+  &:before {
+    content: $tu-contact-list; 
+  }
+}
+.tu-conversation {
+  &:before {
+    content: $tu-conversation; 
+  }
+}
+.tu-data-communication {
+  &:before {
+    content: $tu-data-communication; 
+  }
+}
+.tu-dictionary {
+  &:before {
+    content: $tu-dictionary; 
+  }
+}
+.tu-disconnect {
+  &:before {
+    content: $tu-disconnect; 
+  }
+}
+.tu-email-attachment {
+  &:before {
+    content: $tu-email-attachment; 
+  }
+}
+.tu-email-draft {
+  &:before {
+    content: $tu-email-draft; 
+  }
+}
+.tu-email-encryption {
+  &:before {
+    content: $tu-email-encryption; 
+  }
+}
+.tu-email-save {
+  &:before {
+    content: $tu-email-save; 
+  }
+}
+.tu-email-search {
+  &:before {
+    content: $tu-email-search; 
+  }
+}
+.tu-email {
+  &:before {
+    content: $tu-email; 
+  }
+}
+.tu-feather-pen {
+  &:before {
+    content: $tu-feather-pen; 
+  }
+}
+.tu-feedback {
+  &:before {
+    content: $tu-feedback; 
+  }
+}
+.tu-font {
+  &:before {
+    content: $tu-font; 
+  }
+}
+.tu-Group-127007 {
+  &:before {
+    content: $tu-Group-127007; 
+  }
+}
+.tu-Group-127009 {
+  &:before {
+    content: $tu-Group-127009; 
+  }
+}
+.tu-Group-127010 {
+  &:before {
+    content: $tu-Group-127010; 
+  }
+}
+.tu-Group-127011 {
+  &:before {
+    content: $tu-Group-127011; 
+  }
+}
+.tu-Group-127016 {
+  &:before {
+    content: $tu-Group-127016; 
+  }
+}
+.tu-Group-127020 {
+  &:before {
+    content: $tu-Group-127020; 
+  }
+}
+.tu-handsfree {
+  &:before {
+    content: $tu-handsfree; 
+  }
+}
+.tu-handy-talkie {
+  &:before {
+    content: $tu-handy-talkie; 
+  }
+}
+.tu-important {
+  &:before {
+    content: $tu-important; 
+  }
+}
+.tu-inbox-empty {
+  &:before {
+    content: $tu-inbox-empty; 
+  }
+}
+.tu-inbox-full {
+  &:before {
+    content: $tu-inbox-full; 
+  }
+}
+.tu-incoming-call {
+  &:before {
+    content: $tu-incoming-call; 
+  }
+}
+.tu-indent-less {
+  &:before {
+    content: $tu-indent-less; 
+  }
+}
+.tu-indent-more {
+  &:before {
+    content: $tu-indent-more; 
+  }
+}
+.tu-ink {
+  &:before {
+    content: $tu-ink; 
+  }
+}
+.tu-intercom {
+  &:before {
+    content: $tu-intercom; 
+  }
+}
+.tu-italic {
+  &:before {
+    content: $tu-italic; 
+  }
+}
+.tu-justify {
+  &:before {
+    content: $tu-justify; 
+  }
+}
+.tu-local-subaquatic-network {
+  &:before {
+    content: $tu-local-subaquatic-network; 
+  }
+}
+.tu-magazine {
+  &:before {
+    content: $tu-magazine; 
+  }
+}
+.tu-mailbox {
+  &:before {
+    content: $tu-mailbox; 
+  }
+}
+.tu-mailing-list {
+  &:before {
+    content: $tu-mailing-list; 
+  }
+}
+.tu-message-bottle {
+  &:before {
+    content: $tu-message-bottle; 
+  }
+}
+.tu-message {
+  &:before {
+    content: $tu-message; 
+  }
+}
+.tu-messages {
+  &:before {
+    content: $tu-messages; 
+  }
+}
+.tu-morse-code {
+  &:before {
+    content: $tu-morse-code; 
+  }
+}
+.tu-newspaper {
+  &:before {
+    content: $tu-newspaper; 
+  }
+}
+.tu-numpad {
+  &:before {
+    content: $tu-numpad; 
+  }
+}
+.tu-outbox-empty {
+  &:before {
+    content: $tu-outbox-empty; 
+  }
+}
+.tu-outbox-full {
+  &:before {
+    content: $tu-outbox-full; 
+  }
+}
+.tu-outgoing-call {
+  &:before {
+    content: $tu-outgoing-call; 
+  }
+}
+.tu-pager {
+  &:before {
+    content: $tu-pager; 
+  }
+}
+.tu-paperplane {
+  &:before {
+    content: $tu-paperplane; 
+  }
+}
+.tu-phone-book {
+  &:before {
+    content: $tu-phone-book; 
+  }
+}
+.tu-phone-booth {
+  &:before {
+    content: $tu-phone-booth; 
+  }
+}
+.tu-phone-lock {
+  &:before {
+    content: $tu-phone-lock; 
+  }
+}
+.tu-phone-support-24-hour {
+  &:before {
+    content: $tu-phone-support-24-hour; 
+  }
+}
+.tu-phone-unlock {
+  &:before {
+    content: $tu-phone-unlock; 
+  }
+}
+.tu-primary-inbox {
+  &:before {
+    content: $tu-primary-inbox; 
+  }
+}
+.tu-refresh-wifi {
+  &:before {
+    content: $tu-refresh-wifi; 
+  }
+}
+.tu-remove-contact {
+  &:before {
+    content: $tu-remove-contact; 
+  }
+}
+.tu-satellite-alt {
+  &:before {
+    content: $tu-satellite-alt; 
+  }
+}
+.tu-satellite {
+  &:before {
+    content: $tu-satellite; 
+  }
+}
+.tu-scam {
+  &:before {
+    content: $tu-scam; 
+  }
+}
+.tu-send-alt {
+  &:before {
+    content: $tu-send-alt; 
+  }
+}
+.tu-send {
+  &:before {
+    content: $tu-send; 
+  }
+}
+.tu-signal {
+  &:before {
+    content: $tu-signal; 
+  }
+}
+.tu-sort-by-alphabet-a-to-z {
+  &:before {
+    content: $tu-sort-by-alphabet-a-to-z; 
+  }
+}
+.tu-sort-by-alphabet-z-to-a {
+  &:before {
+    content: $tu-sort-by-alphabet-z-to-a; 
+  }
+}
+.tu-sort-by-attribute-max-to-min {
+  &:before {
+    content: $tu-sort-by-attribute-max-to-min; 
+  }
+}
+.tu-sort-by-attribute-min-to-max {
+  &:before {
+    content: $tu-sort-by-attribute-min-to-max; 
+  }
+}
+.tu-sort-by-order-max-to-min {
+  &:before {
+    content: $tu-sort-by-order-max-to-min; 
+  }
+}
+.tu-sort-by-order-min-to-max {
+  &:before {
+    content: $tu-sort-by-order-min-to-max; 
+  }
+}
+.tu-sos-panic-button {
+  &:before {
+    content: $tu-sos-panic-button; 
+  }
+}
+.tu-spam {
+  &:before {
+    content: $tu-spam; 
+  }
+}
+.tu-subject {
+  &:before {
+    content: $tu-subject; 
+  }
+}
+.tu-surface-acoustic-wave {
+  &:before {
+    content: $tu-surface-acoustic-wave; 
+  }
+}
+.tu-telegraph {
+  &:before {
+    content: $tu-telegraph; 
+  }
+}
+.tu-telepathy {
+  &:before {
+    content: $tu-telepathy; 
+  }
+}
+.tu-text-colour {
+  &:before {
+    content: $tu-text-colour; 
+  }
+}
+.tu-text-lines {
+  &:before {
+    content: $tu-text-lines; 
+  }
+}
+.tu-tin-cans-phone {
+  &:before {
+    content: $tu-tin-cans-phone; 
+  }
+}
+.tu-transmission {
+  &:before {
+    content: $tu-transmission; 
+  }
+}
+.tu-typewriter {
+  &:before {
+    content: $tu-typewriter; 
+  }
+}
+.tu-underline {
+  &:before {
+    content: $tu-underline; 
+  }
+}
+.tu-video-call {
+  &:before {
+    content: $tu-video-call; 
+  }
+}
+.tu-voicemail {
+  &:before {
+    content: $tu-voicemail; 
+  }
+}
+.tu-wifi-alt {
+  &:before {
+    content: $tu-wifi-alt; 
+  }
+}
+.tu-wifi-router-alt {
+  &:before {
+    content: $tu-wifi-router-alt; 
+  }
+}
+.tu-wifi-router {
+  &:before {
+    content: $tu-wifi-router; 
+  }
+}
+.tu-wifi {
+  &:before {
+    content: $tu-wifi; 
+  }
+}
+.tu-accounting {
+  &:before {
+    content: $tu-accounting; 
+  }
+}
+.tu-advertising {
+  &:before {
+    content: $tu-advertising; 
+  }
+}
+.tu-app-shop {
+  &:before {
+    content: $tu-app-shop; 
+  }
+}
+.tu-bank {
+  &:before {
+    content: $tu-bank; 
+  }
+}
+.tu-bar-chart-down {
+  &:before {
+    content: $tu-bar-chart-down; 
+  }
+}
+.tu-bar-chart-up {
+  &:before {
+    content: $tu-bar-chart-up; 
+  }
+}
+.tu-barcode {
+  &:before {
+    content: $tu-barcode; 
+  }
+}
+.tu-bill {
+  &:before {
+    content: $tu-bill; 
+  }
+}
+.tu-box {
+  &:before {
+    content: $tu-box; 
+  }
+}
+.tu-briefcase {
+  &:before {
+    content: $tu-briefcase; 
+  }
+}
+.tu-business-growth {
+  &:before {
+    content: $tu-business-growth; 
+  }
+}
+.tu-business-law {
+  &:before {
+    content: $tu-business-law; 
+  }
+}
+.tu-business-model-canvas {
+  &:before {
+    content: $tu-business-model-canvas; 
+  }
+}
+.tu-business-note {
+  &:before {
+    content: $tu-business-note; 
+  }
+}
+.tu-business-performance {
+  &:before {
+    content: $tu-business-performance; 
+  }
+}
+.tu-business-plan {
+  &:before {
+    content: $tu-business-plan; 
+  }
+}
+.tu-business-strategy {
+  &:before {
+    content: $tu-business-strategy; 
+  }
+}
+.tu-business-to-business {
+  &:before {
+    content: $tu-business-to-business; 
+  }
+}
+.tu-business-to-consumer {
+  &:before {
+    content: $tu-business-to-consumer; 
+  }
+}
+.tu-businessman {
+  &:before {
+    content: $tu-businessman; 
+  }
+}
+.tu-businesswoman {
+  &:before {
+    content: $tu-businesswoman; 
+  }
+}
+.tu-cabinet {
+  &:before {
+    content: $tu-cabinet; 
+  }
+}
+.tu-calculator {
+  &:before {
+    content: $tu-calculator; 
+  }
+}
+.tu-candle-stick-chart {
+  &:before {
+    content: $tu-candle-stick-chart; 
+  }
+}
+.tu-cash8 {
+  &:before {
+    content: $tu-cash8; 
+  }
+}
+.tu-cctv {
+  &:before {
+    content: $tu-cctv; 
+  }
+}
+.tu-certificate {
+  &:before {
+    content: $tu-certificate; 
+  }
+}
+.tu-cheque {
+  &:before {
+    content: $tu-cheque; 
+  }
+}
+.tu-coin {
+  &:before {
+    content: $tu-coin; 
+  }
+}
+.tu-coins {
+  &:before {
+    content: $tu-coins; 
+  }
+}
+.tu-company {
+  &:before {
+    content: $tu-company; 
+  }
+}
+.tu-confectionery {
+  &:before {
+    content: $tu-confectionery; 
+  }
+}
+.tu-conflict {
+  &:before {
+    content: $tu-conflict; 
+  }
+}
+.tu-contract {
+  &:before {
+    content: $tu-contract; 
+  }
+}
+.tu-credit-card-alt {
+  &:before {
+    content: $tu-credit-card-alt; 
+  }
+}
+.tu-credit-card {
+  &:before {
+    content: $tu-credit-card; 
+  }
+}
+.tu-credit-control {
+  &:before {
+    content: $tu-credit-control; 
+  }
+}
+.tu-curriculum {
+  &:before {
+    content: $tu-curriculum; 
+  }
+}
+.tu-customer-service {
+  &:before {
+    content: $tu-customer-service; 
+  }
+}
+.tu-deal {
+  &:before {
+    content: $tu-deal; 
+  }
+}
+.tu-delivery {
+  &:before {
+    content: $tu-delivery; 
+  }
+}
+.tu-desk-alt {
+  &:before {
+    content: $tu-desk-alt; 
+  }
+}
+.tu-desk {
+  &:before {
+    content: $tu-desk; 
+  }
+}
+.tu-diamond {
+  &:before {
+    content: $tu-diamond; 
+  }
+}
+.tu-discount {
+  &:before {
+    content: $tu-discount; 
+  }
+}
+.tu-dollar-coin {
+  &:before {
+    content: $tu-dollar-coin; 
+  }
+}
+.tu-dollar-paper {
+  &:before {
+    content: $tu-dollar-paper; 
+  }
+}
+.tu-donation {
+  &:before {
+    content: $tu-donation; 
+  }
+}
+.tu-donut-chart {
+  &:before {
+    content: $tu-donut-chart; 
+  }
+}
+.tu-duct-tape {
+  &:before {
+    content: $tu-duct-tape; 
+  }
+}
+.tu-fax {
+  &:before {
+    content: $tu-fax; 
+  }
+}
+.tu-file-storage {
+  &:before {
+    content: $tu-file-storage; 
+  }
+}
+.tu-folder-close-alt {
+  &:before {
+    content: $tu-folder-close-alt; 
+  }
+}
+.tu-folder-close {
+  &:before {
+    content: $tu-folder-close; 
+  }
+}
+.tu-folder-open-alt {
+  &:before {
+    content: $tu-folder-open-alt; 
+  }
+}
+.tu-folder-open {
+  &:before {
+    content: $tu-folder-open; 
+  }
+}
+.tu-form {
+  &:before {
+    content: $tu-form; 
+  }
+}
+.tu-free {
+  &:before {
+    content: $tu-free; 
+  }
+}
+.tu-glass-hour {
+  &:before {
+    content: $tu-glass-hour; 
+  }
+}
+.tu-goal {
+  &:before {
+    content: $tu-goal; 
+  }
+}
+.tu-gold {
+  &:before {
+    content: $tu-gold; 
+  }
+}
+.tu-grocery {
+  &:before {
+    content: $tu-grocery; 
+  }
+}
+.tu-Group-127000 {
+  &:before {
+    content: $tu-Group-127000; 
+  }
+}
+.tu-Group-127002 {
+  &:before {
+    content: $tu-Group-127002; 
+  }
+}
+.tu-hierarchial-structure {
+  &:before {
+    content: $tu-hierarchial-structure; 
+  }
+}
+.tu-horizontal-graphic-alt {
+  &:before {
+    content: $tu-horizontal-graphic-alt; 
+  }
+}
+.tu-horizontal-graphic {
+  &:before {
+    content: $tu-horizontal-graphic; 
+  }
+}
+.tu-human-to-human {
+  &:before {
+    content: $tu-human-to-human; 
+  }
+}
+.tu-id-card {
+  &:before {
+    content: $tu-id-card; 
+  }
+}
+.tu-idea {
+  &:before {
+    content: $tu-idea; 
+  }
+}
+.tu-infographic {
+  &:before {
+    content: $tu-infographic; 
+  }
+}
+.tu-initiate-money-transfer {
+  &:before {
+    content: $tu-initiate-money-transfer; 
+  }
+}
+.tu-internet-banking {
+  &:before {
+    content: $tu-internet-banking; 
+  }
+}
+.tu-investment {
+  &:before {
+    content: $tu-investment; 
+  }
+}
+.tu-invoice {
+  &:before {
+    content: $tu-invoice; 
+  }
+}
+.tu-key {
+  &:before {
+    content: $tu-key; 
+  }
+}
+.tu-leader {
+  &:before {
+    content: $tu-leader; 
+  }
+}
+.tu-legal {
+  &:before {
+    content: $tu-legal; 
+  }
+}
+.tu-magnet {
+  &:before {
+    content: $tu-magnet; 
+  }
+}
+.tu-marketing {
+  &:before {
+    content: $tu-marketing; 
+  }
+}
+.tu-mastercard {
+  &:before {
+    content: $tu-mastercard; 
+  }
+}
+.tu-membership-card {
+  &:before {
+    content: $tu-membership-card; 
+  }
+}
+.tu-mobile-banking {
+  &:before {
+    content: $tu-mobile-banking; 
+  }
+}
+.tu-money-exchange {
+  &:before {
+    content: $tu-money-exchange; 
+  }
+}
+.tu-network {
+  &:before {
+    content: $tu-network; 
+  }
+}
+.tu-neutral-trading {
+  &:before {
+    content: $tu-neutral-trading; 
+  }
+}
+.tu-office-alt {
+  &:before {
+    content: $tu-office-alt; 
+  }
+}
+.tu-office-chair {
+  &:before {
+    content: $tu-office-chair; 
+  }
+}
+.tu-office {
+  &:before {
+    content: $tu-office; 
+  }
+}
+.tu-organization {
+  &:before {
+    content: $tu-organization; 
+  }
+}
+.tu-packaging {
+  &:before {
+    content: $tu-packaging; 
+  }
+}
+.tu-page {
+  &:before {
+    content: $tu-page; 
+  }
+}
+.tu-pages {
+  &:before {
+    content: $tu-pages; 
+  }
+}
+.tu-panel {
+  &:before {
+    content: $tu-panel; 
+  }
+}
+.tu-pen {
+  &:before {
+    content: $tu-pen; 
+  }
+}
+.tu-percentage {
+  &:before {
+    content: $tu-percentage; 
+  }
+}
+.tu-pie-chart {
+  &:before {
+    content: $tu-pie-chart; 
+  }
+}
+.tu-presentation-alt {
+  &:before {
+    content: $tu-presentation-alt; 
+  }
+}
+.tu-presentation {
+  &:before {
+    content: $tu-presentation; 
+  }
+}
+.tu-profit {
+  &:before {
+    content: $tu-profit; 
+  }
+}
+.tu-public-speaking {
+  &:before {
+    content: $tu-public-speaking; 
+  }
+}
+.tu-purse {
+  &:before {
+    content: $tu-purse; 
+  }
+}
+.tu-pushpin {
+  &:before {
+    content: $tu-pushpin; 
+  }
+}
+.tu-qr-code {
+  &:before {
+    content: $tu-qr-code; 
+  }
+}
+.tu-ranking {
+  &:before {
+    content: $tu-ranking; 
+  }
+}
+.tu-receipt {
+  &:before {
+    content: $tu-receipt; 
+  }
+}
+.tu-rocket-launch {
+  &:before {
+    content: $tu-rocket-launch; 
+  }
+}
+.tu-sale {
+  &:before {
+    content: $tu-sale; 
+  }
+}
+.tu-savings {
+  &:before {
+    content: $tu-savings; 
+  }
+}
+.tu-shipping {
+  &:before {
+    content: $tu-shipping; 
+  }
+}
+.tu-shop-sign {
+  &:before {
+    content: $tu-shop-sign; 
+  }
+}
+.tu-shop {
+  &:before {
+    content: $tu-shop; 
+  }
+}
+.tu-shopping-bag-alt {
+  &:before {
+    content: $tu-shopping-bag-alt; 
+  }
+}
+.tu-shopping-bag {
+  &:before {
+    content: $tu-shopping-bag; 
+  }
+}
+.tu-shopping-cart-alt {
+  &:before {
+    content: $tu-shopping-cart-alt; 
+  }
+}
+.tu-shopping-cart {
+  &:before {
+    content: $tu-shopping-cart; 
+  }
+}
+.tu-shredder {
+  &:before {
+    content: $tu-shredder; 
+  }
+}
+.tu-speech {
+  &:before {
+    content: $tu-speech; 
+  }
+}
+.tu-stamp {
+  &:before {
+    content: $tu-stamp; 
+  }
+}
+.tu-stapler {
+  &:before {
+    content: $tu-stapler; 
+  }
+}
+.tu-swipe {
+  &:before {
+    content: $tu-swipe; 
+  }
+}
+.tu-tag {
+  &:before {
+    content: $tu-tag; 
+  }
+}
+.tu-tags {
+  &:before {
+    content: $tu-tags; 
+  }
+}
+.tu-teamwork {
+  &:before {
+    content: $tu-teamwork; 
+  }
+}
+.tu-tie {
+  &:before {
+    content: $tu-tie; 
+  }
+}
+.tu-wallet {
+  &:before {
+    content: $tu-wallet; 
+  }
+}
+.tu-watch-alt {
+  &:before {
+    content: $tu-watch-alt; 
+  }
+}
+.tu-watch {
+  &:before {
+    content: $tu-watch; 
+  }
+}
+.tu-work {
+  &:before {
+    content: $tu-work; 
+  }
+}
+.tu-workflow {
+  &:before {
+    content: $tu-workflow; 
+  }
+}
+

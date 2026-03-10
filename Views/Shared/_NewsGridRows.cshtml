@@ -1,0 +1,23 @@
+﻿@using Turbo.Crypto
+@using WDAIIP.WEB.Models
+@model ContentViewModel
+
+@if (Model == null || Model.Grid == null || Model.Grid.Count == 0)
+{
+    <tr>
+        <td colspan="2" align="center">尚無資料</td>
+    </tr>
+}
+else
+{
+    foreach (ContentGridModel item in Model.Grid)
+    {
+        AesTk aesTk = new AesTk();
+        <tr>
+            <td>@item.C_SDATE_TW</td>
+            @*<td align="left"><a href="javascript:showContent(@item.SEQNO)" title="@item.C_TITLE">@item.C_TITLE</a></td>*@
+            @*<td align="left">@Html.ActionLink(item.C_TITLE, "Detailv2", new { SEQ = aesTk.CreateHash(item.SEQNO.ToString()), WXR = aesTk.Encrypt(item.SEQNO.ToString()) }, new { title = item.C_TITLE + item.SEQNO.ToString() })</td>*@
+            <td align="left">@Html.ActionLink(item.C_TITLE, "Detailv2", new { SEQ = aesTk.CreateHash(item.SEQNO.ToString()), WXR = aesTk.Encrypt(item.SEQNO.ToString()) }, new { title = item.C_TITLE })</td>
+        </tr>
+    }
+}

@@ -1,0 +1,802 @@
+﻿@model WDAIIP.WEB.Models.SignUpViewModel
+@using WDAIIP.WEB.DataLayers
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+
+@{
+    ViewBag.Title = "課程查詢報名--個人報名基本資料";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+
+    SessionModel sm = SessionModel.Get();
+    string memMsg = "如欲修改個人基本資料，請至台灣就業通「會員中心」變更";
+    string s_PostCodeQry = MyCommonUtil.Get_PostCodeQry();
+}
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 課程查詢 / 線上報名</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fas fa-edit space-right"></i>線上報名</h3>
+    <!-- note info -->
+    <div class="unit-bg unit-bg-gray">
+        <span>
+            1. 本畫面作業完成前，請勿關閉或離開本畫面，否則必須重新登入會員並重新填寫資料。 <br />
+            2. 本功能除灰色底欄位不提供修正（如欲修正請至台灣就業通<strong><a href="https://job.taiwanjobs.gov.tw/internet/jobwanted/member/member_data_m.aspx" target="_blank" rel="noreferrer noopener" title="[另開新視窗]前往台灣就業通"><span class="sr-only">(另開新視窗)</span>「會員中心」</a></strong>變更），其餘皆可自行修改。<br />
+            3. 郵遞區號請填寫完整之3+2碼。<br />
+        </span>
+    </div>
+    <!-- personal info -->
+    @using (Html.BeginForm("SignUp", "SignUp", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+    {
+        @Html.HiddenFor(m => m.Form.PlanType)
+        @Html.HiddenFor(m => m.Form.ProvideLocation)
+        @Html.HiddenFor(m => m.Form.OCID)
+        @*產投跟在職的資料都是在stud_entertemp3，當「主要參訓身份別」有寫入資料表示是在維護產投報名資料*@
+        @Html.HiddenFor(m => m.Detail.OCID)
+        @Html.HiddenFor(m => m.Detail.DB3D0C)
+        @Html.HiddenFor(m => m.Detail.IsSignUp)
+        @Html.HiddenFor(m => m.Detail.ESETID3)
+        @Html.HiddenFor(m => m.Detail.ISPLAN28)
+        @Html.HiddenFor(m => m.Detail.STDATE)
+
+        <div class="unit-border">
+            <h3 class="titlebar titlebarBg-green">個人報名基本資料</h3>
+            <div class="form-group-search">
+                <label for="Detail_CLASSCNAME" class="form-label-data"><span class="text-danger">*</span> 課程名稱</label>
+                <div class="form-input-dataHelf-3">
+                    @Html.TextBoxFor(m => m.Detail.CLASSCNAME, new { @class = "form-control", placeholder = "", @readonly = true, title = @memMsg })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_NAME" class="form-label-data"><span class="text-danger">*</span> 中文姓名</label>
+                <div class="form-input-dataHelf">
+                    @Html.HiddenFor(m => m.Detail.NAME3)
+                    @Html.TextBoxFor(m => m.Detail.NAME, new { @class = "form-control", placeholder = "", @readonly = true, title = @memMsg, maxlength = "20" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_PASSPORTNO_1" class="form-label-data"><span class="text-danger">*</span> 身分別</label>
+                <div class="form-input-dataHelf form-inline">
+                    @Html.HiddenFor(m => m.Detail.PASSPORTNO)
+                    @Html.RadioGroupFor(m => m.Detail.PASSPORTNO, Model.PASSPORTNO_list, new { @class = "group-width", id = "mem_passportno", title = @memMsg })
+                </div>
+                <label for="Detail_IDNO" class="form-label-data"><span class="text-danger">*</span> 身分證字號</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.IDNO, new { @class = "form-control", placeholder = "", @readonly = true, title = @memMsg, maxlength = "13" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_SEX_M" class="form-label-data"><span class="text-danger">*</span> 性 別</label>
+                <div class="form-input-dataHelf form-inline">
+                    @Html.HiddenFor(m => m.Detail.SEX)
+                    @Html.RadioGroupFor(m => m.Detail.SEX, Model.SEX_list, new { @class = "group-width", id = "mem_sex", title = @memMsg })
+                </div>
+                <label for="Detail_BIRTHDAY_TW" class="form-label-data"><span class="text-danger">*</span> 出生日期</label>
+                <div class="form-input-dataHelf form-inline">
+                    @Html.HiddenFor(m => m.Detail.BIRTHDAY)
+                    @Html.TextBoxFor(m => m.Detail.BIRTHDAY_TW, new { @class = "form-control", placeholder = "", @readonly = true, title = @memMsg })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="mem_DEGREEID" class="form-label-data"><span class="text-danger">*</span> 最高學歷</label>
+                <div class="form-input-dataHelf">
+                    @Html.HiddenFor(m => m.Detail.DEGREEID)
+                    @Html.DropDownListFor(m => m.Detail.DEGREEID, Model.DEGREEID_list, "請選擇", new { @class = "form-control", id = "mem_DEGREEID", title = @memMsg })
+                </div>
+                <label for="Detail_GRADID_01" class="form-label-data"><span class="text-danger">*</span> 畢業狀況</label>
+                <div class="form-input-dataHelf form-inline">
+                    @*Html.HiddenFor(m => m.Detail.GRADID)*@
+                    @Html.RadioGroupFor(m => m.Detail.GRADID, Model.GRADID_list, new { @class = "group-width" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_SCHOOLNAME" class="form-label-data"><span class="text-danger">*</span> 學校名稱</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.SCHOOLNAME, new { @class = "form-control", placeholder = "請輸入學校名稱", title = "請輸入學校名稱", MaxLength = "30" })
+                </div>
+                <label for="Detail_DEPARTMENT" class="form-label-data"><span class="text-danger">*</span> 科系名稱</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.DEPARTMENT, new { @class = "form-control", placeholder = "請輸入科系名稱", title = "請輸入科系名稱", MaxLength = "120" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="mem_MARITALSTATUS" class="form-label-data">婚姻狀況</label>
+                <div class="form-input-dataHelf">
+                    @Html.HiddenFor(m => m.Detail.MARITALSTATUS)
+                    @Html.DropDownListFor(m => m.Detail.MARITALSTATUS, Model.MARITALSTATUS_list, new { @class = "form-control", id = "mem_MARITALSTATUS", title = @memMsg })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_PHONED" class="form-label-data"><span class="text-danger">*</span> 聯絡電話</label>
+                <div class="form-input-dataHelf">
+                    <div class="form-inline">
+                        <p> (日)@Html.TextBoxFor(m => m.Detail.PHONED, new { @class = "form-control", placeholder = "請輸入聯絡電話(日)", title = "請輸入聯絡電話(日)", MaxLength = "13" })</p>
+                    </div>
+                    <div class="form-inline">
+                        (夜)@Html.TextBoxFor(m => m.Detail.PHONEN, new { @class = "form-control", placeholder = "請輸入聯絡電話(夜)", title = "請輸入聯絡電話(夜)", MaxLength = "13" })<br /><label style="font-weight:normal; color:red;">聯絡電話僅可輸入數字或插入「-」符號</label>
+                    </div>
+                </div>
+                <label for="HASMOBILE_N" class="form-label-data"><span class="text-danger">*</span> 行動電話</label>
+                <div class="form-input-dataHelf form-inline group-width">
+                    @*@Html.HiddenFor(m => m.Detail.HASMOBILE)*@
+                    @Html.RadioButtonFor(m => m.Detail.HASMOBILE, "N", new { id = "HASMOBILE_N", title = "請選擇是否有行動電話" })
+                    <label style="font-weight:normal; cursor:pointer" for="HASMOBILE_N">無</label>
+                    @Html.RadioButtonFor(m => m.Detail.HASMOBILE, "Y", new { id = "HASMOBILE_Y", title = "請選擇是否有行動電話" })
+                    <label style="font-weight:normal; cursor:pointer" for="HASMOBILE_Y">有</label>
+                    @Html.TextBoxFor(m => m.Detail.CELLPHONE, new { @class = "form-control", placeholder = "請輸入行動電話", title = "請輸入行動電話", MaxLength = "13" })<br /><label style="font-weight:normal; color:red;">行動電話僅可輸入數字10碼</label>
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_ZIPCODE" class="form-label-data"><span class="text-danger">*</span> 通訊地址</label>
+                <div class="form-input-data form-inline">
+                    <button type="button" id="btnSchZip" class="btn btn-info" onclick="doZipSelect(1)" title="查詢郵遞區號">...</button>
+                    @Html.TextBoxFor(m => m.Detail.ZIPCODE, new { @class = "form-normal", size = "3", maxlength = "3", @data_role = "zipcode", @data_city = "CITY1", title = "郵遞區號(前3碼)" })-
+                    @Html.HiddenFor(m => m.Detail.ZIPCODE_6W)
+                    @Html.TextBoxFor(m => m.Detail.ZIPCODE_2W, new { @class = "form-normal", size = "3", maxlength = "3", title = "郵遞區號(後2碼或3碼)" })
+                    @Html.Raw(s_PostCodeQry)
+                    @*<a href="@s_PostCodeQry" target="_blank" title="前往查詢3+2郵遞區號(另開新視窗)">(3+2郵遞區號查詢)</a>*@
+                    @if (!string.IsNullOrEmpty(Convert.ToString(Model.Detail.ZIPCODE)))
+                    {
+                        var strCityZame = (new MyKeyMapDAO()).GetZipName2(Convert.ToString(Model.Detail.ZIPCODE));
+                        <input name="CITY1" type="text" class="form-control" id="CITY1" onfocus="this.blur();" value="@strCityZame" title="縣市區域">
+                    }
+                    else
+                    {
+                        <input name="CITY1" type="text" class="form-control" id="CITY1" onkeydown="this.blur()" oncontextmenu="return false;" title="縣市區域">
+                    }
+                    @Html.TextBoxFor(m => m.Detail.ADDRESS, new { @class = "form-control", size = "70", maxlength = "120", placeholder = "請輸入通訊地址", title = "請輸入通訊地址" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="HASEMAIL_N" class="form-label-data"><span class="text-danger">*</span> 電子郵件</label>
+                <div class="form-input-data form-inline group-width">
+                    @*@Html.HiddenFor(m => m.Detail.HASEMAIL)*@
+                    @Html.RadioButtonFor(m => m.Detail.HASEMAIL, "N", new { id = "HASEMAIL_N", title = "請選擇是否有電子信箱" })
+                    <label style="font-weight:normal; cursor:pointer" for="HASEMAIL_N">無</label>
+
+                    @Html.RadioButtonFor(x => x.Detail.HASEMAIL, "Y", new { id = "HASEMAIL_Y", title = "請選擇是否有電子信箱" })
+                    <label style="font-weight:normal; cursor:pointer" for="HASEMAIL_Y">有</label>
+
+                    @Html.TextBoxFor(m => m.Detail.EMAIL, new { @class = "form-control", size = "70", placeholder = "請輸入電子郵件信箱", title = "請輸入電子郵件信箱", MaxLength = "60" })
+                </div>
+            </div>
+            <p>
+                <br />
+                <div class="unit-bg unit-bg-green unit-spaces">
+                    <strong><label style="color:red;">請務必填入可聯繫到本人之電話或電子郵件，倘因填寫錯誤或未填，致訓練單位無法通知錄訓繳費或甄試，須自負其責。</label></strong>
+                </div>
+            </p>
+            <div class="form-group-search">
+                <label for="Detail_MIDENTITYID" class="form-label-data"><span class="text-danger">*</span> 主要參訓身份別</label>
+                <div class="form-input-dataHelf">
+                    @Html.DropDownListFor(m => m.Detail.MIDENTITYID, Model.MIdentityID_list, "請選擇", new { @class = "form-control", title = "請選擇主要參訓身份別" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_ZIPCODE2" class="form-label-data"><span class="text-danger">*</span> 戶籍地址</label>
+                <div class="form-input-data">
+                    <div class="checkbox"><label><input name="mycheckbox" id="mycheckbox" type="checkbox" onclick="copyZip()" value="" title="請勾選是否同通訊地址">同通訊地址 </label></div>
+                    <button type="button" class="btn btn-info" onclick="doZipSelect(2)" title="查詢郵遞區號">...</button>
+                    @Html.TextBoxFor(m => m.Detail.ZIPCODE2, new { @class = "form-normal", size = "3", maxlength = "3", @data_role = "zipcode", @data_city = "CITY2", title = "郵遞區號(前3碼)" })
+                    @Html.HiddenFor(m => m.Detail.ZIPCODE2_6W)
+                    @Html.TextBoxFor(m => m.Detail.ZIPCODE2_2W, new { @class = "form-normal", size = "3", maxlength = "3", title = "郵遞區號(後2碼或3碼)" })
+                    @Html.Raw(s_PostCodeQry)
+                    @*<a href="@s_PostCodeQry" target="_blank" title="前往查詢3+2郵遞區號(另開新視窗)">(3+2郵遞區號查詢)</a>*@
+                    @if (!string.IsNullOrEmpty(Convert.ToString(Model.Detail.ZIPCODE2)))
+                    {
+                        var strCityZame = (new MyKeyMapDAO()).GetZipName2(Convert.ToString(Model.Detail.ZIPCODE2));
+                        <input name="CITY2" type="text" class="form-normal" id="CITY2" disabled="disabled" value="@strCityZame" title="縣市區域">
+                    }
+                    else
+                    {
+                        <input name="CITY2" type="text" class="form-normal" id="CITY2" onkeydown="this.blur()" oncontextmenu="return false;" title="縣市區域">
+                    }
+
+                    @Html.TextBoxFor(m => m.Detail.HOUSEHOLDADDRESS, new { @class = "form-normal", size = "70", maxlength = "120", placeholder = "請輸入戶籍地址", title = "請輸入戶籍地址" })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <!-- 服務單位資料 -->
+            <h3 class="titlebar titlebar-lightBlue">服務單位資料</h3>
+            <div class="form-group-search">
+                <label for="Detail_UNAME" class="form-label-data"><span class="text-danger">*</span> 服務單位</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.UNAME, new { @class = "form-control", Maxlength = "50", placeholder = "請輸入服務單位名稱", title = "請輸入服務單位名稱" })
+                </div>
+                <label for="Detail_INTAXNO" class="form-label-data">統一編號</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.INTAXNO, new { @class = "form-control", Maxlength = "10", placeholder = "請輸入統一編號", title = "請輸入統一編號" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_SERVDEPTID" class="form-label-data"><span class="text-danger">*</span> 服務部門</label>
+                <div class="form-input-dataHelf">
+                    @Html.DropDownListFor(m => m.Detail.SERVDEPTID, Model.Servdept_list, "請選擇", new { @class = "form-control", title = "請選擇服務部門" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_ACTNAME" class="form-label-data"><span class="text-danger">*</span> 投保單位名稱</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.ACTNAME, new { @class = "form-control", placeholder = "請輸入投保單位名稱", Maxlength = "50", title = "請輸入投保單位名稱" })
+                </div>
+                <label for="Detail_ACTTYPE" class="form-label-data"><span class="text-danger">*</span> 投保類別</label>
+                <div class="form-input-dataHelf">
+                    @Html.DropDownListFor(m => m.Detail.ACTTYPE, Model.ActType_List(), "請選擇", new { @class = "form-control", title = "請選擇投保類別" })
+                    <input type="hidden" id="hid_Detail_ACTTYPE_VAL1" />
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_ACTNO" class="form-label-data"> 投保單位保險證號</label>
+                <div class="form-input-data">
+                    @Html.TextBoxFor(m => m.Detail.ACTNO, new { @class = "form-normal", placeholder = "請輸入投保單位保險證號", Maxlength = "20", title = "請輸入投保單位保險證號" })
+                    <a href="javascript:void(0)" data-role="ACTNO_MSG" title="請依勞保明細表填寫"> 請依勞保明細表確實填寫，可自行填寫，如未填寫將由系統自行代入。詳細說明內容，請點這邊...</a>
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_ACTTEL" class="form-label-data">投保單位電話</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.ACTTEL, new { @class = "form-control", placeholder = "請輸入投保單位電話", Maxlength = "30", title = "請輸入投保單位電話" })<label style="font-weight:normal; color:red;">投保單位電話僅可輸入數字或插入「-」符號</label>
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_ZIPCODE3" class="form-label-data">投保單位地址</label>
+                <div class="form-input-data">
+                    <button type="button" class="btn btn-info" onclick="doZipSelect(3)" title="查詢郵遞區號">...</button>
+                    @Html.TextBoxFor(m => m.Detail.ZIPCODE3, new { @class = "form-normal", size = "3", maxlength = "3", @data_role = "zipcode", @data_city = "CITY3", title = "郵遞區號(前3碼)" })
+                    @Html.HiddenFor(m => m.Detail.ZIPCODE3_6W)
+                    @Html.TextBoxFor(m => m.Detail.ZIPCODE3_2W, new { @class = "form-normal", size = "3", maxlength = "3", title = "郵遞區號(後2碼或3碼)" })
+                    @Html.Raw(s_PostCodeQry)
+                    @*<a href="@s_PostCodeQry" target="_blank" title="前往查詢3+2郵遞區號(另開新視窗)">(3+2郵遞區號查詢)</a>*@
+                    @if (!string.IsNullOrEmpty(Convert.ToString(Model.Detail.ZIPCODE3)))
+                    {
+                        var strCityZame = (new MyKeyMapDAO()).GetZipName2(Convert.ToString(Model.Detail.ZIPCODE3));
+                        <input name="CITY3" type="text" class="form-normal" id="CITY3" disabled="disabled" value="@strCityZame" title="縣市區域">
+                    }
+                    else
+                    {
+                        <input name="CITY3" type="text" class="form-normal" id="CITY3" onkeydown="this.blur()" oncontextmenu="return false;" title="縣市區域">
+                    }
+                    @Html.TextBoxFor(m => m.Detail.ACTADDRESS, new { @class = "form-normal", size = "70", maxlength = "120", placeholder = "請輸入投保單位地址", title = "請輸入投保單位地址" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_JOBTITLEID" class="form-label-data"><span class="text-danger">*</span> 職務</label>
+                <div class="form-input-dataHelf">
+                    @Html.DropDownListFor(m => m.Detail.JOBTITLEID, Model.JobTitle_list, "請選擇", new { @class = "form-control", title = "請選擇職務" })
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+            @*要報名產投課程的才會顯示*@
+            @if ("Y".Equals(Model.Detail.ISPLAN28))
+            {
+                @*<h3 class="titlebar titlebarBg-green">產業人才投資方案報名資料</h3>*@
+                @*<div class="form-group-search">
+                        <label for="Detail_PRIORWORKPAY" class="form-label-data">受訓前薪資</label>
+                        <div class="form-input-dataHelf">
+                            @Html.TextBoxFor(m => m.Detail.PRIORWORKPAY, new { @class = "form-control", placeholder = "請輸入受訓前薪資", maxlength = "10", title = "請輸入受訓前薪資" })
+                        </div>
+                    </div>*@
+                <div class="form-group-search">
+                    <label for="rdo_ACCTMODE_0" class="form-label-data"> 郵政/銀行帳號</label>
+                    <div class="form-input-dataHelf" title="(每次重新點選)">
+                        <label class="radio-inline">
+                            @Html.RadioButtonFor(m => m.Detail.ACCTMODE, "0", new { @class = "form-inline radioset", id = "rdo_ACCTMODE_0", title = "請選擇郵政/銀行帳號類型(每次重新點選)" })
+                            <label style="font-weight:normal; cursor:pointer" for="rdo_ACCTMODE_0">郵局帳號</label><br />
+                        </label>
+                        <label class="radio-inline">
+                            @Html.RadioButtonFor(m => m.Detail.ACCTMODE, "1", new { @class = "form-inline radioset", id = "rdo_ACCTMODE_1", title = "請選擇郵政/銀行帳號類型(每次重新點選)" })
+                            <label style="font-weight:normal; cursor:pointer" for="rdo_ACCTMODE_1">銀行帳號</label>
+                        </label>
+                    </div>
+                </div>
+                <div id="divPost" class="form-group-search" style="display:none">
+                    <label for="Detail_POSTNO" class="form-label-data">局號</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.POSTNO, new { @class = "form-control", Maxlength = "10", placeholder = "請輸入局號", title = "請輸入局號" })
+                    </div>
+                    <label for="Detail_POST_ACCTNO" class="form-label-data">帳號</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.POST_ACCTNO, new { @class = "form-control", Maxlength = "10", placeholder = "請輸入帳號", title = "請輸入帳號" })
+                    </div>
+                </div>
+                <div id="divBank1" class="form-group-search" style="display:none">
+                    <label for="Detail_BANKNAME" class="form-label-data">總行名稱</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.BANKNAME, new { @class = "form-control", Maxlength = "100", placeholder = "請輸入總行名稱", title = "請輸入總行名稱" })
+                    </div>
+                    <label for="Detail_ACCTHEADNO" class="form-label-data"> 總行代號</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.ACCTHEADNO, new { @class = "form-control", Maxlength = "50", placeholder = "請輸入總行代號", title = "請輸入總行代號" })
+                    </div>
+                </div>
+                <div id="divBank2" class="form-group-search" style="display:none">
+                    <label for="Detail_EXBANKNAME" class="form-label-data">分行名稱</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.EXBANKNAME, new { @class = "form-control", Maxlength = "100", placeholder = "請輸入分行名稱", title = "請輸入分行名稱" })
+                    </div>
+                    <label for="Detail_ACCTEXNO" class="form-label-data"> 分行代號</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.ACCTEXNO, new { @class = "form-control", Maxlength = "50", placeholder = "請輸入分行代號", title = "請輸入分行代號" })
+                    </div>
+                </div>
+                <div id="divBank3" class="form-group-search" style="display:none">
+                    <label for="Detail_BANK_ACCTNO" class="form-label-data">帳號</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.BANK_ACCTNO, new { @class = "form-control", Maxlength = "50", placeholder = "請輸入銀行帳號", title = "請輸入銀行帳號" })
+                    </div>
+                </div>
+
+                <div class="clearfix"></div>
+                <!-- 參訓背景資料 -->
+                <h3 class="titlebar titlebar-lightBlue">參訓背景資料</h3>
+                <div class="form-group-search">
+                    <label for="Detail_Q1_1" class="form-label-data"><span class="text-danger">*</span> 是否由公司推薦參訓</label>
+                    <div class="form-input-data  form-inline">
+                        @Html.RadioGroupFor(m => m.Detail.Q1, Model.YesNo_list, new { @class = "group-width", title = "請選擇參訓背景資料" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label for="Detail_Q2_1_CHECKED" class="form-label-data"><span class="text-danger">*</span> 參訓動機</label>
+                    <div class="form-input-data" title="請勾選參訓動機">
+                        <label class="checkbox-inline">@Html.CheckBoxFor(m => m.Detail.Q2_1_CHECKED, "1")為補充與原專長相關之技能</label>
+                        <label class="checkbox-inline">@Html.CheckBoxFor(m => m.Detail.Q2_2_CHECKED, "1")轉換其他行職業所需技能</label>
+                        <label class="checkbox-inline">@Html.CheckBoxFor(m => m.Detail.Q2_3_CHECKED, "1")拓展工作領域及視野</label>
+                        <label class="checkbox-inline">@Html.CheckBoxFor(m => m.Detail.Q2_4_CHECKED, "1")其他</label>
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label for="rdo_Q3_1" class="form-label-data"><span class="text-danger">*</span> 結訓後之計畫</label>
+                    <div class="form-input-data">
+                        <label class="radio-inline">
+                            @Html.RadioButtonFor(m => m.Detail.Q3, "1", new { @class = "form-inline radioset", id = "rdo_Q3_1", title = "請選擇結訓後之計畫" })
+                            <label style="font-weight:normal; cursor:pointer" for="rdo_Q3_1">1.轉換工作</label><br />
+                        </label>
+                        <label class="radio-inline">
+                            @Html.RadioButtonFor(m => m.Detail.Q3, "2", new { @class = "form-inline radioset", id = "rdo_Q3_2", title = "請選擇結訓後之計畫" })
+                            <label style="font-weight:normal; cursor:pointer" for="rdo_Q3_2">2.留任</label>
+                        </label>
+                        <label class="radio-inline">
+                            @Html.RadioButtonFor(m => m.Detail.Q3, "3", new { @class = "form-inline radioset", id = "rdo_Q3_3", title = "請選擇結訓後之計畫" })
+                            <label style="font-weight:normal; cursor:pointer" for="rdo_Q3_3">3.其他</label>
+                        </label>
+                        @Html.TextBoxFor(m => m.Detail.Q3_OTHER, new { @class = "form-normal", maxlength = "50", placeholder = "請輸入其它說明", title = "請輸入其它說明" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label for="Detail_Q4" class="form-label-data"><span class="text-danger">*</span> 服務單位行業別</label>
+                    <div class="form-input-data">
+                        @Html.DropDownListFor(m => m.Detail.Q4, Model.Q4_list, "請選擇", new { @class = "form-control", title = "請選擇服務單位行業別" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label for="rdo_Q5_Y" class="form-label-data"><span class="text-danger">*</span> 服務單位是否屬於中小企業</label>
+                    <div class="form-input-data">
+                        <label class="radio-inline">
+                            @Html.RadioButtonFor(m => m.Detail.Q5, "1", new { @class = "form-inline radioset", id = "rdo_Q5_Y", title = "請選擇服務單位是否屬於中小企業" })
+                            <label style="font-weight:normal; cursor:pointer" for="rdo_Q5_Y">是</label><br />
+                        </label>
+                        <label class="radio-inline">
+                            @Html.RadioButtonFor(m => m.Detail.Q5, "0", new { @class = "form-inline radioset", id = "rdo_Q5_N", title = "請選擇服務單位是否屬於中小企業" })
+                            <label style="font-weight:normal; cursor:pointer" for="rdo_Q5_N">否</label>
+                        </label>
+                        <p class="text-danger">（製造業、營造業、礦業及土石採取業常僱用員工數未滿二百人者或農林漁牧業、水電燃氣業、商業、運輸、倉儲及通信業、金融保險不動產、工商服務業、社會服務及個人服務業經常僱用員工數未滿五十人者，屬中小企業。）</p>
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label for="Detail_Q61" class="form-label-data"><span class="text-danger">*</span> 個人工作年資</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.Q61, new { @class = "form-normal form-20", Maxlength = "5", title = "請輸入個人工作年資" }) 年
+                        <p class="text-danger">(年資開放小數點填寫，以0.5為最小單位，請自行累加計算。例：年資1~11個月，請填：0.5)</p>
+                    </div>
+                    <label for="Detail_Q62" class="form-label-data"><span class="text-danger">*</span> 在這家公司的年資</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.Q62, new { @class = "form-normal form-20", Maxlength = "5", title = "請輸入在這家公司的年資" }) 年
+                        <p class="text-danger">(年資開放小數點填寫，以0.5為最小單位，請自行累加計算。例：年資1~11個月，請填：0.5)</p>
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label for="Detail_Q63" class="form-label-data"><span class="text-danger">*</span> 在這職位的年資</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.Q63, new { @class = "form-normal form-20", Maxlength = "5", title = "請輸入在這職位的年資" }) 年
+                        <p class="text-danger">(年資開放小數點填寫，以0.5為最小單位，請自行累加計算。例：年資1~11個月，請填：0.5)</p>
+                    </div>
+                    <label for="Detail_Q64" class="form-label-data"><span class="text-danger">*</span> 最近升遷離本職幾年</label>
+                    <div class="form-input-dataHelf">
+                        @Html.TextBoxFor(m => m.Detail.Q64, new { @class = "form-normal form-20", Maxlength = "5", title = "請輸入最近升遷離本職幾年" }) 年
+                        <p class="text-danger">(年資開放小數點填寫，以0.5為最小單位，請自行累加計算。例：年資1~11個月，請填：0.5)</p>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+                <div class="unit-bg unit-bg-green unit-spaces">
+                    <span class="text-danger">*</span> 本人 <strong>
+                        <span id="IseMail2">
+                            <label for="" class="form-inline">
+                                @Html.RadioButtonFor(m => m.Detail.ISEMAIL, "Y", new { @class = "form-inline radioset", id = "rdo_ISEMAIL_Y", title = "請選是否希望定期收到產業人才投資方案最新課程資訊" })
+                                <label style="font-weight:normal; cursor:pointer" for="rdo_ISEMAIL_Y"><strong>希望</strong></label><br />
+                            </label>
+                            <label for="" class="form-inline">
+                                @Html.RadioButtonFor(m => m.Detail.ISEMAIL, "N", new { @class = "form-inline radioset", id = "rdo_ISEMAIL_N", title = "請選是否希望定期收到產業人才投資方案最新課程資訊" })
+                                <label style="font-weight:normal; cursor:pointer" for="rdo_ISEMAIL_N"><strong>不希望</strong></label>
+                            </label>
+                        </span>
+                    </strong> 定期收到產業人才投資方案最新課程資訊。(如點選「希望」，需填妥email)<br>
+                    <span class="text-danger">*</span> 本人 <strong>
+                        <span id="IsDataConfirm3" title="(每次重新點選)">
+                            <label for="" class="form-inline">
+                                @Html.RadioButtonFor(m => m.Detail.ISCHECK, "Y", new { @class = "form-inline radioset", id = "rdo_INSURED_Y", title = "請選擇是否確認(每次重新點選)" })
+                                <label style="font-weight:normal; cursor:pointer" for="rdo_INSURED_Y"><strong>確認</strong></label><br />
+                            </label>
+                            <label for="" class="form-inline">
+                                @Html.RadioButtonFor(m => m.Detail.ISCHECK, "N", new { @class = "form-inline radioset", id = "rdo_INSURED_N", title = "請選擇是否確認(每次重新點選)" })
+                                <label style="font-weight:normal; cursor:pointer" for="rdo_INSURED_N"><strong>未確認</strong></label>
+                            </label>
+                        </span>
+                    </strong>  於開訓當日為具就業保險、勞工保險或農民保險被保險人身分之在職勞工。如不符補助參訓資格，同意於繳費後，依退費相關規定辦理。
+                </div>
+            }
+            <div class="unit-bg unit-bg-green unit-spaces">
+                <p>* 勞動力發展署(含所屬分署)及訓練單位，為辦理產業人才投資方案、本署所屬分署自辦在職訓練、區域產業據點職業訓練計畫之訓練課程及推動職業訓練、就業服務相關政策所需，依個人資料保護法規定，在您提供個人資料前，特告知下列事項： </p>
+                <ol>
+                    <li>
+                        個人資料蒐集目的： <br>
+                        (1) 辦理產業人才投資方案相關事宜。 <br>
+                        (2) 作為政府機關辦理職業訓練或就業服務相關統計、分析。 <br>
+                        (3) 寄送政府機關職業訓練或就業服務相關訊息。
+                    </li>
+                    <li>個人資料類別：包含姓名、性別、出生年月日、身分證號、聯絡方式、學歷、服務單位、年資、投保狀況、身分證影本、存摺資料等(詳如學員基本資料表及補助申請書)、身心障礙(有效期限、舊制障礙類別、新制障礙類別、障礙等級等)。 </li>
+                    <li>個人資料利用之期間、地區、對象及方式：您的個人資料僅供勞動力發展署(含所屬分署)暨相關訓練單位於蒐集目的之必要範圍內，以合理方式利用至蒐集目的消失為止。 </li>
+                    <li>
+                        當事人權利：得依個人資料保護法就自身之個人資料向勞動力發展署所屬分署暨相關訓練單位行使<br>
+                        (1)查詢或請求閱覽。<br>
+                        (2)請求製給複製本。<br>
+                        (3)請求補充或更正。<br>
+                        (4)請求停止蒐集、處理或利用及。<br>
+                        (5)請求刪除您的個人資料之權利。<br>
+                        若您向勞動力發展署所屬分署申請(4)及(5)項，將終止提供您參加產業人才投資方案核定之訓練課程及相關補助訓練費用，若因此導致您的權益產生減損時，勞動力發展署所屬分署暨相關訓練單位不負相關賠償責任。 
+                    </li>
+                    <li>
+                        不提供個人資料之權益影響：若您拒絕提供個人資料為特定目的之利用，勞動力發展署所屬分署暨相關訓練單位恐無法提供您蒐集目的之相關服務。
+                    </li>
+                </ol>
+            </div>
+            <div class="unit-bg unit-bg-green unit-spaces">
+                <span class="text-danger">*</span> 本人已充分獲知且瞭解上述事項，並
+                <strong>
+                    <span id="IsAgree2" title="(每次重新點選)">
+                        @Html.RadioButtonFor(m => m.Detail.ISAGREE, "Y", new { @class = "form-inline radioset", id = "rdo_ISAGREE_Y", title = "請選擇是否同意(每次重新點選)" })
+                        <label style="font-weight:normal; cursor:pointer" for="rdo_ISAGREE_Y"><strong>同意</strong></label>
+                    </span>
+                    <span>
+                        @Html.RadioButtonFor(m => m.Detail.ISAGREE, "N", new { @class = "form-inline radioset", id = "rdo_ISAGREE_N", title = "請選擇是否同意(每次重新點選)" })
+                        <label style="font-weight:normal; cursor:pointer" for="rdo_ISAGREE_N"><strong>不同意</strong></label>
+                    </span>
+                </strong>  於上開所列蒐集目的之合理範圍內，蒐集、處理及利用本人之個人資料。 (如點選不同意，將無法受理報名) <br>
+                <span class="text-danger">*</span> 本人
+                <strong>
+                    <span id="IsDataConfirm4" title="(每次重新點選)">
+                        @Html.RadioButtonFor(m => m.Detail.ISCHECK2, "Y", new { @class = "form-inline radioset", id = "rdo_ISCHECK2_Y", title = "請選擇是否確認上述為個人最新及正確資料(每次重新點選)" })
+                        <label style="font-weight:normal; cursor:pointer" for="rdo_ISCHECK2_Y"><strong>確認</strong></label>
+                        @Html.RadioButtonFor(m => m.Detail.ISCHECK2, "N", new { @class = "form-inline radioset", id = "rdo_ISCHECK2_N", title = "請選擇是否確認上述為個人最新及正確資料(每次重新點選)" })
+                        <label style="font-weight:normal; cursor:pointer" for="rdo_ISCHECK2_N"><strong>未確認</strong></label>
+                    </span>
+                </strong> 上述為個人最新及正確資料。(如點選未確認，將無法受理報名)
+            </div>
+        </div>
+        <div class="submit-bar">
+            <button type="button" data-role="SaveData" class="btn-orange" title="送出報名資料">送出報名資料</button>
+            <button type="button" data-role="GoBack" class="btn-refill" title="取消">取消</button>
+        </div>
+    }
+    @*@Html.Hidden("hid_ZIPCODE_2W", s_ZIPCODE_2W) @Html.Hidden("hid_ZIPCODE2_2W", s_ZIPCODE2_2W) @Html.Hidden("hid_ZIPCODE3_2W", s_ZIPCODE3_2W)*@
+</div>
+
+<!--回查詢清單-->
+@using (Html.BeginForm("Index", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoListForm" }))
+{
+    @Html.Hidden("useCache", 1)
+}
+
+<!--回明細頁-->
+@using (Html.BeginForm("Detail", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoDetailForm" }))
+{
+    @Html.Hidden("PlanType", Model.Form.PlanType)
+    @Html.Hidden("ProvideLocation", Model.Form.ProvideLocation)
+    @Html.Hidden("OCID", Model.Form.OCID)
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // 時間倒數
+        // window.setTimeout('show_secs()', 1);
+
+        //if ($('#hid_ZIPCODE_2W').val() != "") {
+        //    $('#Detail_ZIPCODE_2W').val($('#hid_ZIPCODE_2W').val());
+        //    $('#hid_ZIPCODE_2W').val("");
+        //}
+        //if ($('#hid_ZIPCODE2_2W').val() != "") {
+        //    $('#Detail_ZIPCODE2_2W').val($('#hid_ZIPCODE2_2W').val());
+        //    $('#hid_ZIPCODE2_2W').val("");
+        //}
+        //if ($('#hid_ZIPCODE3_2W').val() != "") {
+        //    $('#Detail_ZIPCODE3_2W').val($('#hid_ZIPCODE3_2W').val());
+        //    $('#hid_ZIPCODE3_2W').val("");
+        //}
+        $('#Detail_MIDENTITYID').change(function () {
+            if ($('#Detail_ACTTYPE').val() != '4' && $('#Detail_ACTTYPE').val() != '') {
+                $('#hid_Detail_ACTTYPE_VAL1').val($('#Detail_ACTTYPE').val());//保留
+            }
+            if ($(this).val() == '43') {
+                $('#Detail_ACTTYPE').val('4'); //4.軍;//設定
+            } else if ($(this).val() != '43') {
+                $('#Detail_ACTTYPE').val($('#hid_Detail_ACTTYPE_VAL1').val()); //重設定
+            }
+            var fg_lock1 = ($(this).val() == '43' && $('#Detail_ACTTYPE').val() == '4');
+            $('#Detail_ACTTYPE').prop('disabled', fg_lock1); // 鎖定/解鎖
+        });
+
+        // 會員基本資料-所有欄位不可編輯（radio,select）
+        $("div[id^='mem_']").find("input").each(function () {
+            $(this).attr("disabled", true);
+        });
+        $("select[id^='mem_']").each(function () {
+            $(this).attr("disabled", true);
+        });
+        $("input[id^='mem_']").each(function () {
+            $(this).attr("disabled", true);
+        });
+
+        //GetZipName 取得 縣市轄區中文 查詢郵遞區號
+        $("input[data-role='zipcode']").blur(function () {
+            var zipcode = $(this).val();
+            var datacity = $(this).attr("data-city");
+
+            var url = '@Url.Action("GetZipName", "Ajax")';
+            var data = { zipcode: zipcode };
+
+            ajaxLoadMore(url, data, function (resp) {
+                if (!(resp === undefined)) {
+                    if (resp.data == null || resp.data == "") {
+                        $("#" + datacity).val("");
+                    } else {
+                        $("#" + datacity).val(resp.data);
+                    }
+                }
+            });
+        });
+
+        //送出報名資料 SaveData
+        $("button[data-role=SaveData]").on("click", function () {
+            const $btn = $(this);
+            const $form = $("form#main_form");
+
+            // 1. 前端初步驗證 (提升效能：減少無效的 AJAX 請求)
+            const isPlan28 = '@Model.Detail.ISPLAN28';
+            const isCheck1 = $('input[name="Detail.ISCHECK"]:checked').val();
+            const isAgree = $('input[name="Detail.ISAGREE"]:checked').val();
+            const isCheck2 = $('input[name="Detail.ISCHECK2"]:checked').val();
+            var blockMsg1 = "";
+            if (isPlan28 === "Y") {
+                if ($('input[name="Detail.ISCHECK"]').length > 0 && isCheck1 !== "Y") blockMsg1 += "*本人「確認」於開訓當日為具就業保險、勞工保險或農民保險被保險人身分之在職勞工。如不符補助參訓資格，同意於繳費後，依退費相關規定辦理。才能報名。\n";
+            }
+            if (isAgree !== "Y") blockMsg1 += "*本人已充分獲知且瞭解上述事項「同意」個人資料蒐集條款。才能報名\n"; //return;
+            if (isCheck2 !== "Y") blockMsg1 += "*本人「確認」上述為個人最新及正確資料。才能報名\n"; //return;
+            if (blockMsg1 != "") {
+                blockAlert(blockMsg1, "提示訊息");
+                return;
+            }
+            // 2. 解鎖欄位以便送出資料
+            $('#Detail_ACTTYPE').prop('disabled', false);
+            const url = "@Url.Action("GetSysDate","Ajax")";
+            //const isPlan28 = '@Model.Detail.ISPLAN28';
+            const vPlanType = '@Model.Form.PlanType';
+
+            // 3. 執行送出流程
+            ajaxLoadMore(url, {}, function (resp) {
+                let msg = "資料確認無誤，確定送出？";
+                if (resp && resp.data) { msg += "<br>目前系統時間為(" + resp.data + ")"; }
+
+                blockConfirm(msg, "提示訊息", function () {
+                    // 防止重複點擊
+                    $btn.prop("disabled", true);
+                    // 4. 動態路由決定
+                    if (isPlan28 === "N") {
+                        if (vPlanType === "2") {
+                            $form.attr("action", '@Url.Action("SignUp06", "SignUp")');
+                        } else if (vPlanType === "5") {
+                            $form.attr("action", '@Url.Action("SignUp70", "SignUp")');
+                        }
+                    }
+                    $form.submit();
+                });
+            });
+        });
+
+        //回查詢清單 GoList
+        $("a[data-role=GoList]").click(function () {
+            $("form#GoListForm").submit();
+        });
+
+        //回明細頁 GoDetail
+        $("a[data-role=GoDetail]").click(function () {
+            $("form#GoDetailForm").submit();
+        });
+
+        $("button[data-role=GoDetail]").click(function () {
+            $("form#GoDetailForm").submit();
+        });
+
+        //取消鈕
+        $("button[data-role=GoBack]").click(function () {
+            var isPlan28 = '@Model.Detail.ISPLAN28';
+            var isOnlineSignUp = '@sm.IsOnlineSignUp';
+            var actionName = "";
+
+            if (isPlan28 == "Y") {
+                actionName = '@Url.Action("Index", "SignUp")';
+            } else {
+                if (isOnlineSignUp == "Y") {
+                    //回到線上報名-課程代碼查詢頁
+                    actionName = '@Url.Action("Online1", "SignUp")';
+                } else {
+                    //回課程明細頁
+                    actionName = '@Url.Action("Detail", "ClassSearch")';
+                }
+            }
+            blockConfirm("資料未存檔，確定離開此網頁 ?！", "", function () {
+                $("form#GoDetailForm").attr("action", actionName).submit();
+            })
+        });
+
+        //是否有行動電話 選取改變事件
+        $('input[name="Detail.HASMOBILE"]').on("change", function () {
+            if ($(this).val() == "Y")
+                $("#Detail_CELLPHONE").attr("disabled", false);
+            else
+                $("#Detail_CELLPHONE").attr("disabled", true);
+        });
+
+        //是否有email 選取改變事件
+        $('input[name="Detail.HASEMAIL"]').on("change", function () {
+            if ($(this).val() == "Y")
+                $("#Detail_EMAIL").attr("disabled", false);
+            else
+                $("#Detail_EMAIL").attr("disabled", true);
+        });
+
+
+        // 切換郵政/銀行帳號選項，顯示各自對應的帳號填寫表單資訊
+        $('input[id^="rdo_ACCTMODE"]').on("change", function () {
+            var rdoVal = $(this).val();
+            doShowAcctForm(rdoVal);
+        });
+
+        // 填寫勞保證號提示訊息
+        $("a[data-role='ACTNO_MSG']").on("click", function () {
+            var msg = "請依勞保明細表確實填寫。<br>";
+            msg += "另參加職前訓練期間，接受政府訓練經費補助者<br>";
+            msg += "(勞保投保證號前2碼數字為09訓字保之參訓學員)<br>";
+            msg += "，及勞保明細表為裁字保之參訓學員，不予補助訓練費用。";
+
+            blockAlert(msg, "提示訊息", function () { });
+        });
+
+        // 判斷是要顯示銀行or郵局帳號填寫區
+        var acctMode = '@(Model.Detail.ACCTMODE)';
+        doShowAcctForm(acctMode);
+    });
+
+    // 銀行/郵局帳號填寫區顯示控制
+    function doShowAcctForm(acctMode) {
+        var divPost = $("#divPost");
+        var divBank1 = $("#divBank1");
+        var divBank2 = $("#divBank2");
+        var divBank3 = $("#divBank3");
+
+        divPost.hide();
+        divBank1.hide();
+        divBank2.hide();
+        divBank3.hide();
+
+        switch (acctMode) {
+            case "0": //郵局
+                divPost.show();
+                break;
+            case "1": //銀行
+                divBank1.show();
+                divBank2.show();
+                divBank3.show();
+                break;
+        }
+    }
+
+    // 地址複製(通訊-->戶籍)
+    function copyZip() {
+        if ($("#mycheckbox").prop("checked")) {
+            $('#Detail_ZIPCODE2').val($('#Detail_ZIPCODE').val());
+            $('#Detail_ZIPCODE2_2W').val($('#Detail_ZIPCODE_2W').val());
+            $('#Detail_ZIPCODE2_6W').val($('#Detail_ZIPCODE').val() + $('#Detail_ZIPCODE_2W').val());
+
+            $('input[name="Detail_ZIPCODE2"]').val($('input[name="Detail_ZIPCODE"]').val());
+            $('input[name="CITY2"]').val($('input[name="CITY1"]').val());
+            $('#Detail_HOUSEHOLDADDRESS').val($('#Detail_ADDRESS').val());
+        } else {
+            $('#Detail_ZIPCODE2').val('');
+            $('#Detail_ZIPCODE2_2W').val('');
+            $('#Detail_ZIPCODE2_6W').val('');
+            $('input[name="Detail_ZIPCODE2"]').val('');
+            $('input[name="CITY2"]').val('');
+            $('#Detail_HOUSEHOLDADDRESS').val('');
+        }
+    }
+
+    // 郵遞區號地址資料選取對話框
+    // flag: 1為通訊地址、2為戶籍地址、3.投保單位地址
+    var onZipSelect;
+
+    function doZipSelect(flag) {
+        var url = '@Url.Action("Index", "Zip")';
+        var title = "郵遞區號查詢";
+        var arrBtn = "";
+        var params = { onclickHandler: "onZipSelect" };
+
+        // 回傳的data中包含，// zipcode:郵遞區號前三碼// zipcode2:郵遞區號後兩碼// ctname:縣市名稱// zipname:鄉鎮市區名稱// road:街道名稱
+        onZipSelect = function (data) {
+            if (data != undefined) {
+                switch (flag) {
+                    case 1:
+                        $("#Detail_ZIPCODE").val(data.zipcode);
+                        $("#Detail_ZIPCODE_2W").val(data.zipcode2);
+                        $("#Detail_ZIPCODE_6W").val(data.zipcode + data.zipcode2);
+                        $("#CITY1").val(data.ctname + data.zipname);
+                        $("#Detail_ADDRESS").val(data.road);
+                        break;
+                    case 2:
+                        $("#Detail_ZIPCODE2").val(data.zipcode);
+                        $("#Detail_ZIPCODE2_2W").val(data.zipcode2);
+                        $("#Detail_ZIPCODE2_6W").val(data.zipcode + data.zipcode2);
+                        $("#CITY2").val(data.ctname + data.zipname);
+                        $("#Detail_HOUSEHOLDADDRESS").val(data.road);
+                        break;
+                    case 3:
+                        $("#Detail_ZIPCODE3").val(data.zipcode);
+                        $("#Detail_ZIPCODE3_2W").val(data.zipcode2);
+                        $("#Detail_ZIPCODE3_6W").val(data.zipcode + data.zipcode2);
+                        $("#CITY3").val(data.ctname + data.zipname);
+                        $("#Detail_ACTADDRESS").val(data.road);
+                        break;
+                }
+            }
+        }
+
+        popupDialog(url, title, arrBtn, 600, params);
+    }
+
+    /*時間倒數判斷
+   var time_start = new Date();var clock_start = time_start.getTime();
+// 顯示時間
+function get_time_spent() {
+var time_now = new Date();
+return ((time_now.getTime() - clock_start) / 1000);
+}
+// 顯示時間倒數
+function show_secs() {
+var i_total_secs = 30 * 60 - Math.round(get_time_spent());
+var i_secs_spent = i_total_secs % 60;
+var i_mins_spent = Math.round((i_total_secs - 30) / 60);
+var s_secs_spent = "" + ((i_secs_spent > 9) ? i_secs_spent : "0" + i_secs_spent);
+var s_mins_spent = "" + ((i_mins_spent > 9) ? i_mins_spent : "0" + i_mins_spent);
+var spanTimer = $("span#spanTimer");
+spanTimer.text(s_mins_spent + ":" + s_secs_spent);
+if (spanTimer.text() != '00:00') {
+window.setTimeout('show_secs()', 1000);
+}
+else {
+blockAlert("你已超過使用時間30分鐘<br>請重新登錄，謝謝", "提示訊息", function () {
+location.href = 'Url.Action("CheckEdit","EnterType")';});return false;}}
+*/
+</script>

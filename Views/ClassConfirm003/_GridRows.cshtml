@@ -1,0 +1,35 @@
+﻿@model WDAIIP.WEB.Models.ClassConfirm003ViewModel
+
+@if (Model.Grid_list != null && Model.Grid_list.Count > 0)
+{
+    foreach (var item in Model.Grid_list)
+    {
+        <tr align="center" valign="middle">
+            <td>@item.ORGNAME</td>
+            @*<td><a href="javascript:showclassdetail(3,'N',@item.OCID)" title="@item.CLASSCNAME">@item.CLASSCNAME</a></td>*@
+            <td>@item.CLASSCNAME</td>
+            @*<td>@item.OCID</td>*@
+            <td>@item.CONFIRDATE_TW</td>
+            <td><a href="javascript:showstuddetail(@item.OCID,'@item.CFGUID',@item.CFSEQNO)" title="檢視">檢視</a></td>
+        </tr>
+    }
+}
+else
+{
+    <tr><td colspan="5"><center>查無資料</center></td></tr>
+}
+<script type="text/javascript">
+    //課程清單查詢
+    function showclassdetail(PlanType, ProvideLocation, OCID) {
+        var data = { "PlanType": PlanType, "ProvideLocation": ProvideLocation, "OCID": OCID };
+        var url = '@Url.Action("Detail", "ClassSearch")';
+        goBackPage(url, data, 2, 'POST');
+    }
+
+    //學生清單查詢
+    function showstuddetail(OCID, CFGUID, CFSEQNO) {
+    var data = { "OCID": OCID, "CFGUID": CFGUID, "CFSEQNO": CFSEQNO };
+    var url = '@Url.Action("Detail", "ClassConfirm003")';
+    goBackPage(url, data, 2, 'POST');
+}
+</script>

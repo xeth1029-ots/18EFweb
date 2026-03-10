@@ -1,0 +1,22 @@
+﻿@using Turbo.Crypto
+@using WDAIIP.WEB.Models
+@model HomeViewModel
+
+@if (Model == null || Model.TopPlanGrid == null || Model.TopPlanGrid.Count == 0)
+{
+    <tr>
+        <td colspan="2" class="text-center">尚無資料</td>
+    </tr>
+}
+else
+{
+    foreach (TopContentGridModel item in Model.TopPlanGrid)
+    {
+        AesTk aesTk = new AesTk();
+        <tr>
+            @*<td width="80%"><a href="javascript:showPlan(@item.SEQNO)" title="@item.C_TITLE_TEXT">@(item.C_TITLE_TEXT)</a></td>*@
+            <td width="80%">@Html.ActionLink(item.C_TITLE_TEXT, "Detailv2", new { SUFU = "2", SEQ = aesTk.CreateHash(item.SEQNO.ToString()), WXR = aesTk.Encrypt(item.SEQNO.ToString()) }, new { title = item.C_TITLE_TEXT })</td>
+            <td width="20%" class="newsDate">@item.C_SDATE_TW</td>
+        </tr>
+    }
+}

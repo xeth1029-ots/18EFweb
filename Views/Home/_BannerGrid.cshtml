@@ -1,0 +1,13 @@
+﻿@model WDAIIP.WEB.Models.HomeViewModel
+@using WDAIIP.WEB.Models
+
+@*_BannerGrid.cshtml*@
+@if (Model.BannerGrid != null)
+{
+    foreach (var item in Model.BannerGrid)
+    {
+        <li>
+            <a class="aBanner" href="@(string.IsNullOrEmpty(item.B_URL) ? "javascript:void(0)" : item.B_URL)" title="@("前往" + item.B_TITLE + "(另開新視窗)")" target="_blank"><img src="@Url.Content(ConfigModel.UploadTempPath + "/BANNER/")@item.FILE_NAME" alt="@item.B_ALT" /></a>
+        </li>
+    }
+}

@@ -1,0 +1,103 @@
+﻿@model WDAIIP.WEB.Models.KeepUseClassSearchViewModel
+@{
+    ViewBag.Title = "適用留用外國中階技術工作人力-課程列表";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    //string tPlanType = Model.Form.KeepUseType; //string tPlanType = Model.Form.PlanType;
+    string s_TIT1 = "下列課程請向訓練單位聯絡窗口聯繫報名，並全額自費參訓";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / @ViewBag.Title  </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fas fa-search space-right"></i>@ViewBag.Title</h3>
+
+    <ul class="question-type">
+        @if ((Model.Form.PlanType).Equals("1"))
+        {
+            <li style="width:48%"><a id="a28" href="javascript:classsearch('1')" class="active" title="@(s_TIT1)">@(s_TIT1)</a></li>
+        }
+        else
+        {
+            <li style="width:48%"><a id="a28" href="javascript:classsearch('1')" title="@(s_TIT1)">@(s_TIT1)</a></li>
+        }
+    </ul>
+   
+    @*<div class="col-sm-12"><br /></div>*@
+    <div class="clearfix"></div>
+
+    <!-- 上下的分隔線 -->
+    @if (Model.Grid1 != null  )
+    {
+        <div class="table-responsive">
+            <table width="100" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    @*用來判斷是用哪一個標頭*@
+                    @if (Model.Grid1 != null  )
+                {
+                        <tr>
+                            <th width="14%" rowspan="2" scope="col">訓練班別(訓練單位)</th>
+                            <th width="6%" rowspan="2" scope="col">課程代碼</th>
+                            <th width="6%" rowspan="2" scope="col">訓練人數</th>
+                            <th width="6%" rowspan="2" scope="col">訓練時數</th>
+                            <th colspan="2" scope="colgroup">訓練費用</th>
+                            <th width="7%" rowspan="2" scope="col">學科訓練地點</th>
+                            <th width="7%" rowspan="2" scope="col">術科訓練地點</th>
+        @*@if (Model.Form.ProvideLocation == "Y") {
+            <th width="8%" rowspan="2">距離公里數<a href="javascript: doSort();"><i class="fa fa-caret-up text-primary" aria-hidden="true"></i></a>
+                <a href="javascript: doSort();"><i class="fa fa-caret-down text-primary" aria-hidden="true"></i></a> </th> }*@
+                            <th width="8%" rowspan="2" scope="col">報名日期</th>
+                            <th width="8%" rowspan="2" scope="col">招生狀態</th>
+                            <th width="8%" rowspan="2" scope="col">預訂訓練起迄日期</th>
+                            <th width="8%" rowspan="2" scope="col">報名繳費方式</th>
+                        </tr>
+                        <tr>
+                            <th width="6%" scope="col">學員負擔</th>
+                            <th width="6%" scope="col">政府負擔</th>
+                        </tr>
+                    }
+                    
+                </thead>
+                <tbody id="rows">
+                    @Html.Partial("_GridRows", Model)
+                </tbody>
+            </table>
+        </div>
+        @Html.Partial("_PagingLink", Model.Form)
+    }
+    <!-- pager end -->
+</div>
+
+@using (Html.BeginForm("Index", "KeepUseClassSearch", FormMethod.Post, new { id = "main_form" }))
+{
+    @Html.HiddenFor(m => m.Form.PlanType)
+    @Html.HiddenFor(m => m.Form.KeepUseType)
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        var isFirst = '@Model.Form.IsFirst';
+        var planTypeSel = '@Model.Form.PlanType';
+
+        if (isFirst == "N") {
+            switch (planTypeSel) {
+                case "1": //產投
+                    $("#a28").focus();
+                    break;
+            }
+        }
+    });
+
+    //課程清單查詢
+    function classsearch(PlanType) {
+        var form = $("#main_form");
+        form.find("#Form_PlanType").val(PlanType);
+        form.submit();
+    }
+
+    //滑出式的問與答
+    function ajaxCallback(rasp) {
+        if (rasp) {
+            $("#rows").empty().html(rasp);
+        }
+    }
+</script>

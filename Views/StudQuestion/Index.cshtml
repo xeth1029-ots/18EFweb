@@ -1,0 +1,179 @@
+﻿@model WDAIIP.WEB.Models.StudQuestionViewModel
+@*@using Turbo.Commons*@
+
+@{
+    ViewBag.Title = "會員專區--課後意見調查";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / 課後意見調查</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-clipboard-list space-right"></i>課後意見調查</h3>
+    <!-- search form start -->
+    <div class="unit-border">
+        <div class="">
+            <div class="unit-bg unit-bg-green">
+                <p><strong>本功能使用說明：</strong></p>
+                <ol>
+                    <li>請依需求點選相關功能，於台灣就業通網站登入會員後，再繼續使用下列功能。</li>
+                    <li>產業人才投資方案：結訓時應填寫「參訓學員意見調查表」方得申請訓練補助，並請於訓後3個月填寫「參訓學員訓後動態調查表」。</li>
+                    <li>分署自辦在職訓練、接受企業委託訓練：分署查課時應填寫「受訓期間意見調查表」，並於結訓前填寫「期末學員滿意度調查表」。</li>
+                </ol>
+            </div>
+            <div class="clearfix"></div>
+            <div class="submit-bar text-center">
+                <!--aFac/aFin/aTrain/aTion-->
+                <ul class="plan-nav-min4">
+                    <li><a id="aFac" href="javascript:void(0)" class="active" title="參訓學員意見調查表">參訓學員意見調查表<br />(產投)</a>
+                    <li><a id="aFin" href="javascript:void(0)" title="參訓學員訓後動態調查表">參訓學員訓後動態調查表<br />(產投)</a>
+                    <li><a id="aTrain" href="javascript:void(0)" title="受訓期間意見調查表">受訓期間意見調查表<br />(分署自辦/接受企業委託)</a>
+                    <li><a id="aTion" href="javascript:void(0)" title="期末學員滿意度調查表">期末學員滿意度調查表<br />(分署自辦/接受企業委託)</a>
+                </ul>
+                @if (Model != null && Model.Grid != null)
+                {
+                    <!-- table -->
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-vert">
+                            <tr>
+                                <th width="10%">年度</th>
+                                <th>訓練班別</th>
+                                <th width="10%">狀態</th>
+                                <th width="10%">功能</th>
+                            </tr>
+                            <tbody id="rows">
+                                @Html.Partial("_GridRows", Model)
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- pager start -->
+                    @Html.Partial("_PagingLink", Model.Form)
+                    <!-- pager end -->
+                    <!-- btn -->
+                    <div class="submit-bar text-center">
+                        <p>
+                            <button type="button" onclick="location.href ='@Url.Content("~/StudQuestion")';" class="btn-orange" title="回上一頁">回上一頁</button>
+                    </div>
+                }
+            </div>
+            <!-- search form end -->
+            <p><p>
+        </div>
+        <!-- search form end -->
+    </div>
+</div>
+
+@using (Html.BeginForm("Index", "StudQuestion", FormMethod.Post, new { id = "searchForm" }))
+{
+    @Html.HiddenFor(m => m.Form.QueType)
+}
+
+@*參訓學員意見調查表-明細*@
+@using (Html.BeginForm("ModifyFac", "StudQuestion", FormMethod.Post, new { id = "queForm" }))
+{
+    @Html.Hidden("OCID")
+    @Html.Hidden("SOCID")
+    @Html.Hidden("YEARS")
+    @Html.Hidden("CANWRITE")
+}
+
+@*參訓學員訓後動態調查表-明細*@
+@*using (Html.BeginForm("FinDetail", "StudQuestion", FormMethod.Post, new { id = "finForm" })) { }*@
+
+<script type="text/javascript">
+    $(function () {
+        //-aFac / aFin / aTrain / aTion
+        //aFac-參訓學員意見調查表/aFin-參訓學員訓後動態調查表/aTrain-受訓期間意見調查表/aTion-期末學員滿意度調查表
+        $("a#aFac").on("click", function () { search(1); });
+        $("a#aFin").on("click", function () { search(2); });
+        $("a#aTrain").on("click", function () { search(3); });
+        $("a#aTion").on("click", function () { search(4); });
+
+        chgTab();
+    });
+
+    //切換按鈕active
+    function chgTab() {
+        $("a#aFac").removeClass("active");
+        $("a#aFin").removeClass("active");
+        $("a#aTrain").removeClass("active");
+        $("a#aTion").removeClass("active");
+
+        var form = $("#searchForm");
+        var queType = form.find("input[name='Form.QueType']");
+        switch (queType.val()) {
+            case "1": //參訓學員意見調查表
+                $("a#aFac").addClass("active");
+                break;
+            case "2": //參訓學員訓後動態調查表
+                $("a#aFin").addClass("active");
+                break;
+            case "3": //受訓期間意見調查表
+                $("a#aTrain").addClass("active");
+                break;
+            case "4": //期末學員滿意度調查表
+                $("a#aTion").addClass("active");
+                break;
+            default: //參訓學員意見調查表
+                $("a#aFac").addClass("active");
+                break;
+        }
+    }
+
+    //調查表查詢
+    function search(queTypeVal) {
+        var searchForm = $("#searchForm");
+        var queType = searchForm.find("input[name='Form.QueType']");
+        queType.val(queTypeVal);
+        searchForm.submit();
+    }
+
+    //編輯
+    function edit(elm) {
+        var url = "";
+        var tr = $(elm).closest(".que-row");
+        var canWriteMsg = $(tr).attr("data-canwritemsg");
+        var canWrite = $(tr).attr("data-canwrite");
+        var ocid = $(tr).find("input[id=OCID]");
+        var socid = $(tr).find("input[id=SOCID]");
+        var planYear = $(tr).find("input[id=PLANYEAR]");
+
+        var searchForm = $("#searchForm");
+        var queType = searchForm.find("input[name='Form.QueType']");
+
+        var queForm = $("#queForm");
+        var queOcid = queForm.find("input[id=OCID]");
+        var queSOcid = queForm.find("input[id=SOCID]");
+
+        if (canWriteMsg != "") {
+            blockAlert(canWriteMsg, "", function () {
+                //callback function
+            });
+            return false;
+        }
+        else {
+            //ModifyFac-參訓學員意見調查表/ModifyFin-參訓學員訓後動態調查表/ModifyTrain-受訓期間意見調查表/ModifyTion-期末學員滿意度調查表
+            switch (queType.val()) {
+                case "1":
+                    url = '@Url.Action("ModifyFac", "StudQuestion")';
+                    break;
+                case "2":
+                    url = '@Url.Action("ModifyFin", "StudQuestion")';
+                    break;
+                case "3":
+                    url = '@Url.Action("ModifyTrain", "StudQuestion")';
+                    break;
+                case "4":
+                    url = '@Url.Action("ModifyTion", "StudQuestion")';
+                    break;
+            }
+
+            queForm.attr("action", url);
+            queOcid.val(ocid.val());
+            queSOcid.val(socid.val());
+            queForm.submit();
+        }
+    }
+</script>

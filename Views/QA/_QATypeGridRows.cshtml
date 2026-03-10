@@ -1,0 +1,22 @@
+﻿@model WDAIIP.WEB.Models.QAViewModel
+
+@if (Model.QATYPE_list != null && Model.QATYPE_list.Count > 0)
+{
+    for (int i = 0; i < Model.QATYPE_list.Count; i++)
+    {
+        var item = Model.QATYPE_list[i];       
+        
+        if ((Model.Form.TYPEID).Equals(item.CODE))
+        {
+            <li><a id="aQATypeID_@(item.CODE)" href="javascript:void(0)" class="active" title="@item.DESCR" onclick="doQuery('@item.CODE')" onkeypress="doQuery('@item.CODE')">@item.DESCR</a></li>
+        }
+        else
+        {
+            <li><a id="aQATypeID_@(item.CODE)" href="javascript:void(0)" title="@item.DESCR" onclick="doQuery('@item.CODE')" onkeypress="doQuery('@item.CODE')">@item.DESCR</a></li>
+        }
+    }
+}
+else
+{
+    <div>查無資料</div>
+}

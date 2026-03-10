@@ -1,0 +1,150 @@
+﻿@{
+    ViewBag.Title = "課程查詢報名--課程報名處理中";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+    // ViewBag.TestSignUpTimeout
+    //string waitTXT1 = "系統報名時間最多約3分鐘!若超過這時間，請檢查網路或其他問題";
+    string waitTXT1 = "系統報名時間最多約3分鐘!若超過這時間，請檢查網路或其他問題，再重新操作";
+    int tstSECOND = 30; //測試用的逾時秒數-30秒
+                        //int tstSECOND = 60 * 5; //測試用的逾時秒數-30秒
+    ViewBag.UnlockTimeOut = "3";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程報名結果</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fas fa-edit space-right"></i>報名收件處理中!!</h3>
+    <!-- news content start -->
+    <div class="news-content">
+        <div class="clearfix"></div>
+
+        <!-- privacy start -->
+        <div class="newsgroup">
+            <div class="" style="text-align:center">
+
+                <div class="unit-bg unit-bg-green">
+                    <p>請等待系統處理結果，勿關閉瀏覽器！不要離開當前頁面！</p>@*<p>也不要離開當前頁面！</p>*@
+                    <p>若超過3分鐘請離開當前頁面重新操作！</p>
+                    @*<p>@(waitTXT1)</p>*@
+                    <img src="~/images/progress-bar-gif-13.gif" width="120" alt="處理中圖示" />
+                    <p id="StatusInfo" class="statusinfo" style="color:red"></p>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+
+        </div>
+        <!-- privacy end -->
+
+    </div>
+    <!-- news content end -->
+</div>
+<form id="postResultForm" action="@Url.Content("~/SignUp/SignUpResult")" method="post">
+    <input type="hidden" name="ocid" value="@ViewBag.OCID" />
+</form>
+
+<script>
+    // 1. 初始化常數與變數
+    const UNLCOK_TIME_OUT = @(ViewBag.UnlockTimeOut ?? 3); // 逾時分鐘數
+    const MAX_WAIT_MS = UNLCOK_TIME_OUT * 60 * 1000;      // 轉換為毫秒
+    const START_TIME = Date.now();                        // 記錄開始精確時間
+    const CHECK_INTERVAL = 2000;                          // 輪詢間隔 (2秒)
+    const TEST_TIMEOUT_SEC = @(tstSECOND);                // 測試用的逾時秒數
+    const IS_TEST_MODE = '@ViewBag.TestSignUpTimeout' === 'Y';
+
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+
+    $(function () {
+        // 開始第一次檢查
+        CheckStatus();
+    });
+
+    function CheckStatus() {
+        const url = "@Url.Action("SignUpStatus")";
+        const parms = { json: "Y" };
+
+        // 使用原本定義的 ajaxLoadJson，但加入錯誤處理回呼
+        ajaxLoadJson(url, parms, ShowStatus, false, function (xhr, status, error) {
+            handleNetworkError();
+        });
+    }
+
+    function ShowStatus(data) {
+        if (!data) {
+            handleNetworkError();
+            return;
+        }
+
+        // 重置重試計數
+        retryCount = 0;
+
+        // 2. 計算精確經過時間
+        const elapsedMs = Date.now() - START_TIME;
+        const timeStr = formatElapsed(elapsedMs);
+
+        // 3. 檢查是否逾時 (正式環境 或 測試模式)
+        const isExpired = elapsedMs >= MAX_WAIT_MS || (IS_TEST_MODE && (elapsedMs / 1000) >= TEST_TIMEOUT_SEC);
+
+        if (isExpired) {
+            const expireMsg = "系統逾時，請重新報名操作！ " + timeStr;
+            ShowInfo("報名失敗, " + expireMsg);
+            blockAlert("產投課程報名收件失敗: " + expireMsg, "", function () {
+                window.location = "@Url.Content("~/")";
+            });
+            return;
+        }
+
+        // 4. 狀態處理映射表 (提升可讀性與維護性)
+        const statusMap = {
+            0: "等候系統處理...",
+            1: "系統處理中...",
+            2: "處理結束(報名收件成功)!",
+            3: "處理結束(報名收件失敗)!",
+            9: "系統異常!"
+        };
+
+        const statusMsg = statusMap[data.Status] || "等候系統處理...";
+        ShowInfo(`${statusMsg} <br> 已經過時間：${timeStr}`);
+
+        // 5. 根據狀態執行動作
+        switch (parseInt(data.Status)) {
+            case 2: // 成功
+                const $form = $("#postResultForm");
+                if (data.OCID) $form.find("input[name=ocid]").val(data.OCID);
+                $form.submit();
+                break;
+            case 3: // 失敗
+            case 9: // 異常
+                blockAlert(`產投課程報名收件失敗: ${data.ErrMsg || statusMsg}`, "", function () {
+                    window.location = "@Url.Content("~/")";
+                });
+                break;
+            default: // 繼續輪詢 (Status 0 或 1)
+                setTimeout(CheckStatus, CHECK_INTERVAL);
+                break;
+        }
+    }
+
+    // 網路錯誤重試機制
+    function handleNetworkError() {
+        if (retryCount < MAX_RETRIES) {
+            retryCount++;
+            console.warn(`網路連線異常，正在進行第 ${retryCount} 次重試...`);
+            setTimeout(CheckStatus, CHECK_INTERVAL);
+        } else {
+            blockAlert("連線不穩定或伺服器無回應，請檢查網路後重新操作。", "系統錯誤", function () {
+                window.location = "@Url.Content("~/")";
+            });
+        }
+    }
+
+    // 輔助函式：格式化時間顯示
+    function formatElapsed(ms) {
+        const totalSec = Math.floor(ms / 1000);
+        const min = Math.floor(totalSec / 60);
+        const sec = totalSec % 60;
+        return min > 0 ? `${min} 分 ${sec} 秒` : (sec > 0 ? `${sec} 秒` : ``);
+    }
+
+    function ShowInfo(msg) { $(".newsgroup .unit-bg .statusinfo").html(msg); }
+</script>

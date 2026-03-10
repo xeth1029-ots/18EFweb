@@ -1,0 +1,453 @@
+﻿@model WDAIIP.WEB.Models.StudQuestionViewModel
+
+@{
+    ViewBag.Title = "會員專區--參訓學員意見調查表明細";
+    ViewBag.Title_2 = "課後意見調查";
+    ViewBag.Title_3 = string.Format("{0} 參訓學員意見調查表", Model.FacDetail.ORGPLANNAME);
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    string[] StdBase1 = { "", "加強原專長相關技能", "培育第二專長或轉換其他行職業所需技能", "考取相關檢定或證照", "拓展人脈", "使用政府提供之訓練費用補助", "其他（請說明）" };
+    string[] showNum1 = { "", "(1)", "(2)", "(3)", "(4)", "(5)", "(6)", "(7)", "(8)", "(9)", "(10)", "(11)", "(12)", "(13)", "(14)", "(15)" };
+    string s_C21_NOTE_MaxLength_Title = string.Format("(限制:{0}字 含空白、換行及其它字元)", Model.FacDetail.C21_NOTE_MaxLength);
+}
+
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / @Html.Raw(ViewBag.Title_2)</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-clipboard-list space-right"></i>@Html.Raw(ViewBag.Title_2)</h3>
+    <!-- search form start -->
+    <div class="unit-border">
+        @using (Html.BeginForm("SaveFac", "StudQuestion", FormMethod.Post, new { name = "form1" }))
+        {
+            @Html.HiddenFor(m => m.FacDetail.IsNew)
+            @Html.HiddenFor(m => m.FacDetail.OCID)
+            @Html.HiddenFor(m => m.FacDetail.SOCID)
+
+            <!-- table -->
+            <h3 class="titlebar titlebarBg-green">@Html.Raw(ViewBag.Title_3)</h3>
+            <div class="table-responsive">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-form">
+                    <tr>
+                        <th colspan="2">
+                            本問卷係本署為瞭解參訓學員接受此項訓練的意見和建議，請以打√方式填答每一題項，如有其他意見請於第三部份：（二）其他建議欄以文字敘述；@*您亦可至產業人才投資方案報名網（http://tims.etraining.gov.tw/timsonline/check.aspx）填寫，*@上網填答的內容僅供本署內部查閱，不對外公開，請安心填寫，感謝您的配合！
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan="2">學員基本資料</th>
+                    </tr>
+                    <tr>
+                        <td width="30%">(一) 參加產投方案動機（可複選）：</td>
+                        <td width="70%">
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.S11_CHECKED, "Y") @showNum1[1]@StdBase1[1]</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.S12_CHECKED, "Y") @showNum1[2]@StdBase1[2]</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.S13_CHECKED, "Y") @showNum1[3]@StdBase1[3]</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.S14_CHECKED, "Y") @showNum1[4]@StdBase1[4]</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.S15_CHECKED, "Y") @showNum1[5]@StdBase1[5]</label>
+                            <label class="checkbox-inline">
+                                @Html.CheckBoxFor(m => m.FacDetail.S16_CHECKED, "Y")@showNum1[6]@StdBase1[6]
+                                @Html.TextBoxFor(m => m.FacDetail.S16_NOTE, new { @class = "form-normal", maxlength = "100", placeholder = "勾選其他請填寫", title = "限制:100字" })
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>(二) 是否為第1次參加產業人才投資方案課程？</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.S2, "1") @showNum1[1]是</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.S2, "2") @showNum1[2]否</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>(三) 服務單位員工人數：</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.S3, "1") @showNum1[1]9人以下</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.S3, "2") @showNum1[2]10人-29人</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.S3, "3") @showNum1[3]30人-49人</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.S3, "4") @showNum1[4]50人-99人</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.S3, "5") @showNum1[5]100人-199人</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.S3, "6") @showNum1[6]200人-499人</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.S3, "7") @showNum1[7]500人以上</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">第一部份：參加產投方案考量因素</th>
+                    </tr>
+
+                    <tr>
+                        <td>(一) 您獲得本次課程的訊息來源（可複選）：</td>
+                        <td>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.A1_1_CHECKED, "Y") @showNum1[1]本署或分署網站</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.A1_2_CHECKED, "Y") @showNum1[2]就業服務中心</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.A1_3_CHECKED, "Y") @showNum1[3]訓練單位</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.A1_4_CHECKED, "Y") @showNum1[4]搜尋網站</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.A1_5_CHECKED, "Y") @showNum1[5]報紙</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.A1_6_CHECKED, "Y") @showNum1[6]廣播</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.A1_7_CHECKED, "Y") @showNum1[7]電視</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.A1_8_CHECKED, "Y") @showNum1[8]親友介紹</label>
+                            <label class="checkbox-inline">@Html.CheckBoxFor(m => m.FacDetail.A1_9_CHECKED, "Y") @showNum1[9]社群媒體(ex：臉書、LINE)</label>
+                            <label class="checkbox-inline">
+                                @Html.CheckBoxFor(m => m.FacDetail.A1_10_CHECKED, "Y") @showNum1[10]其他
+                                @Html.TextBoxFor(m => m.FacDetail.A1_10_NOTE, new { @class = "form-normal", maxlength = "100", placeholder = "勾選其他請填寫", title = "限制:100字" })
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>(二) 參加本次課程的主要原因：</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A2, "1") @showNum1[1]課程符合就業市場需求</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A2, "2") @showNum1[2]課程符合目前工作需求</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A2, "3") @showNum1[3]課程符合個人興趣</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A2, "4") @showNum1[4]可取得課程相關證照或證書</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A2, "5") @showNum1[5]學習第二專長</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A2, "6") @showNum1[6]師資具知名度或專業性</label>
+                            <label class="radio-inline">
+                                @Html.RadioButtonFor(m => m.FacDetail.A2, "7") @showNum1[7]其他
+                                @Html.TextBoxFor(m => m.FacDetail.A2_7_NOTE, new { @class = "form-normal", maxlength = "100", placeholder = "勾選其他請填寫", title = "限制:100字" })
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>(三) 選擇本訓練單位的主要原因：</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A3, "1") @showNum1[1]環境、設備良好</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A3, "2") @showNum1[2]具課程專業度</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A3, "3") @showNum1[3]行政人員服務良好</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A3, "4") @showNum1[4]為訓練單位之會員</label>
+                            <label class="radio-inline">
+                                @Html.RadioButtonFor(m => m.FacDetail.A3, "5") @showNum1[5]其他
+                                @Html.TextBoxFor(m => m.FacDetail.A3_5_NOTE, new { @class = "form-normal", maxlength = "100", placeholder = "勾選其他請填寫", title = "限制:100字" })
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>(四) 沒有參加本方案訓練之前，每年參加訓練支出的費用？</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "1") @showNum1[1]0元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "2") @showNum1[2]999元以下</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "3") @showNum1[3]1,000元-3,999元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "4") @showNum1[4]4,000元-6,999元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "5") @showNum1[5]7,000元-9,999元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "6") @showNum1[6]10,000元-19,999元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "7") @showNum1[7]20,000元-29,999元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "8") @showNum1[8]30,000元-39,999元</label>
+                            @*<label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "9")9.4,000元-6,999元</label>*@
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A4, "9") @showNum1[9]40,000元以上</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>(五) 如果沒有補助訓練費用，你每年願意自費參加訓練課程的金額？</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "1") @showNum1[1]0元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "2") @showNum1[2]999元以下</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "3") @showNum1[3]1,000元-3,999元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "4") @showNum1[4]4,000元-6,999元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "5") @showNum1[5]7,000元-9,999元<</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "6") @showNum1[6]10,000元-19,999元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "7") @showNum1[7]20,000元-29,999元</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "8") @showNum1[8]30,000元-39,999元</label>
+                            @*<label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "9")9.4,000元-6,999元</label>*@
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A5, "9") @showNum1[9]40,000元以上</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>(六) 您認為本次課程的訓練費用是否合理？</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A6, "1") @showNum1[1]偏高</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A6, "2") @showNum1[2]合理</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A6, "3") @showNum1[3]偏低</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>(七) 結訓後對於工作的規劃？</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A7, "1") @showNum1[1]留在原職位</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A7, "2") @showNum1[2]轉調較能發揮潛能部門</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A7, "3") @showNum1[3]轉換至同業的其他公司</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A7, "4") @showNum1[4]轉換至不同行業的公司</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.A7, "5") @showNum1[5]希望自己創業</label>
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-form">
+                    <tr>
+                        <th colspan="2">第二部份：訓練課程設計與執行過程意見調查</th>
+                    </tr>
+                    <tr>
+                        <td colspan="2">(一) 訓練課程</td>
+                    </tr>
+                    <tr>
+                        <td width="30%">
+                            <p>1.課程內容符合期望
+                        </td>
+                        <td width="70%">
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B11, "1") 非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B11, "2") 同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B11, "3") 普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B11, "4") 不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B11, "5") 非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.課程難易安排適當</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B12, "1") 非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B12, "2") 同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B12, "3") 普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B12, "4") 不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B12, "5") 非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3.課程總時數適當</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B13, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B13, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B13, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B13, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B13, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4.課程符合實務需求</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B14, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B14, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B14, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B14, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B14, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5.課程符合產業發展趨勢</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B15, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B15, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B15, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B15, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B15, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">(二)講師</td>
+                    </tr>
+                    <tr>
+                        <td>1.滿意講師的教學態度</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B21, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B21, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B21, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B21, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B21, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.滿意講師的教學方法</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B22, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B22, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B22, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B22, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B22, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3.滿意講師的課程專業度</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B23, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B23, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B23, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B23, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B23, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">(三)教材</td>
+                    </tr>
+                    <tr>
+                        <td>1.對於訓練教材感到滿意</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B31, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B31, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B31, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B31, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B31, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.訓練教材能夠輔助課程學習</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B32, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B32, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B32, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B32, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B32, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">(四)訓練環境</td>
+                    </tr>
+                    <tr>
+                        <td>1.您對於訓練場地感到滿意</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B41, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B41, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B41, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B41, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B41, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.您對於訓練設備感到滿意</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B42, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B42, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B42, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B42, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B42, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3.您認為實作設備的數量適當</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B43, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B43, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B43, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B43, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B43, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4.您認為實作設備新穎</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B44, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B44, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B44, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B44, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B44, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">(五)訓練評量</td>
+                    </tr>
+                    <tr>
+                        <td>訓練評量（如：訓後測驗、專題報告、作品展示等）能促進學習效果</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B51, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B51, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B51, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B51, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B51, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">(六)立即學習效果</td>
+                    </tr>
+                    <tr>
+                        <td>1.您認為在訓練課程中，課程內容能讓您專注</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B61, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B61, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B61, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B61, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B61, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.您在完成訓練後，已充份學習訓練課程所教授知識或技能</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B62, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B62, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B62, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B62, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B62, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3.您在完成訓練後，有學習到新的知識或技能</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B63, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B63, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B63, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B63, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B63, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">(七)整體意見</td>
+                    </tr>
+                    <tr>
+                        <td>1.您對於訓練單位的課程安排與授課情形感到滿意</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B71, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B71, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B71, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B71, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B71, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.您對於訓練單位的行政服務感到滿意</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B72, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B72, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B72, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B72, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B72, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3.您對於產業人才投資方案感到滿意</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B73, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B73, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B73, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B73, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B73, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4.您認為完成本訓練課程對於目前或未來工作有幫助</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B74, "1")非常同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B74, "2")同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B74, "3")普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B74, "4")不同意</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.B74, "5")非常不同意</label>
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-form">
+                    <tr>
+                        <th colspan="2">第三部份：其他建議</th>
+                    </tr>
+                    <tr>
+                        <td width="30%">(一)若本訓練課程沒有補助，是否會全額自費參訓？</td>
+                        <td width="70%">
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.C11, "1")1.一定會</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.C11, "2")2.應該會</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.C11, "3")3.普通</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.C11, "4")4.應該不會</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.FacDetail.C11, "5")5.一定不會</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">(二)其他建議：@s_C21_NOTE_MaxLength_Title</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            @Html.TextAreaFor(m => m.FacDetail.C21_NOTE, new { @class = "form-control", rows = "5", title = s_C21_NOTE_MaxLength_Title })
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!-- btn -->
+            <div class="submit-bar text-center">
+                <p>
+                    <button type="submit" class="btn btn-orange" title="儲存">儲存</button>
+                    <button type="button" onclick="location.href ='@Url.Content("~/StudQuestion")';" class="btn btn-orange" title="回上一頁">回上一頁</button>
+                </p>
+            </div>
+        }
+        <p><p><!-- search form end -->
+    </div>
+</div>

@@ -1,0 +1,89 @@
+﻿@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model ClassSearchViewModel
+
+@switch (Model.Form.PlanType)
+{
+    case "1": //產投
+        if (Model == null || Model.Grid1 == null || Model.Grid1.Count == 0)
+        {
+            <tr valign="middle">
+                <td colspan="@(Model.Form.ProvideLocation == "Y" ? 11 : 10)" style="text-align:center;">尚無資料</td>
+            </tr>
+        }
+        else
+        {
+            //取得目前(DB)系統時間
+            MyKeyMapDAO keyDao = new MyKeyMapDAO();
+            DateTime nowTime = keyDao.GetSysDateNow();
+            //「訓練班別」、「課程名稱」有期別則顯示期別
+            var v_OJT22090201 = keyDao.GetSystemConfig("OJT22090201");
+            bool flag_ShowClass2 = (!string.IsNullOrEmpty(v_OJT22090201) && v_OJT22090201 == "Y") ? true : false;
+
+            for (int i = 0; i < Model.Grid1.Count; i++)
+            {
+                var item = Model.Grid1[i];
+                string v_CLASSCNAME = flag_ShowClass2 ? item.CLASSCNAME2 : item.CLASSCNAME;
+                string strStatus = "招生中";
+                string strColor = "black";
+                if (item.SENTERDATE != null && item.FENTERDATE != null)
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(item.TNUM))) { item.TNUM = 0; }
+                    int intCnt = (new MyKeyMapDAO()).GetEnterCount(item.OCID); // 取得報名人數 (扣除e網審核失敗)
+
+                    if (DateTime.Compare(nowTime, Convert.ToDateTime(item.SENTERDATE)) < 0)
+                    {
+                        strStatus = "尚未開始招生";
+                    }
+                    else if (DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) > 0)
+                    {
+                        strStatus = "已招生結束";
+                    }
+                    else if (Convert.ToString(item.ISCLOSED) == "Y")
+                    {
+                        strStatus = "此班已結訓";
+                    }
+                    else if (Convert.ToString(item.ISCLOSED) == "N" && DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) > 0 && (intCnt > item.TNUM))
+                    {
+                        strStatus = "接受以備取身份報名";
+
+                        if (!string.IsNullOrEmpty(Convert.ToString(item.ADMISSIONS)))
+                        {
+                            switch (Convert.ToString(item.ADMISSIONS))
+                            {
+                                case "1": strStatus = "招生中"; strColor = "red"; break;
+                                case "2": strStatus = "接受以備取身份報名"; break;
+                                case "3": strStatus = "報名額滿"; strColor = "red"; break;
+                            }
+                        }
+                    }
+                }
+
+
+                <tr data-ocid="@item.OCID">
+                    <td align="left">@item.ORGNAME</td>
+                    <td style="text-align:left"><a title="@(v_CLASSCNAME)" href="javascript:doDetail('@(Model.Form.PlanType)','@(Model.Form.ProvideLocation)','@(item.OCID)');">@(v_CLASSCNAME)</a></td>
+                    <td align="center">@item.TNUM</td>
+                    <td align="center">@item.THOURS</td>
+                    <td>@item.CTNAME1</td>
+                    <td>@item.CTNAME2</td>
+                    <td style="color:@strColor">@strStatus</td>
+
+                    @if (Model.Form.ProvideLocation == "Y")//TODO:顯示距離
+                    {
+                        <td align="center">@(item.Distance)</td>
+                    }
+                    
+                    <td align="center">
+                        @item.STDATE_TW<br />|<br />@item.FTDATE_TW
+                    </td>
+                    <td align="center">在職</td>
+                </tr>
+            }
+
+        }
+        break;
+
+}
+

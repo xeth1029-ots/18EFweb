@@ -1,0 +1,278 @@
+﻿@model WDAIIP.WEB.Models.DigiCertViewModel
+@using WDAIIP.WEB.DataLayers
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+
+@{
+    ViewBag.Title = "數位結訓證明--線上申請";
+    ViewBag.Tit2 = "線上申請";
+
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+
+    SessionModel sm = SessionModel.Get();
+
+}
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration: none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 數位結訓證明 / @ViewBag.Tit2 </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-pink"><i class="fas fa-edit space-right"></i>@ViewBag.Tit2</h3>
+    <!-- note info -->
+    <!-- personal info -->
+    @using (Html.BeginForm("Save", "DigiCertOnline", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+    {
+        @Html.HiddenFor(m => m.Form.DCANO)
+        @Html.HiddenFor(m => m.Form.DCASENO)
+        @Html.HiddenFor(m => m.Form.GUID1)
+        @Html.HiddenFor(m => m.Form.APPLNDATE)
+        @Html.HiddenFor(m => m.Form.APPLNACCT)
+
+        <div class="unit-border">
+            <h3 class="titlebar titlebarBg-green">填寫申請資料</h3>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.CNAME, new { @class = "form-label-data form-label-star-data" })
+                <div class="form-input-dataHelf">@Html.TextBoxFor(m => m.Form.CNAME, new { @class = "form-control", placeholder = "", @readonly = true })</div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.IDNO, new { @class = "form-label-data form-label-star-data" })
+                <div class="form-input-dataHelf">@Html.TextBoxFor(m => m.Form.IDNO, new { @class = "form-control", placeholder = "", @readonly = true })</div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.PURID, new { @class = "form-label-data form-label-star-data" })
+                <div class="form-input-dataHelf form-inline">
+                    @Html.DropDownListFor(m => m.Form.PURID, Model.PURPOSE_list, "請選擇", new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.UAGID, new { @class = "form-label-data form-label-star-data" })
+                <div class="form-input-dataHelf form-inline">
+                    @Html.DropDownListFor(m => m.Form.UAGID, Model.USAGEUNIT_list, "請選擇", new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.EMAIL, new { @class = "form-label-data form-label-star-data" })
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Form.EMAIL, new { @class = "form-control", placeholder = "請輸入您的EMAIL", maxlength = "77", title = "請輸入您的EMAIL" })
+                </div>
+                @*寫一個HTML 秒數倒數 360 秒 使用JQUERY*@
+                <div class="col-sm-3" id="divbtCK">
+                    <button id="btCK" type="button" class="btn btn-blue" onclick="doDigiCheckEMAIL()">寄送電子郵件驗證碼</button>
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.EMVCODE, new { @class = "form-label-data form-label-star-data" })
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Form.EMVCODE, new { @class = "form-control", placeholder = "請輸入 電子郵件驗證碼", maxlength = "10", title = "請輸入 電子郵件驗證碼", autocomplete = "off" })
+                    <div id="countdown2">倒計時：<span id="time_sec"></span><span id="time_sectxt">秒</span></div>
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.ValidateCode, new { @class = "form-label-data form-label-star-data" })
+                @*<label class="form-label-data form-label-star-data"><span class="mark-red">＊</span>圖型驗證碼 </label>*@
+                <div class="form-input-dataHelf">
+                    <div>
+                        <div>
+                            @Html.TextBoxFor(m => m.Form.ValidateCode,
+                                htmlAttributes: new { @class = "form-50 form-control", placeholder = "請輸入下方圖片中文字", autocomplete = "off" })
+                        </div>
+                        <div sytle="float:right">
+                            <img id="vCode" src="@Url.Action("GetValidateCode", "DigiCertOnline")"
+                                 alt="產生驗證碼" class="loginVCode"
+                                 data-toggle="tooltip" data-placement="top" />
+                            <a href="VCodeAudio" target="frmPlayer" title="語音撥放驗證碼"><img id="playCode" alt="撥放" src="~/images/speaker.png" height="40" /></a>
+                            <button type="button" class="btn btn-link" onclick="reloadValidCode()" title="產生新驗證碼">重新產生 <i class="fa fa-refresh" aria-hidden="true"></i></button>
+                        </div>
+                    </div>
+                    <!--<iframe name="frmPlayer" style="height:0;border:0;" src=""></iframe>-->
+                    <iframe name="frmPlayer" style="display:none;" src="" title="語音撥放"></iframe>
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.APPLNDATE_TW, new { @class = "form-label-data form-label-star-data" })
+                <div class="form-input-dataHelf">@Html.TextBoxFor(m => m.Form.APPLNDATE_TW, new { @class = "form-control", placeholder = "", @readonly = true })</div>
+            </div>
+            <div class="form-group-search">
+                <p><p>
+            </div>
+            <div class="submit-bar">
+                <button type="button" data-role="NextSaveData" class="btn-orange" title="下一步">下一步</button>
+                <button type="button" data-role="GoBack" class="btn-refill" title="取消">取消</button>
+            </div>
+        </div>
+    }
+</div>
+
+<!--回查詢清單-->
+@using (Html.BeginForm("Detail", "DigiCertOnline", FormMethod.Post, htmlAttributes: new { id = "GoBackForm" }))
+{
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // 時間倒數 //window.setTimeout('show_secs()', 1);
+
+        // 資料維護 SaveData "Save", "DigiCertOnline"
+        $("button[data-role=NextSaveData]").on("click", function () {
+            var form = $("form#main_form");
+            form.submit();
+
+            //var url = "@Url.Action("GetSysDate","Ajax")";
+            //var data = {};
+            //ajaxLoadMore(url, data, function (resp) {
+            //    var msg = "資料確認無誤，確定送出？";
+            //    if (resp === undefined) msg = "資料確認無誤，確定送出？";
+            //    else msg = "資料確認無誤，確定送出？<br>目前系統時間為(" + resp.data + ")";
+            //    blockConfirm(msg, "提示訊息", function () {
+            //        form.submit();
+            //    });
+            //});
+        });
+
+        // 回個資確認頁 GoBack
+        $("button[data-role=GoBack]").click(function () {
+            $("form#GoBackForm").submit();
+        });
+
+    });
+
+    /*時間倒數判斷*/
+    var time_start = new Date();
+    var clock_start = time_start.getTime();
+
+    // 顯示時間
+    function get_time_spent() {
+        var time_now = new Date();
+        return ((time_now.getTime() - clock_start) / 1000);
+    }
+
+    // 顯示時間倒數
+    function show_secs() {
+        if ($("span#spanTimer").length == 0) { return false; }
+        var spanTimer = $("span#spanTimer");
+
+        var i_total_secs = 30 * 60 - Math.round(get_time_spent());
+
+        var i_secs_spent = i_total_secs % 60;
+        var i_mins_spent = Math.round((i_total_secs - 30) / 60);
+
+        var s_secs_spent = "" + ((i_secs_spent > 9) ? i_secs_spent : "0" + i_secs_spent);
+        var s_mins_spent = "" + ((i_mins_spent > 9) ? i_mins_spent : "0" + i_mins_spent);
+
+        spanTimer.text(s_mins_spent + ":" + s_secs_spent);
+        if (spanTimer.text() != '00:00') {
+            window.setTimeout('show_secs()', 1000);
+        }
+        else {
+            //alert('你已超過使用時間30分鐘\n請重新登錄，謝謝');window.location.href = 'editstd_1.aspx';
+            blockAlert("你已超過使用時間30分鐘<br>請重新登錄，謝謝", "提示訊息", function () {
+                location.href = '@Url.Action("CheckEdit","EnterType")';
+            });
+            return false;
+        }
+    }
+
+     $('#vCode').on("load", function () {
+        unblockUI();
+    });
+
+    function reloadValidCode() {
+        blockUI();
+        $('#vCode').attr("src", '@Url.Action("GetValidateCode")' + "?rand=" + new Date().getMilliseconds());
+    }
+
+    $(function () {
+        $('#vCode').on("click", function (e) {
+            reloadValidCode();
+        });
+
+        $('[data-toggle="tooltip"]').tooltip()
+
+        // 清空檢核訊息
+        $("input#Form_UserNo").on("focus", function () {
+            $("div[data-role='msg']").html("");
+        });
+
+        // 清空檢核訊息
+        $("input#Form_UserPwd").on("focus", function () {
+            $("div[data-role='msg']").html("");
+        });
+
+        // 清空檢核訊息
+        $("input#Form_ValidateCode").on("focus", function () {
+            $("div[data-role='msg']").html("");
+        });
+    });
+
+    var defseconds = 300;//使用者認定秒數
+    var seconds = 360;//倒數秒數
+    var CanUseBtn_second = 60; //可重新使用按鈕秒數60?
+    // 驗證EMAIL
+    function doDigiCheckEMAIL() {
+        blockUI();
+        var oPU1 = $('#Form_PURID');
+        var oUA1 = $('#Form_UAGID');
+        var ee1 = $('#Form_EMAIL').val();
+        var dc1 = $('#Form_DCASENO').val();
+        var idn1 = $('#Form_IDNO').val();
+        var errmsg = "";
+        if (oPU1.val().length == 0) { errmsg += "請選取 申請用途.!\n"; }
+        if (oUA1.val().length == 0) { errmsg += "請選取 申請證明要提供的使用單位.!\n"; }
+        var fg1 = (ee1.length == 0);
+        var fg2 = checkEmail(ee1);
+        if (fg1) { errmsg += "請輸入 EMAIL.!\n"; }
+        else if (!fg2) { errmsg += "EMAIL 格式有誤.!\n"; }
+        if (errmsg != "") { unblockUI(); blockAlert(errmsg, "提示訊息"); return; }
+
+        var btCK = $("#btCK");
+        btCK.attr("disabled", "disabled");
+        //$("#divbtCK").hide('slow');
+        $("#time_sec").text(seconds);
+        $("#time_sectxt").text("秒");
+
+        var data = { "ee1": ee1, "dc1": dc1, "idn1": idn1};
+
+        ajaxLoadMore('@Url.Action("DigiCheckEMAIL", "Ajax")', data, function (retData) {
+            if (retData.status) {
+                //console.log(retData.data);
+                seconds = defseconds;
+                $("#time_sec").text(seconds);
+                $('#Form_EMAIL').prop('readonly', true);
+                // reloadValidCode();
+                blockMessage("已寄出 電子郵件驗證碼，再請於" + defseconds +"秒內輸入 電子郵件驗證碼!");
+                // 設置 n 秒後執行的函數 // n 秒後將 btCK 按鈕設為可用
+                setTimeout(function () {
+                    btCK.removeAttr("disabled");
+                    //$("#divbtCK").show();
+                }, (CanUseBtn_second * 1000)); // n 秒 = n *1000 毫秒
+                var countdown2 = setInterval(function () {
+                    seconds--;
+                    $("#time_sec").text(seconds);
+                    if (seconds <= 0) {
+                        clearInterval(countdown2);
+                        // 倒數結束後的動作，例如：
+                        btCK.removeAttr("disabled");
+                        $('#Form_EMAIL').removeAttr("readonly");
+                        $("#time_sec").text("時間到，請重新取得 電子郵件驗證碼");
+                        $("#time_sectxt").text(""); //alert("時間到！");
+                    }
+                }, 1000);
+            }
+            else {
+                // 送出有誤
+                blockAlert(retData.message, "提示訊息");
+                btCK.removeAttr("disabled");
+                $('#Form_EMAIL').removeAttr("readonly");
+                $("#time_sec").text("");
+                $("#time_sectxt").text(""); //alert("時間到！");
+                //$("#divbtCK").show();
+                //reloadValidCode();
+            }
+        });
+    }
+
+</script>

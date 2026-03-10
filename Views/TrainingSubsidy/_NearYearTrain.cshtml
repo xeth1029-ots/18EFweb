@@ -1,0 +1,45 @@
+﻿@model WDAIIP.WEB.Models.TrainingSubsidyViewModel
+
+<!-- note table-->
+<div class="table-responsive">
+    @if (Model != null && Model.NearYearDetail != null)
+    {
+        if ((Model.NearYearDetail.NearYearGrid == null || Model.NearYearDetail.NearYearGrid.Count == 0)
+            && (Model.NearYearDetail.NearYearGrid2 == null || Model.NearYearDetail.NearYearGrid2.Count == 0))
+        {
+            <div class="text-center text-danger">無參訓紀錄!!</div>
+        }
+        else
+        {
+            if (Model.NearYearDetail.NearYearGrid2 != null)
+            {
+                @Html.Partial("_NearYearTrainGridRows", Model.NearYearDetail.NearYearGrid2)
+            }
+
+            if (Model.NearYearDetail.NearYearGrid != null)
+            {
+                @Html.Partial("_NearYearTrainGridRows", Model.NearYearDetail.NearYearGrid)
+            }
+        }
+
+    }
+
+</div>
+<!-- note C-->
+
+<script type="text/javascript">
+    $(function () {
+        var money6Msg = '@Html.Raw(Model.NearYearDetail.Money6Msg)';
+        var doubleDescMsg = '@Html.Raw(Model.NearYearDetail.DoubleDescMsg)';
+        var regex = /<br>/gi;
+
+        //重複的課程時間
+        if (doubleDescMsg != "") {
+            blockAlert(doubleDescMsg.replace(regex, "\n"));
+        }
+
+        if (money6Msg != "") {
+            blockAlert(money6Msg.replace(regex, "\n"));
+        }
+    });
+</script>

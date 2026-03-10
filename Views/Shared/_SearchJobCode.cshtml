@@ -1,0 +1,168 @@
+﻿@using System.Collections;
+@model IList<Hashtable>
+
+@{
+    string root = Guid.NewGuid().ToString();
+}
+
+@*
+    共用 職務類別代碼查詢 Modal Dialog
+    引用方式, 在需要引入此對話框的 View 中, 使用 RenderAction 的方式引入
+    @{Html.RenderAction("Index", "SearchJobCode", new { jsOnPickup = "onJobCodePickup" });}
+
+    參數: jsOnPickup 
+    是當使用者選擇第2層職類代碼項目後, 要 callback 的 javascript function name
+    這個 javascript function 被呼叫時, 會接收到2個參數: code(使用者選取的職類代碼), name(對應的職類名稱)
+*@
+@*<div class="modal fade search-job-code" id="searchJobCodeDialog" role="dialog" aria-labelledby="myDialogTitle" aria-hidden="true"> *@
+<div class="modal fade search-job-code" id="@root" role="dialog" aria-labelledby="myDialogTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h3 class="modal-title" id="myDialogTitle">工 作 類 別</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="TitleLv1">
+                    <h4>請點選職業分類名稱選擇下一層分類選單，或使用職類闗鍵字查詢</h4>
+                </div>
+                <div class="row" id="PanelSearch">
+                    <div class="form-group">
+                        <div class="input-group col-lg-8 row">
+                            <input type="text" class="form-control" id="JobCodeKeyword" placeholder="職類名稱關鍵字" size="20">
+
+                            <div class="input-group-btn">
+                                <button class="btn btn-default" type="button" onclick="searchJobCodeLv2()">
+                                    <span class="glyphicon glyphicon-search"><span>查詢</span></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="TitleLv2" style="display:none">
+                    <h4>職業分類: </h4>
+                </div>
+                <div id="jobCodeListLv1" class="row">
+                    @foreach (Hashtable row in Model)
+                    {
+                    <div class="col-sm-6">
+                        <div class="job-code-group">
+                            <a class="link-pointer" onclick="findJobCodeLv2('@row["CODE"]', '@row["TEXT"]')">
+                                <div class="job-code-glyphicon"><span class="glyphicon glyphicon-chevron-right text-right" aria-hidden="true"></span></div>
+                                <div class="job-code-name">【@row["CODE"]】@row["TEXT"]</div>
+                            </a>
+                        </div>
+                    </div>
+                    }
+                </div>
+                <div id="jobCodeListLv2" class="row" style="display: none;">
+                </div>
+            </div>
+            <div class="modal-footer center">
+                <a class="tablebtn link-pointer" onclick="javascript:hideDialog();">關閉取消</a>
+                <a class="tablebtn link-pointer" id="btnGoBack" onclick="goBackLv1();" style="display:none">回第一層分類</a>
+            </div>
+        </div>
+    </div>
+</div>
+@*職務類別 Modal Dialog (E) *@
+
+<script type="text/javascript">
+
+    @*當使用者選擇第2層職類代碼項目後, 要 callback 的 javascript function*@
+    var onPickup = @(ViewBag.jsOnPickup)@(";")
+    var $jobRoot = $('#' + '@root');
+
+    /*顯示職類查詢對話框 Dialog*/
+    function showSearchJobCodeDialog() {
+        $jobRoot.modal("show");
+    }
+    /*關閉職類查詢對話框 Dialog*/
+    function hideDialog() {
+        $jobRoot.modal("hide");
+    }
+
+    /*隱藏第2層項目, 顯示第1層代碼*/
+    function goBackLv1() {
+        $jobRoot.find("#btnGoBack").hide();
+        $jobRoot.find("#TitleLv2").hide();
+        $jobRoot.find("#jobCodeListLv2").hide();
+
+        $jobRoot.find("#TitleLv1").show();
+        $jobRoot.find("#PanelSearch").show();
+        $jobRoot.find("#jobCodeListLv1").show();
+    }
+    /*職類代碼:依大類代碼,列出第二層代碼*/
+    function findJobCodeLv2(code, name) {
+        $jobRoot.find("#TitleLv1").hide();
+        $jobRoot.find("#PanelSearch").hide();
+        $jobRoot.find("#jobCodeListLv1").hide();
+
+        var listContainer = $jobRoot.find("#jobCodeListLv2");
+        listContainer.html('');
+
+        $jobRoot.find("#btnGoBack").show();
+        $jobRoot.find("#TitleLv2").show().find("h4").html('職業分類: ' + name);
+        $jobRoot.find("#jobCodeListLv2").show();
+
+        // AJAX 取得第二層工作類別
+        blockUI();
+        $.ajax({
+            method: 'POST',
+            url: '@Url.Action("FindJobCodeListLv2", "SearchJobCode")',
+            data: { cjobType: code },
+            success: function (resp) {
+                unblockUI();
+                if (resp) {
+                    listContainer.html(resp);
+                }
+            },
+            error: function () {
+                unblockUI();
+                blockAlert("取得第二層工作類別清單失敗!");
+            }
+        });
+    }
+    /*職類代碼:關鍵字查詢第二層代碼*/
+    function searchJobCodeLv2() {
+        var keyword = $jobRoot("input#JobCodeKeyword");
+
+        $jobRoot.find("#TitleLv1").hide();
+        $jobRoot.find("#PanelSearch").hide();
+        $jobRoot.find("#jobCodeListLv1").hide();
+
+        var listContainer = $jobRoot.find("#jobCodeListLv2");
+        listContainer.html('');
+
+        $jobRoot.find("#btnGoBack").show();
+        $jobRoot.find("#TitleLv2").show().find("h4").html('職類關鍵字: ' + keyword.val());
+        $jobRoot.find("#jobCodeListLv2").show();
+
+        // AJAX 取得第二層工作類別
+        blockUI();
+        $.ajax({
+            method: 'POST',
+            url: '@Url.Action("SearchJobCodeListLv2", "SearchJobCode")',
+            data: { keyword: keyword.val() },
+            success: function (resp) {
+                unblockUI();
+                if (resp) {
+                    listContainer.html(resp);
+                }
+            },
+            error: function () {
+                unblockUI();
+                blockAlert("取得第二層工作類別清單失敗!");
+            }
+        });
+    }
+    /*使用者選擇第2層職類代碼項目*/
+    function pickupJobCode(code, name) {
+        if (onPickup) {
+            onPickup(code, name);
+        }
+        hideDialog();
+    }
+
+
+</script>

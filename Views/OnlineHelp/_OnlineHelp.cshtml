@@ -1,0 +1,17 @@
+﻿@model WDAIIP.WEB.Models.OnlineHelpModel
+<div class="help-header">
+    @(Model.HelpHeader)線上說明
+    <a href="javascript:void(0)" class="btn-close">X</a>
+</div>
+<div class="help-content">
+@if (Model.HasError)
+{
+    <div class="warning">@(Model.ErrorMessage)</div>
+}
+else
+{
+    <div>
+        @Html.Raw(Model.HelpContent)
+    </div>
+}
+</div>

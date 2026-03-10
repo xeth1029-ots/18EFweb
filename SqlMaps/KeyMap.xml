@@ -1,0 +1,716 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="KeyMap"
+xmlns="http://ibatis.apache.org/mapping"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+  <resultMaps>
+  </resultMaps>
+
+  <cacheModel id="WDAIIP.WEB-cache" implementation="MEMORY" >
+    <flushInterval hours="1"/>
+    <flushOnExecute  statement="getSysDateNow"/>
+    <property name="Type" value="WEAK"/>
+  </cacheModel>
+
+  <!--
+    這個檔案專門用來定義 代碼DDL清單內容，資料來源可以是 DB 代碼表格, 
+    也可以是用 Union 直接定義在這裡, 而不要寫在程式中. 
+    SQL 返回結果欄位, 一律 Alias 成「CODE」與「TEXT」
+    -->
+  <statements>
+
+    <!-- 筆數條件(共用區塊) -->
+    <sql id="SQLROWNUM">
+      <![CDATA[ AND ROWNUM <= 1000 ]]>
+    </sql>
+
+    <!-- 
+    由 代碼表格取得指定類別的代碼清單項目內容 
+    這個是 Turbo.DataLayer.KeyMapDAO.GetCodeMapList() 運作所需要的
+    (每個系統要自行定義實際的 SQL)
+    -->
+    <!-- 傳入KEY_GROUP、EXCLUDE_KEY_CODE(要排除的項目), ORDER_BY(排序欄位清單(以','分隔)) -->
+    <select id="getSpecificKeyCodeList"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT CODE CODE, DESCR TEXT FROM CODE1 WHERE ITEM=#KEY_GROUP# ]]>
+      <dynamic>
+        <isParameterPresent>
+          <!-- 不包含選項 -->
+          <isNotEmpty prepend="" property="EXCLUDE_KEY_CODE">
+            <![CDATA[ AND CODE <> #EXCLUDE_KEY_CODE# ]]>
+          </isNotEmpty>
+          <!--排序欄位清單(以','分隔) -->
+          <isNotEmpty prepend="" property="ORDER_BY">
+            <![CDATA[ ORDER BY $ORDER_BY$ ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+
+    </select>
+
+    <!-- 取得Sequence -->
+    <select id="getMaxSeqNo"
+            resultClass="int"
+            parameterClass="Hashtable">
+      <![CDATA[
+        SELECT isnull(MAX($FIELD_NAME$),0) FROM $TABLE_NAME$ WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <!-- 對 Detail 表格而言, 要同時判斷 Master FK 才能正確產生新的編號 -->
+          <isNotEmpty prepend="" property="FK_FIELD">
+            <isNotEmpty prepend="" property="FK_VALUE">
+              AND $FK_FIELD$ = #FK_VALUE#
+            </isNotEmpty>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="FK2_FIELD">
+            <isNotEmpty prepend="" property="FK2_VALUE">
+              AND $FK2_FIELD$ = #FK2_VALUE#
+            </isNotEmpty>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="FK3_FIELD">
+            <isNotEmpty prepend="" property="FK3_VALUE">
+              AND $FK3_FIELD$ = #FK3_VALUE#
+            </isNotEmpty>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+    </select>
+
+    <!-- 取得計畫代碼選項資訊 -->
+    <select id="getPlan"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT convert(varchar,TPLANID) CODE,PLANNAME TEXT 
+FROM KEY_PLAN
+ORDER BY TPLANID
+      ]]>
+    </select>
+
+    <!-- 取得是否選項資訊 -->
+    <select id="getYesNoList"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT 'Y' CODE, '是' TEXT
+UNION
+SELECT 'N' CODE, '否' TEXT
+      ]]>
+    </select>
+
+    <!-- 取得性別選項資訊 -->
+    <select id="getSexList"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT 'M' CODE, '男' TEXT
+UNION
+SELECT 'F' CODE, '女' TEXT
+      ]]>
+    </select>
+
+    <!-- 取得網站項目說明設定 -->
+    <select id="getTbContent"
+            parameterClass="WDAIIP.WEB.Models.Entities.TblTB_CONTENT"
+            resultClass="WDAIIP.WEB.Models.Entities.TblTB_CONTENT"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+  SELECT TOP 1 SEQNO,FUNID,C_TITLE,C_CONTENT1,C_VFILE1,C_PFILE1,C_CTRLITEM
+  FROM dbo.TB_CONTENT WITH(NOLOCK)
+  WHERE 1=1
+  AND C_STATUS <> 'D'
+  AND GETDATE() >=C_SDATE 
+  AND GETDATE() <=C_EDATE
+  AND FUNID=#FUNID#
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="C_FUNCITEM" >
+            <![CDATA[ AND C_FUNCITEM=#C_FUNCITEM# ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[ ORDER BY SEQNO DESC /*取最後建檔的*/ ]]>
+    </select>
+
+    <!-- 取得轄區選項資訊 -->
+    <!--<select id="getDIST"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+        SELECT CONVERT(VARCHAR, DIS_ORG_ID) CODE, DIS_NAME TEXT FROM SYS_DISTRICT ORDER BY DIS_ID
+      ]]>
+    </select>-->
+
+    <!-- 取得群組選項資訊 -->
+    <!--<select id="getGROUP"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+        SELECT CONVERT(VARCHAR, GRP_ID) CODE, GRP_NAME TEXT FROM E_GROUP WHERE GRP_USED = 'Y' ORDER BY GRP_ID
+      ]]>
+    </select>-->
+
+    <!-- 上課時間(可複選) 的項目 -->
+    <select id="getClassTimeCodeList"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT CONVERT(VARCHAR,G.CODE1) CODE,G.TEXT
+FROM (
+SELECT DATENAME(WEEKDAY, GETDATE()) TEXT, DATEPART(WEEKDAY, GETDATE()) CODE1
+UNION SELECT DATENAME(WEEKDAY, GETDATE()+1), DATEPART(WEEKDAY, GETDATE()+1)
+UNION SELECT DATENAME(WEEKDAY, GETDATE()+2), DATEPART(WEEKDAY, GETDATE()+2)
+UNION SELECT DATENAME(WEEKDAY, GETDATE()+3), DATEPART(WEEKDAY, GETDATE()+3)
+UNION SELECT DATENAME(WEEKDAY, GETDATE()+4), DATEPART(WEEKDAY, GETDATE()+4)
+UNION SELECT DATENAME(WEEKDAY, GETDATE()+5), DATEPART(WEEKDAY, GETDATE()+5)
+UNION SELECT DATENAME(WEEKDAY, GETDATE()+6), DATEPART(WEEKDAY, GETDATE()+6)
+) G																		 
+ORDER BY G.CODE1 ]]>
+    </select>
+
+    <!-- 取全台縣市的項目 -->
+    <select id="getCityCodeList"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT CONVERT(VARCHAR, CTID) AS CODE,CTNAME AS TEXT FROM ID_CITY ORDER BY CTID ]]>
+    </select>
+
+    <!-- 取得縣市名稱 -->
+    <select id="getCityName"
+            resultClass="string"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT TOP 1 CTNAME FROM ID_CITY WHERE CTID=#CTID# ]]>
+    </select>
+
+    <!-- 根據指定的縣市代碼(CITY), 查詢(鄉鎮市區)的郵遞區號(ZIP)清單 -->
+    <select id="getCountyZipList"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT CONVERT(VARCHAR,ZIPCODE) AS CODE ,ZNAME AS TEXT FROM dbo.VIEW_ZIPNAME WITH(NOLOCK) WHERE 1=1 ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="CTID">
+            <![CDATA[ AND CTID = #CTID# ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[ ORDER BY ZIPCODE, ZNAME ]]>
+    </select>
+
+    <!-- 取得鄉鎮市區名稱 -->
+    <select id="getZipName"
+            resultClass="string"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT ZIPNAME FROM ID_ZIP WHERE ZIPCODE=#ZIPCODE# ]]>
+    </select>
+
+    <!-- 取得鄉鎮市區名稱 -->
+    <select id="getZipCodeName"
+            resultClass="string"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT ZIPNAME FROM VIEW_ZIPNAME WHERE ZIPCODE=#ZIPCODE# ]]>
+    </select>
+
+    <!--取得地址-->
+    <select id="getZipName2"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT ZIPNAME AS CODE ,LNAME AS TEXT
+FROM dbo.VIEW_ZIPNAME WITH(NOLOCK)
+WHERE ZIPCODE=#ZIPCODE#
+ORDER BY ZIPCODE
+      ]]>
+    </select>
+
+    <!--依訓練職能別,取六大職能別查詢清單-->
+    <select id="getClassCate"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT CONVERT(VARCHAR,CCID) AS CODE ,CCNAME AS TEXT 
+FROM KEY_CLASSCATELOG 
+WHERE CCID!='01'
+ORDER BY CCID
+      ]]>
+    </select>
+
+    <!--取策略性產業篩選的項目清單-->
+    <select id="getTmid"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT CONVERT(VARCHAR,TMID) AS CODE
+,CONCAT('(',JOBID,')',JOBNAME) AS TEXT 
+FROM dbo.VIEW_TRAINTYPE WITH(NOLOCK) 
+WHERE BUSID='G' AND TRAINID IS NULL 
+ORDER BY CONVERT(int,JOBID)
+      ]]>
+    </select>
+
+    <!--訓練職類 項目清單 TMID,BUSNAME-->
+    <select id="getTMIDBUS"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT  CONVERT(VARCHAR,TMID) AS CODE
+,BUSNAME AS TEXT 
+FROM KEY_TRAINTYPE 
+WHERE LEVELS=0 AND TMID <6
+ORDER BY 1 ]]>
+    </select>
+
+    <!--訓練職類 項目清單 TMID,JOBNAME-->
+    <select id="queryTMIDJOB"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT  CONVERT(VARCHAR,TMID) AS CODE
+,JOBNAME AS TEXT 
+FROM KEY_TRAINTYPE 
+WHERE LEVELS=1
+AND PARENT=#PARENT1#
+ORDER BY 1 ]]>
+    </select>
+
+    <!--訓練職類-->
+    <select id="getBusName"
+            parameterClass="Hashtable"
+            resultClass="string"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT BUSNAME 
+FROM dbo.KEY_TRAINTYPE WITH(NOLOCK) 
+WHERE LEVELS=0 AND TMID <6
+AND TMID=#TMID#
+      ]]>
+    </select>
+
+    <!-- 取得 訓練職類 名稱 -->
+    <select id="getJobName2"
+            parameterClass="Hashtable"
+            resultClass="string"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT JOBNAME 
+FROM dbo.KEY_TRAINTYPE WITH(NOLOCK) 
+WHERE LEVELS=1
+AND TMID=#TMID#
+      ]]>
+    </select>
+
+    <!--通俗職業代碼-2019-項目清單-->
+    <select id="getCJOB"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT JOBNO AS CODE 
+,concat('(',JOBNO,')',CJOBNAME2) AS TEXT  
+FROM dbo.V_SHARECJOB S WITH(NOLOCK)
+WHERE CYEARS='2019'
+ORDER BY JOBNO
+      ]]>
+    </select>
+
+
+    <!-- 查詢產投用訓練業別第一層選項(實際為第二層) -->
+    <select id="queryTMIDItemLv1"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT CONVERT(VARCHAR,TMID) AS CODE
+,JOBNAME AS TEXT 
+FROM dbo.VIEW_TRAINTYPE WITH(NOLOCK) 
+WHERE BUSID='H' AND TRAINID IS NULL 
+ORDER BY CONVERT(int,JOBID)
+      ]]>
+    </select>
+
+    <!-- 查詢訓練業別第二層選項(實際為第三層) -->
+    <select id="queryTMIDItemLv2"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT CONVERT(VARCHAR,TMID) AS CODE
+,TRAINNAME AS TEXT 
+FROM dbo.VIEW_TRAINTYPE WITH(NOLOCK) 
+WHERE BUSID='H' AND TRAINID IS NOT NULL AND JOBTMID=#JOBTMID#
+ORDER BY CONVERT(int,JOBID),CONVERT(int, TRAINID)
+      ]]>
+    </select>
+
+    <!-- 取得職類課程名稱 -->
+    <select id="getJobName"
+            parameterClass="Hashtable"
+            resultClass="string"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT JOBNAME 
+FROM dbo.VIEW_TRAINTYPE WITH(NOLOCK) 
+WHERE BUSID='H' AND TRAINID IS NULL AND TMID=#TMID#
+      ]]>
+    </select>
+
+    <!-- 取得職類課程名稱 -->
+    <select id="getTrainName"
+            parameterClass="Hashtable"
+            resultClass="string"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT TRAINNAME 
+FROM dbo.VIEW_TRAINTYPE WITH(NOLOCK) 
+WHERE BUSID='H' AND TRAINID IS NOT NULL AND TMID=#TMID#
+      ]]>
+    </select>
+
+    <!--取得單位清單(依縣市代碼、單位名稱篩選)-->
+    <select id="getSchoolList"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+  SELECT DISTINCT OO.COMIDNO AS CODE
+  ,OO.ORGNAME AS TEXT
+  FROM dbo.CLASS_CLASSINFO CC WITH(NOLOCK)
+  JOIN dbo.PLAN_PLANINFO PP WITH(NOLOCK) ON PP.COMIDNO = CC.COMIDNO AND PP.PLANID = CC.PLANID AND PP.SEQNO = CC.SEQNO
+  JOIN dbo.ORG_ORGINFO OO WITH(NOLOCK) ON CC.COMIDNO = OO.COMIDNO
+  JOIN dbo.ID_PLAN IP WITH(NOLOCK) ON IP.PLANID =CC.PLANID
+  LEFT JOIN dbo.PLAN_TRAINPLACE SP1 WITH(NOLOCK) ON PP.ADDRESSSCIPTID=SP1.PTID  
+  LEFT JOIN dbo.PLAN_TRAINPLACE TP1 WITH(NOLOCK) ON PP.ADDRESSTECHPTID=TP1.PTID  
+  LEFT JOIN dbo.ID_ZIP SIZ WITH(NOLOCK) ON SIZ.ZIPCODE = SP1.ZIPCODE
+  LEFT JOIN dbo.ID_CITY SIC WITH(NOLOCK) ON SIC.CTID = SIZ.CTID
+  LEFT JOIN dbo.ID_ZIP TIZ WITH(NOLOCK)  ON TIZ.ZIPCODE = TP1.ZIPCODE
+  LEFT JOIN dbo.ID_CITY TIC WITH(NOLOCK) ON TIC.CTID = TIZ.CTID
+  WHERE 1=1
+  AND IP.TPLANID='28' 
+  AND CC.NOTOPEN = 'N' 
+  AND ISNULL(CC.ISBUSINESS ,'N')='N'						    
+  AND IP.YEARS >= YEAR(DATEADD (DAY,-30*6,CONVERT(DATE, GETDATE())))
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="CTID">
+            <![CDATA[ AND (SIZ.CTID=#CTID# OR TIZ.CTID=#CTID#) ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="ZIPCODE">
+            <![CDATA[ AND (SIZ.ZIPCODE=#ZIPCODE# OR TIZ.ZIPCODE=#ZIPCODE#) ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="SCHOOLNAME">
+            <![CDATA[ AND UPPER(OO.ORGNAME) LIKE '%'+ #SCHOOLNAME# + '%' ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[ order by OO.ORGNAME COLLATE Chinese_Taiwan_Stroke_CS_AS /*依名稱筆劃排序*/ ]]>
+    </select>
+
+    <!--取得報名人數 (包含e網審核失敗/扣除e網審核失敗-在職訓練網：課程明細之已報名人數邏輯調整)-->
+    <select id="getEnterCount"
+            resultClass="int"
+            parameterClass="Hashtable">
+      <![CDATA[
+SELECT ISNULL(COUNT(1),0) 
+FROM STUD_ENTERTEMP2 SE2 WITH(NOLOCK)
+JOIN STUD_ENTERTYPE2 SY2 WITH(NOLOCK) ON SE2.ESETID = SY2.ESETID
+JOIN CLASS_CLASSINFO CC WITH(NOLOCK) ON SY2.OCID1=CC.OCID
+WHERE 1=1
+AND SY2.OCID1 = #OCID#
+AND SY2.SIGNUPSTATUS != 2
+AND CC.SENTERDATE <= GETDATE() 
+/*2019-03-14 改成有到報名日的班，才有得算報名人數*/
+      ]]>
+    </select>
+
+    <!-- 取得單位(機構)名稱 -->
+    <select id="getOrgName"
+            resultClass="string"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+        SELECT Top 1 ORGNAME FROM ORG_ORGINFO WHERE COMIDNO=#COMIDNO#
+      ]]>
+    </select>
+
+    <!-- 取得報名按鈕控制設定結果 -->
+    <select id="getCtrlItem"
+            parameterClass="WDAIIP.WEB.Models.Entities.TblTB_CONTENT"
+            resultClass="WDAIIP.WEB.Models.Entities.TblTB_CONTENT"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT TOP 1 SEQNO
+,FUNID
+,C_TITLE
+,C_CONTENT1
+,C_VFILE1
+,C_PFILE1
+,C_CTRLITEM
+FROM TB_CONTENT WITH(NOLOCK)
+WHERE C_STATUS <> 'D'
+/*2019-03-14 改判斷到時分秒*/
+and GETDATE() >= C_SDATE 
+and GETDATE() <= C_EDATE
+AND FUNID=#FUNID#
+ORDER BY C_UDATE DESC 
+      ]]>
+    </select>
+
+    <!-- 取得系統提示訊息 -->
+    <select id="getSystemMsg"
+            parameterClass="Hashtable"
+            resultClass="string"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT ITEMVALUE FROM SYS_VAR
+WHERE SPAGE='system_msg'
+AND ITEMNAME=#ItemName# 
+AND TPLANID=#TPlanID#
+      ]]>
+    </select>
+
+    <!-- 取得系統參數 -->
+    <select id="getSystemConfig"
+        parameterClass="Hashtable"
+        resultClass="string"
+        cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT ITEMVALUE FROM SYS_VAR
+WHERE SPAGE='Config'
+AND ITEMNAME=#ItemName# 
+      ]]>
+    </select>
+
+    <!--取得學歷清單-->
+    <select id="getDegreeID"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT NAME AS TEXT ,DEGREEID AS CODE
+FROM KEY_DEGREE 
+WHERE DEGREETYPE=1
+ORDER BY SORT
+      ]]>
+    </select>
+
+    <!--畢業狀況清單-->
+    <select id="getGraduateStatus"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT NAME AS TEXT ,GRADID AS CODE
+FROM KEY_GRADSTATE
+ORDER BY GRADID
+      ]]>
+    </select>
+
+    <!--主要參訓身份別清單 getMIdentityID-->
+    <select id="getMIdentityID"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT CAST(IDENTITYID as VARCHAR) AS CODE
+,CASE WHEN IDENTITYID='02' THEN convert(NVARCHAR(30),'非自願離職者')
+  WHEN IDENTITYID='04' THEN convert(NVARCHAR(30),'中高齡者(45歲至65歲)') ELSE NAME END AS TEXT 
+/* ,NAME,[dbo].[FN_GET_MIDENTITYID2] (IDENTITYID),SORT28 */ 
+FROM dbo.KEY_IDENTITY WITH(NOLOCK)
+WHERE 1=1
+AND [dbo].[FN_GET_MIDENTITYID2](IDENTITYID)!='99'
+/* AND IdentityID IN  ('01','04','05','06','07','09','10','11','13','14','26','28','30','31','32','33','34','36','37','40','43') 
+AND IdentityID IN  ('01','04','05','06','07','09','10','11','13','14','26','28','30','31','32','33','36','37','40')  ,'44' */
+ORDER BY CODE
+  ]]>
+    </select>
+
+    <!--服務部門清單-->
+    <select id="getServdept"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT cast(SERVDEPTID as varchar) AS CODE ,SDNAME AS TEXT 
+FROM KEY_SERVDEPT
+ORDER BY SERVDEPTID
+      ]]>
+    </select>
+
+    <!--職稱清單-->
+    <select id="getJobTitle"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[
+SELECT cast(JOBTITLEID as varchar) AS CODE ,JTNAME AS TEXT
+FROM KEY_JOBTITLE
+ORDER BY JOBTITLEID
+      ]]>
+    </select>
+
+    <!--行業別清單-->
+    <select id="getTrade"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="TIMSonlineN-cache">
+      <![CDATA[
+SELECT cast(TradeID as varchar) AS CODE ,'[' + TradeID + ']' + TradeName AS TEXT
+FROM Key_Trade 
+ORDER BY TradeID
+      ]]>
+    </select>
+
+    <!-- 取得系統時間 -->
+    <select id="getSysDateNow" resultClass="datetime">
+      <![CDATA[ SELECT GETDATE() ]]>
+    </select>
+
+    <!-- 課程資訊-其他政府課程-訓練單位範圍限制子查詢 (ok)☆☆-->
+    <select id="withGovernClassComIDList"
+						resultClass="Hashtable"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ WITH WComIDList AS (
+/*Select 'x' IDNO,    '各縣市政府辦理身障專班' CNAME Union All*/
+SELECT CIDNO,CNAME
+FROM (VALUES ('x1',N'內政部營建署')
+,('04191945',N'內政部中部辦公室（營建業務）')
+,('52755393',N'內政部國土測繪中心')
+,('27541255',N'經濟部工業局') /*EJOBW-1033-更改value*/
+,('69102402',N'經濟部智慧財產局（智慧財產培訓學院）')
+,('23212200',N'經濟部商業司')
+,('03722109',N'經濟部國貿局')
+,('04179436',N'經濟部中小企業處')
+,('58815101',N'文化部')
+,('13535082',N'客家委員會')
+,('33508909',N'交通部公路總局公路人員訓練所')
+,('x2',N'行政院衛生署')
+,('76766095',N'行政院環境保護署（訓練所）')
+,('23124692',N'行政院農業委員會（輔導處）')
+,('23165380',N'行政院經濟建設委員會')
+,('83851414',N'行政院農業委員會漁業署')
+,('20082444',N'行政院原住民族委員會')
+,('PCC',N'行政院公共工程委員會')
+,('52014146',N'衛生福利部國民健康署') /*EJOBW-1064-新增*/
+,('43669853',N'退輔會職訓中心')
+,('40401902',N'宜蘭縣政府勞工處')
+,('nt660660',N'南投縣政府') /*EJOBW-975-新增*/
+,('31009316',N'臺北市職能發展學院')
+,('29329756',N'新北市政府職業訓練中心')
+,('02370',N'新竹市政府') /*EJOBW-1697-新增*/
+,('92088214',N'高雄市政府勞工局訓練就業中心')
+,('41384841',N'財團法人台灣金融研訓院')  
+/*  Union All Select '41384841',    '財團法人台灣金融研訓院1'  
+Union All Select '41384842',    '財團法人台灣金融研訓院2'  
+Union All Select '41384843',    '財團法人台灣金融研訓院3' */
+,('80778299',N'財團法人國家實驗研究院國家高速網路與計算中心')/*EJOBW-1040-新增*/
+,('05076416',N'財團法人資訊工業策進會')
+,('02750963',N'財團法人工業技術研究院')
+,('15648033',N'財團法人國家實驗研究院')
+,('11084792',N'財團法人中華顧問工程司')
+,('17597502',N'財團法人台灣網路資訊中心1')
+,('03702716',N'財團法人中華民國對外貿易發展協會1')
+,('01013947',N'財團法人台灣博物館文教基金會')
+,('14875622',N'財團法人台灣建築中心')
+,('78322626',N'財團法人印刷工業技術研究中心')
+,('01891206',N'財團法人紡織產業綜合研究所')
+,('17602060',N'財團法人中央畜產會')
+,('01030642',N'財團法人台灣手工業推廣中心')
+,('01107297',N'財團法人中衛發展中心')
+,('77217652',N'財團法人鞋類暨運動休閒科技研發中心')) AS ComIDList(CIDNO, CNAME)
+) 
+]]>
+    </select>
+
+    <!-- 課程資訊-其他政府課程-訓練單位選項 (ok)-->
+    <select id="queryGovernIDOrgList"
+            extends="withGovernClassComIDList"
+						resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT CIDNO CODE, CNAME TEXT from WComIDList ]]>
+    </select>
+
+    <!-- 查詢通俗職類第一層大項選項-->
+    <select id="queryCJobNoItemLv1"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ /*'['+CJOB_TYPE+']'+*/
+SELECT CJOB_TYPE CODE ,CJOB_NAME TEXT
+FROM SHARE_CJOB 
+WHERE CJOB_NO IS NULL AND CYEARS = '2016'
+ORDER BY CONVERT(numeric, CJOB_TYPE) ]]>
+    </select>
+
+    <!-- 查詢通俗職類第二層中項選項  -->
+    <select id="queryCJobNoItemLv2"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ /*'[' + CJOB_NO + ']' + ,CJOB_TYPE*/
+SELECT CJOB_NO CODE ,CJOB_NAME TEXT 
+FROM SHARE_CJOB
+WHERE CJOB_NO IS NOT NULL AND JOB_NO IS NULL AND CYEARS='2016' 
+ORDER BY CJOB_NO      
+/*AND CJOB_TYPE=#CJOB_TYPE# */ ]]>
+    </select>
+
+    <!-- 查詢通俗職類第三層小項選項  -->
+    <select id="queryCJobNoItemLv3"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ /*CJOB_NO + '.' + JOB_NO + ,CJOB_TYPE*/ 
+SELECT CAST(CJOB_UNKEY AS varchar) CODE ,CJOB_NAME TEXT 
+FROM SHARE_CJOB 
+WHERE CJOB_NO IS NOT NULL AND JOB_NO IS NOT NULL AND CYEARS='2016' 
+ORDER BY CJOB_NO ,JOB_NO
+/*AND CJOB_NO=#CJOB_NO# */ ]]>
+    </select>
+
+    <!-- 申請用途  -->
+    <select id="getKEY_PURPOSE"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT PURID CODE,PURNAME TEXT FROM KEY_PURPOSE ORDER BY PURID ]]>
+    </select>
+
+    <!-- 使用單位  -->
+    <select id="getKEY_USAGEUNIT"
+            parameterClass="Hashtable"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT UAGID CODE, UAGNAME TEXT FROM KEY_USAGEUNIT ORDER BY UAGID ]]>
+    </select>
+
+    <!-- 取得一組序號 -->
+    <select id="getDCASENO_20"
+            resultClass="string"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT dbo.FN_GET_DCLNO_20(RAND()) DCASENO_20 ]]>
+    </select>
+
+    <!--/*個資法遮罩-姓名顯示*/-->
+    <select id="getCNAMEMK"
+            resultClass="string"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT dbo.FN_GET_MASK3(#CNAME#) CNAME_MK ]]>
+    </select>
+
+    <!--/*個資法遮罩-身份證號*/-->
+    <select id="getIDNOMK"
+            resultClass="string"
+            parameterClass="Hashtable"
+            cacheModel="WDAIIP.WEB-cache">
+      <![CDATA[ SELECT dbo.FN_GET_MASK1(#IDNO#) IDNO_MK ]]>
+    </select>
+
+  </statements>
+</sqlMap>

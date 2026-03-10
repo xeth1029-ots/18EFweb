@@ -1,0 +1,20 @@
+﻿@model WDAIIP.WEB.Models.ClassMatchViewModel
+@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+
+@{ 
+    ViewBag.Title = "歷史課程清單";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="首頁">首頁</a> / <a href="#" title="會員專區">會員專區</a> / <a href="@Url.Content("~/ClassMatch")" title="速配課程設定">速配課程設定</a> /  速配課程結果</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green">速配課程結果</h3>
+    @*todo*@
+    @using (Html.BeginForm("Index", "ClassMatch", FormMethod.Post, new { id = "main_form", @class="" }))
+    {
+        
+    }
+</div>

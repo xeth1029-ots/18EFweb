@@ -1,0 +1,222 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassSearchViewModel
+@{
+    ViewBag.Title = "課程查詢報名--課程查詢";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    bool f_ClassMapSch1 = ConfigModel.As_ClassMapSch1.Equals("Y") ? true : false; //bool f_ClassMapSch1 = true;
+}
+
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+
+@using (Html.BeginForm("Index", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+{
+    @*@Html.AntiForgeryToken()*@
+    <div class="col-sm-12">
+        <!-- bread start --->
+        <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 課程查詢</div>
+        <!-- bread end --->
+        <h3 class="main-title main-title-blue"><i class="fas fa-search space-right"></i>開班資料查詢條件</h3>
+        <!-- search form start -->
+        <div class="unit-border">
+            <div class="form-group-search">
+                @*@Html.CustomLabelFor(m => m.Form.PlanType, new { @class = "form-label-search" })*@
+                <label for="Form_PlanType_2" class="form-label-search">類別</label>
+                <div class="form-input form-inline">
+                    <div style="float:left;display: inline-block;">
+                        @Html.RadioGroupFor(m => m.Form.PlanType, Model.PlanType_list, new { @class = "group-width", title = "請選擇查詢計畫類別" })
+                    </div>
+                    <div style="float:initial;display: inline-block;margin-top:5px;text-align:initial">
+                        <a href="@Url.Content("~/ClassMapSch")" title="地圖找課程"><i class="fas fa-map-marker-alt"></i>地圖找課程</a>
+                    </div>
+                    @if (f_ClassMapSch1)
+                    {
+                        @*<i class="fas a-map-marker space-right"></i>*@
+                        <div style="float:initial;display: inline-block;margin-top:5px;text-align:initial">
+                            <a href="@Url.Content("~/OrgMapSch")" title="前往 服務據點-地圖查詢"><i class="fas fa-map-marker-alt"></i>服務據點-地圖查詢</a>
+                        </div>
+                    }
+                    @*//if ("1".Equals(Model.Form.PlanType)) { }*@
+                    <div style="float:initial;display: inline-block;margin-top:5px;text-align:center">
+                        <a href="@Url.Content("~/Downloads/在職訓練課程報名流程.pdf")" style="color:black ;font-size:1.0em" rel="noreferrer noopener" title="(另開新視窗)下載在職訓練課程報名流程資料" target="_blank">(另開新視窗)<b>在職訓練課程報名流程</b></a>
+                        <a href="@Url.Content("~/Downloads/在職訓練課程報名流程.pdf")" target="_blank" rel="noreferrer noopener" title="(另開新視窗)下載在職訓練課程報名流程資料"><img src="@Url.Content("~/images/fileImg/pdf.png")" border="0" width="30" height="30" alt="下載在職訓練課程報名流程資料"><span class="sr-only">(另開新視窗)</span></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 條件 start -->
+            <div id="condition">
+                @Html.Partial("_Condition")
+            </div>
+            <!-- 條件 end -->
+
+            <div class="clearfix"></div>
+            <div class="submit-bar">
+                <button type="submit" class="btn-orange" title="送出">送出</button>
+                <button type="button" data-role="Reset" class="btn-refill" title="取消">取消</button>
+            </div>
+            <p>
+            <p>
+                <!-- search form end -->
+        </div>
+    </div>
+}
+
+@using (Html.BeginForm("PlanTypeChange", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "condition_form", @class = "form-horizontal" }))
+{
+    @Html.Hidden("PlanType");
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var idHead = "#Form_";
+
+        //類型選取項目改變事件
+        $("input[type=radio][name*='Form.PlanType']").on("change", function () {
+            doChangeCondition($(this).val());
+        });
+
+        //縣市代碼改變事件
+        $(idHead + "CTID").on("change", doZipCodeGet);
+
+        //訓練業別下拉連動事件
+        $(idHead + "JOBTMID").on("change", doTMIDGet);
+
+        //取消click事件(重載頁面)
+        $("button[data-role=Reset]").on("click", function () {
+            doChangeCondition($("input[name*='Form.PlanType']:checked").val());
+        });
+
+        //開訓日期區間選取事件
+        $("input[type=radio][name*='Form.CASETYPE']").on("change", function () {
+            if ($(this).val() != "0") {
+                //$(idHead + "STDATE_YEAR_SHOW").val("");
+                //$(idHead + "STDATE_MON").val("");
+                //$(idHead + "FTDATE_YEAR_SHOW").val("");
+                //$(idHead + "FTDATE_MON").val("");
+                $(idHead + "STDATE_YEAR_SHOW").prop('disabled', true);
+                $(idHead + "STDATE_MON").prop('disabled', true);
+                $(idHead + "FTDATE_YEAR_SHOW").prop('disabled', true);
+                $(idHead + "FTDATE_MON").prop('disabled', true);
+            }
+            else {
+                $(idHead + "STDATE_YEAR_SHOW").prop('disabled', false);
+                $(idHead + "STDATE_MON").prop('disabled', false);
+                $(idHead + "FTDATE_YEAR_SHOW").prop('disabled', false);
+                $(idHead + "FTDATE_MON").prop('disabled', false);
+            }
+        });
+
+        //無障礙檢測 EV1080300 按照內容的序列及關連性來安排互動元件的放置順序
+        //切換計畫選項post後，其focus狀態仍要停在原位
+        var isFirst = '@Model.Form.IsFirst';
+        var planType = '@Model.Form.PlanType';
+        if (isFirst == "N") {
+            if (planType != "") {
+                $("input[id='Form_PlanType_" + planType + "']").focus();
+            }
+        }
+    });
+
+    //切換查詢條件
+    function doChangeCondition(plantype) {
+        $("#PlanType").val(plantype);
+        $("form#condition_form").submit();
+    }
+
+    //取得縣市代碼相對應的鄉鎮市區清單
+    function doZipCodeGet() {
+        var idHead = "#Form_";
+        var data = {
+            "url": "@Url.Action("GetZipCode")",
+            "arg": { "CTID": $(idHead + "CTID option:selected").val() },
+            "box": $(idHead + "ZIPCODE")
+        }
+
+        var blankHtml = "<option value=\"\">請選擇</option>";
+        if ($.trim(data.arg.CTID) == "") data.box.html(blankHtml);
+        else {
+            ajaxLoadMore(data.url, data.arg, function (resp) {
+                if (resp === undefined) data.box.html(blankHtml);
+                else {
+                    if (resp.data != "") {
+                        data.box.html(resp.data);
+                    }
+                    else {
+                        data.box.html(blankHtml);
+                    }
+                }
+            });
+        }
+    }
+
+    //取得縮小單位範圍清單
+    function doSchoolListGet() {
+        var idHead = "#Form_";
+        var data = {
+            "url": "@Url.Action("GetSchoolList", "Ajax")",
+            "arg": {
+                "CTID": $(idHead + "CTID option:selected").val().trim(),
+                "ZIPCODE": $(idHead + "ZIPCODE option:selected").val().trim(),
+                "SCHOOLNAME": $(idHead + "SCHOOLNAME").val().trim()
+            },
+            "box": $(idHead + "COMIDNO")
+        }
+
+        var blankHtml = "<option value=\"\">全部</option>";
+        if ($.trim(data.arg.CTID) == "" && $.trim(data.arg.ZIPCODE) == "" && $.trim(data.arg.SCHOOLNAME) == "") data.box.html(blankHtml);
+        else {
+            ajaxLoadMore(data.url, data.arg, function (resp) {
+                if (resp === undefined) data.box.html(blankHtml);
+                else {
+                    if (resp.data != "") {
+                        data.box.html(resp.data);
+                    }
+                    else {
+                        data.box.html(blankHtml);
+                    }
+                }
+            });
+        }
+    }
+
+    //取得訓練業別「職類課程」對應的「業別」清單資料
+    function doTMIDGet() {
+        var idHead = "#Form_";
+        var data = {
+            "url": "@Url.Action("GetTMIDList","Ajax")",
+            "arg": { "JOBTMID": $(idHead + "JOBTMID option:selected").val() },
+            "box": $(idHead + "TMID")
+        };
+
+        var blankHtml = "<option value=\"\">請選擇</option>";
+        if ($.trim(data.arg.JOBTMID) == "") data.box.html(blankHtml);
+        else {
+            ajaxLoadMore(data.url, data.arg, function (resp) {
+                if (resp === undefined) data.box.html(blankHtml);
+                else {
+                    if (resp.data != "") {
+                        data.box.html(resp.data);
+                    } else {
+                        data.box.html(blankHtml);
+                    }
+                }
+            });
+        }
+    }
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
+    function openNewWindow3() {
+        //var w_name = "NewWindow" + getRandomInt(100000);
+        //const features = "width=600,height=400,scrollbars=yes";
+        const w_nwurl1 = "https://jobooks.taiwanjobs.gov.tw/cl.aspx?n=3";
+        var w_name = "_blank";
+        const w_features = "toolbar=0,location=0,status=0,menubar=0,resizable=1,scrollbars=1";
+        window.open(w_nwurl1, w_name, w_features);
+    }
+</script>

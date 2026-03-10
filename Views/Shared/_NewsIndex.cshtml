@@ -1,0 +1,16 @@
+﻿@model WDAIIP.WEB.Models.ContentViewModel
+
+<div class="table-responsive">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-responsive table-newsList ">
+        <thead>
+            <tr>
+                <th style="width:20%">發布日期</th>
+                <th>標題</th>
+            </tr>
+        </thead>
+        <tbody id="rows">
+            @Html.Partial("_NewsGridRows", Model)
+        </tbody>
+    </table>
+</div>
+@Html.Partial("_PagingLink", Model.Form)

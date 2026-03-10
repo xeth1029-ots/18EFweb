@@ -1,0 +1,206 @@
+﻿@model WDAIIP.WEB.Models.StudOnlineViewModel
+@using WDAIIP.WEB.DataLayers
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+
+@{
+    ViewBag.Title = "會員專區--學員線上表單";
+    ViewBag.Tit2 = "學員線上表單";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    SessionModel sm = SessionModel.Get();
+    string memMsg = "如欲修改個人基本資料，請至台灣就業通「會員中心」變更";
+    string s_PostCodeQry = MyCommonUtil.Get_PostCodeQry();
+}
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration: none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / @ViewBag.Tit2 </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-pink"><i class="fas fa-edit space-right"></i>@ViewBag.Tit2</h3>
+    <!-- note info -->
+    @*<div class="unit-bg unit-bg-gray">
+        <span>
+        1. 本畫面作業完成前，請勿關閉或離開本畫面，否則必須重新登入會員並重新填寫資料。 <br />
+        2. 本功能除灰色底欄位不提供修正（如欲修正請至台灣就業通<strong><a href="https://job.taiwanjobs.gov.tw/internet/jobwanted/member/member_data_m.aspx" target="_blank" rel="noreferrer noopener" title="[另開新視窗]前往台灣就業通"><span class="sr-only">(另開新視窗)</span>「會員中心」</a></strong>變更），其餘皆可自行修改。<br />
+        3. 郵遞區號請填寫完整之3+3碼(或3+2碼)。<br />
+        </span>
+        </div>*@
+    <div class="unit-bg unit-bg-pink">
+        <p><strong>本功能使用說明：</strong><br /></p>
+        <ol>
+            <li>請確認資料正確性，以避免影響參訓資格與相關權益。本畫面作業完成前，請勿關閉或離開本畫面，否則必須重新登入會員並重新填寫資料。</li>
+            <li>會員資料若需修正，請至會員專區>「會員資料維護」修改。</li>
+            <li>本功能除灰色底欄位不提供修正（如欲修正請至台灣就業通<strong><a href="https://job.taiwanjobs.gov.tw/internet/jobwanted/member/member_data_m.aspx" target="_blank" rel="noreferrer noopener" title="[另開新視窗]前往台灣就業通"><span class="sr-only">(另開新視窗)</span>「會員中心」</a></strong>變更），其餘皆可自行修改。</li>
+            <li>郵遞區號請填寫完整之3+3碼(或3+2碼)。</li>
+            <li>為使民眾報名時更為順暢，本功能於每日11:45至13:00不開放查詢，請避開本時段再做查詢，謝謝。</li>
+        </ol>
+    </div>
+    <!-- personal info -->
+    @using (Html.BeginForm("SaveDetail", "StudOnlineSign", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+    {
+        @Html.HiddenFor(m => m.Form.ELNO)
+        @Html.HiddenFor(m => m.Form.SOCID)
+        @Html.HiddenFor(m => m.Form.OCID)
+        @Html.HiddenFor(m => m.Form.SID)
+        <div class="unit-border">
+            <div class="form-group-search">
+                <label for="Detail_NAME" class="form-label-data"><span class="text-danger">*</span> 中文姓名</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.NAME, new { @class = "form-control", placeholder = "", @readonly = true, title = @memMsg, MaxLength = "20" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_IDNO" class="form-label-data"><span class="text-danger">*</span> 身分證字號</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.IDNO, new { @class = "form-control", placeholder = "", @readonly = true, title = @memMsg, MaxLength = "13" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_CONTACTPHONE" class="form-label-data"><span class="text-danger">*</span> 聯絡電話</label>
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Detail.CONTACTPHONE, new { @class = "form-control", placeholder = "請輸入聯絡電話", title = "請輸入聯絡電話", MaxLength = "20" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_ZIPCODE1" class="form-label-data"><span class="text-danger">*</span> 通訊地址</label>
+                <div class="form-input-data form-inline">
+                    <button type="button" id="btnSchZip" class="btn btn-info" onclick="doZipSelect(1)" title="查詢郵遞區號">...</button>
+                    @Html.TextBoxFor(m => m.Detail.ZIPCODE1, new { @class = "form-normal", size = "3", maxlength = "3", @data_role = "zipcode", @data_city = "CITY1", title = "郵遞區號(前3碼)" })-
+                    @Html.HiddenFor(m => m.Detail.ZIPCODE1_6W)
+                    @Html.TextBoxFor(m => m.Detail.ZIPCODE1_2W, new { @class = "form-normal", size = "3", maxlength = "3", title = "郵遞區號(後2碼或3碼)" })
+                    @Html.Raw(s_PostCodeQry)
+                    @*<a href="@s_PostCodeQry" target="_blank" rel="noreferrer noopener" title="前往查詢3+2郵遞區號(另開新視窗)">(3+2郵遞區號查詢)</a>*@
+                    @if (!string.IsNullOrEmpty(Convert.ToString(Model.Detail.ZIPCODE1)))
+                    {
+                        var strCityZame = (new MyKeyMapDAO()).GetZipName2(Convert.ToString(Model.Detail.ZIPCODE1));
+                        <input name="CITY1" type="text" class="form-control" id="CITY1" onfocus="this.blur();" readonly value="@strCityZame" title="縣市區域">
+                    }
+                    else
+                    {
+                        <input name="CITY1" type="text" class="form-control" id="CITY1" onkeydown="this.blur()" oncontextmenu="return false;" title="縣市區域">
+                    }
+                    @Html.TextBoxFor(m => m.Detail.ADDRESS, new { @class = "form-control", size = "70", maxlength = "120", placeholder = "請輸入通訊地址", title = "請輸入通訊地址" })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="unit-bg unit-bg-gray unit-spaces">
+                @*</div><div class="unit-bg unit-bg-green unit-spaces">*@
+                <span class="text-danger">*</span> 當您勾選「我同意」並簽署本同意書時，即表示您已閱讀、瞭解並同意本文件之所有內容<p></p>
+                <strong>
+                    <span id="IsAgree2" title="(每次重新點選)">
+                        @Html.RadioButtonFor(m => m.Detail.ISAGREE, "Y", new { @class = "form-inline radioset", id = "rdo_ISAGREE_Y", title = "請選擇是否同意(每次重新點選)" })
+                        <label style="font-weight:normal; cursor:pointer" for="rdo_ISAGREE_Y"><strong>我同意</strong></label>
+                    </span>
+                    <span title="(每次重新點選)">
+                        @Html.RadioButtonFor(m => m.Detail.ISAGREE, "N", new { @class = "form-inline radioset", id = "rdo_ISAGREE_N", title = "請選擇是否同意(每次重新點選)" })
+                        <label style="font-weight:normal; cursor:pointer" for="rdo_ISAGREE_N"><strong>我不同意</strong></label>
+                    </span>
+                </strong>
+                <p></p>於上開所列蒐集目的之合理範圍內，蒐集、處理及利用本人之個人資料。 (如點選不同意，將無法受理) <br>
+            </div>
+        </div>
+        <div class="submit-bar">
+            <button type="button" data-role="OnlineSignData" class="btn-orange" title="線上簽名">線上簽名</button>
+            <button type="button" data-role="GoBack" class="btn-refill" title="取消">取消</button>
+        </div>
+    }
+    @*@Html.Hidden("hid_ZIPCODE_2W", s_ZIPCODE_2W) @Html.Hidden("hid_ZIPCODE2_2W", s_ZIPCODE2_2W) @Html.Hidden("hid_ZIPCODE3_2W", s_ZIPCODE3_2W)*@
+</div>
+
+@*<!--回查詢清單-->*@
+@using (Html.BeginForm("DetailF", "StudOnlineSign", FormMethod.Post, htmlAttributes: new { id = "GoBackForm" }))
+{
+    @*string SOCID, string OCID, string SID //Html.Hidden("ELNO")*@
+    @Html.Hidden("SOCID")
+    @Html.Hidden("OCID")
+    @Html.Hidden("SID")
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        @*GetZipName 取得 縣市轄區中文 查詢郵遞區號*@
+        $("input[data-role='zipcode']").blur(function () {
+            var zipcode = $(this).val();
+            var datacity = $(this).attr("data-city");
+
+            var url = '@Url.Action("GetZipName", "Ajax")';
+            var data = { zipcode: zipcode };
+
+            ajaxLoadMore(url, data, function (resp) {
+                if (!(resp === undefined)) {
+                    if (resp.data == null || resp.data == "") {
+                        $("#" + datacity).val("");
+                    } else {
+                        $("#" + datacity).val(resp.data);
+                    }
+                }
+            });
+        });
+
+        @* 線上簽名" 線上簽名 "SaveDetail", "StudOnlineSign" *@
+        $("button[data-role=OnlineSignData]").on("click", function () {
+            $("#SOCID").val($("#Form_SOCID").val());
+            $("#OCID").val($("#Form_OCID").val());
+            $("#SID").val($("#Form_SID").val());
+            $("form#main_form").attr("action", "@Url.Action("SaveDetail", "StudOnlineSign")").submit();
+            @*var form = $("form#main_form"); form.submit();*@
+        });
+
+        @*線上簽名" 線上簽名 "SaveDetail", "StudOnlineSign" *@
+        @*$("button[data-role=OnlineSignData]").on("click", function () {
+            var form = $("form#main_form");
+            var url = "@Url.Action("GetSysDate","Ajax")";
+            var data = {};
+            ajaxLoadMore(url, data, function (resp) {
+                var msg = "資料確認無誤，確定送出？";
+                if (resp === undefined) msg = "資料確認無誤，確定送出？";
+                else msg = "資料確認無誤，確定送出？<br>目前系統時間為(" + resp.data + ")";
+                blockConfirm(msg, "提示訊息", function () {
+                    form.submit();
+                });
+            });
+        });*@
+
+        @* 個資確認頁 GoBack *@
+        $("button[data-role=GoBack]").click(function () {
+            $("#SOCID").val($("#Form_SOCID").val());
+            $("#OCID").val($("#Form_OCID").val());
+            $("#SID").val($("#Form_SID").val());
+            $("form#GoBackForm").submit();
+        });
+    });
+
+    @*郵遞區號地址資料選取對話框 // flag: 1為通訊地址、2為戶籍地址、3投保單位地址*@
+    var onZipSelect;
+
+    function doZipSelect(flag) {
+        var url = '@Url.Action("Index", "Zip")';
+        var title = "郵遞區號查詢";
+        var arrBtn = "";
+        var params = { onclickHandler: "onZipSelect" };
+
+        @*回傳的data中包含，// zipcode:郵遞區號前三碼// zipcode2:郵遞區號後兩碼// ctname:縣市名稱// zipname:鄉鎮市區名稱// road:街道名稱*@
+        onZipSelect = function (data) {
+            if (data != undefined) {
+                switch (flag) {
+                    case 1:
+                        $("#Detail_ZIPCODE1").val(data.zipcode);
+                        $("#Detail_ZIPCODE1_2W").val(data.zipcode2);
+                        $("#Detail_ZIPCODE1_6W").val(data.zipcode + data.zipcode2);
+                        $("#CITY1").val(data.ctname + data.zipname);
+                        $("#Detail_ADDRESS").val(data.road);
+                        break;
+                }
+            }
+        }
+
+        popupDialog(url, title, arrBtn, 600, params);
+    }
+
+
+</script>

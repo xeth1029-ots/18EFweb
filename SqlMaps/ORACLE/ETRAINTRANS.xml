@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="ETrainTrans"
+xmlns="http://ibatis.apache.org/mapping"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <resultMaps>
+  </resultMaps>
+
+  <cacheModel id="ETrainTrans-cache" implementation="MEMORY" >
+    <flushInterval hours="1"/>
+    <property name="Type" value="WEAK"/>
+  </cacheModel>
+
+  <!-- MAPPED STATEMENTS - w/Inline Parameters -->
+  <statements>
+
+    <!-- 其他政府課程-課程查詢結果(ETrain_Trans) (ok)☆☆-->
+    <select id="queryGovClassSearch"
+            parameterClass="WDAIIP.WEB.Models.GovClassSearchFormModel"
+						resultClass="WDAIIP.WEB.Models.GovClassSearchGridModel"
+            cacheModel="ETrainTrans-cache">
+      <![CDATA[  
+        SELECT 
+        'G' AS DSRC, A.CPID, F.CTID, A.SENTERDATE, A.FENTERDATE
+        , A.STDATE, A.FTDATE
+        , A.CLASSCNAME, A.ORGNAME
+        , NVL(F.CTNAME,'其他') AS CLASSPOS
+        , J.HOURRANNAME
+         FROM CLASS_PLAN_INFO A
+         LEFT JOIN ID_ZIP E  ON E.ZIPCODE=A.TADDRESSZIP
+         LEFT JOIN ID_CITY F ON F.CTID=E.CTID
+         LEFT JOIN KEY_HOURRAN J  ON J.HRID=A.TPERIOD
+         LEFT JOIN KEY_TRAINTYPE K  ON K.TMID=A.TMID
+         WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="STDATEBIND" >
+            <isNotEmpty prepend="" property="FTDATEBIND" >
+              <!-- 訓練期間-起迄日條件 同時存在,  訓練開始日, 落在訓練日期條件區間中 
+              O : and (a.FTDate - to_date(#STDate#,'YYYY/MM/DD') >= 0)
+              訓練結束日 比 條件起始日大 且 訓練截止日 比 條件迄止日小
+              -->
+              <![CDATA[
+                AND  ( 
+                  TO_CHAR(A.STDATE,'yyyy/MM') >= TO_CHAR(TO_DATE(#STDATEBIND#,'yyyy/MM/dd'),'yyyy/MM')
+                  AND TO_CHAR(A.STDATE,'yyyy/MM') <= TO_CHAR(TO_DATE(#FTDATEBIND#,'yyyy/MM/dd'),'yyyy/MM')
+                )
+             ]]>
+            </isNotEmpty>
+            <isEmpty prepend="" property="FTDATEBIND" >
+              <!-- 訓練期間-只有起日條件,  訓練開始日, 大於訓練日期起日條件 -->
+              <![CDATA[
+                AND TO_CHAR(A.STDATE,'yyyy/MM') >= TO_CHAR(TO_DATE(#STDATEBIND#,'yyyy/MM/dd'),'YYYY/MM')
+              ]]>
+            </isEmpty>
+            <!-- 訓練期間-忽略 只有迄日條件 的情況-->
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="CLASSCNAME" >
+            <!-- 課程關鍵字 a.ClassCName like '%'|| #ClassCName# ||'%' -->
+            <![CDATA[
+              AND ( A.CLASSCNAME  LIKE '%' || #CLASSCNAME# || '%' 
+              OR K.TRAINNAME LIKE '%' || #CLASSCNAME# || '%' 
+              OR A.PURPOSE LIKE '%' || #CLASSCNAME# || '%' 
+              OR A.CONTENT  LIKE '%' || #CLASSCNAME# || '%' )      
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="ORGIDITEM" >
+            <!-- 訓練單位 -->
+            <![CDATA[
+              AND A.COMIDNO IN ( $ORGIDITEM$ ) 
+            ]]>
+          </isNotEmpty>
+          <!--原排序-->
+          <isEmpty prepend="" property="SORTFIELD">
+            <isEmpty prepend="" property="SORTDESC">
+              <![CDATA[
+                ORDER BY SENTERDATE, FENTERDATE, STDATE, FTDATE,CPID
+              ]]>
+            </isEmpty>
+          </isEmpty>
+
+          <!--重新排序-->
+          <isNotEmpty prepend="" property="SORTFIELD">
+            <![CDATA[
+              ORDER BY $SORTFIELD$
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="SORTDESC">
+            <![CDATA[
+              DESC
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+    </select>
+
+    <!-- 其他政府課程-課程內容明細(ETrain_Trans) (ok)☆☆-->
+    <select id="getGovernClassSearchDetail"
+            parameterClass="WDAIIP.WEB.Models.Entities.TblCLASS_PLAN_INFO"
+            resultClass="WDAIIP.WEB.Models.GovClassSearchDetailModel"
+            cacheModel="ETrainTrans-cache">
+      <![CDATA[  
+      SELECT
+          A.CPID /*ID流水號*/
+        , A.CLASSCNAME /*課程名稱*/
+        , NVL(A.DEFSTDCOST,0) DEFSTDCOST /*訓練費用_學員負擔*/
+        , NVL(A.DEFMAINCOST,0) DEFMAINCOST /*訓練費用_政府負擔*/
+        , NVL(A.DEFUNITCOST,0) DEFUNITCOST /*訓練費用_訓練費用*/
+        , A.COMIDNO /*訓練單位統編*/
+        , A.ORGNAME /*訓練單位名稱*/
+        , A.THOURS  /*訓練時數*/
+        , NVL(D.CTNAME,'其他') || Z.ZIPNAME || TADDRESS  TADDRESS  /*訓練位置*/
+        , NVL(KH.HOURRANNAME,'') HOURRANNAME  /*訓練時段*/
+        , CASE WHEN A.CONTACTPHONE IS NOT NULL THEN A.CONTACTPHONE
+          ELSE (SELECT PHONE FROM ACCOUNT WHERE COMIDNO=A.COMIDNO AND ROWNUM =1  )
+          END CONTACTPHONE  /*聯絡電話*/
+        , A.CONTACTNAME     /*聯絡人*/
+        , A.STDATE, A.FTDATE, A.SENTERDATE, A.FENTERDATE
+        /*, TO_CHAR(A.STDATE    ,'YYYY/MM/DD') || ' ～ ' || TO_CHAR(A.FTDATE    ,'YYYY/MM/DD') TDATE */    /*訓練起迄日*/
+        /*, TO_CHAR(A.SENTERDATE,'YYYY/MM/DD') || ' ～ ' || TO_CHAR(A.FENTERDATE,'YYYY/MM/DD') ENTERDATE*/ /*報名起迄日*/
+        , DECODE(A.TRAINICE,'0','不拘','1','職前','2','在職','') TPROPERTY  /*訓練類型*/ /*EJOBW-1503*/
+        , A.TNUM    /*訓練學員數*/
+        , A.EXAMDATE
+        /*, TO_CHAR(A.EXAMDATE  ,'YYYY/MM/DD') EXAMDATE*/   /*甄試日期*/
+        , A.MSGCHANNEL    /*課程揭露管道*/
+        , A.HOURSMEMO2 MEMO    /*備註*/
+        /* == 課程內容 == */
+        , KT.TRAINNAME    /*訓練職類*/
+        , A.PURPOSE       /*訓練概要*/
+        , A.CONTENT       /*課程內容*/
+        /* == 參訓資格 == */
+        , CASE WHEN A.CAPSEX = 'M' THEN  '男'
+               WHEN A.CAPSEX = 'F' THEN  '女'
+               ELSE '不限' 
+               END CAPSEX_TEXT  /*性別*/
+        , A.CAPAGE1 ||' ～ ' || A.CAPAGE2 CAPAGE  /*年齡*/
+        , KD.NAME CAPDEGREE_TEXT   /*學歷*/
+        ,CASE A.CAPMILITARY
+          WHEN '00' THEN '不分' 
+          WHEN '02' THEN '未役' 
+          WHEN '04' THEN '在役' 
+          WHEN '013' THEN '役畢(含免役)' 
+          ELSE A.CAPMILITARY
+          END CAPMILITARY_TEXT       /*兵役*/
+        , A.CAPOTHER1   /*其他一*/
+        , A.CAPOTHER2   /*其他二*/
+        , A.CAPOTHER3   /*其他三*/
+         FROM CLASS_PLAN_INFO A
+         LEFT JOIN ID_ZIP          Z  ON Z.ZIPCODE     = A.TADDRESSZIP
+         LEFT JOIN ID_CITY         D  ON D.CTID        = Z.CTID
+         LEFT JOIN KEY_DEGREE KD ON KD.DEGREEID=A.CAPDEGREE
+         LEFT JOIN KEY_HOURRAN     KH ON KH.HRID       = A.TPERIOD
+         LEFT JOIN KEY_TRAINTYPE   KT ON KT.TMID       = A.TMID
+        WHERE A.CPID=#CPID#
+      ]]>
+    </select>    
+    
+  </statements>
+</sqlMap>

@@ -1,0 +1,61 @@
+﻿@model WDAIIP.WEB.Models.StudOnlineViewModel
+@using WDAIIP.WEB.DataLayers
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+@using System.Web
+
+@{
+    //上傳儲存簽名圖片檔的路徑。例如eYIP專案上的/Upload/PlanApplySignature/
+    string UploadRootPath = ConfigModel.UploadElSignPath;
+    string sElFormSignPath = ConfigModel.ElFormSignPath;
+}
+
+@if (Model == null || Model.Grid2 == null || Model.Grid2.Count == 0)
+{
+    <tr>
+        <td colspan="5" class="text-center text-danger">尚無表單紀錄</td>
+    </tr>
+}
+else
+{
+    for (int i = 0; i < Model.Grid2.Count; i++)
+    {
+        var item = Model.Grid2[i];
+        @*var v_CLASSCNAME = item.CLASSCNAME2;*@
+        var v_SOCID = item.SOCID.ToString();
+        var v_OCID = item.OCID.ToString();
+        var v_SID = item.SID;
+        var v_ELNO = item.ELNO;
+        var v_ELID = item.ELID;
+        var v_title1 = "下載空白文件"; //T
+        var v_title2 = "線上簽名"; //S
+        var v_title3 = "下載簽署文件"; //D
+
+        var webPath = item.FILEPATH1 ?? string.Concat(UploadRootPath, "/", sElFormSignPath);
+        string savePath = Server.MapPath(webPath);
+        string curFile = string.Concat(savePath, "/", item.P1_LINK);
+        bool fgS1 = item.CSELNO.HasValue;
+        bool fgS2 = File.Exists(curFile);
+
+        <tr>
+            <td style="text-align:center">@item.ELNO</td>
+            <td style="text-align:center">@item.ENAME</td>
+            <td style="text-align:center">@Html.Raw(item.EDESC)</td>
+            <td style="text-align:center">@item.SEND_N</td>
+            <td style="text-align:center">
+                <a href="javascript:void(0);" data-role="GoPrtOjtInclassEC" data-rte="T" data-socid="@(v_SOCID)"
+                   data-ocid="@(v_OCID)" data-sid="@(v_SID)" data-elno="@(v_ELNO)" data-elid="@(v_ELID)" class="btn btn-vert btn-justified" title="@v_title1">@v_title1</a><p></p>
+                @if (fgS1 && fgS2)
+                {
+                    <a href="javascript:void(0);" data-role="GoPrtOjtInclassEC" data-rte="D" data-socid="@(v_SOCID)"
+                       data-ocid="@(v_OCID)" data-sid="@(v_SID)" data-elno="@(v_ELNO)" data-elid="@(v_ELID)" class="btn btn-vert btn-justified" title="@v_title3">@v_title3</a>
+                }
+                else
+                {
+                    <a href="javascript:void(0);" data-role="GoPrtOjtInclassEC" data-rte="S" data-socid="@(v_SOCID)"
+                       data-ocid="@(v_OCID)" data-sid="@(v_SID)" data-elno="@(v_ELNO)" data-elid="@(v_ELID)" class="btn btn-vert btn-justified" title="@v_title2">@v_title2</a>
+                }
+            </td>
+        </tr>
+    }
+}

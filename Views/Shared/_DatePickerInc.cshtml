@@ -1,0 +1,66 @@
+﻿<script type="text/javascript" src="~/Scripts/datetimepicker/moment-with-locales.min.js"></script>
+<link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="~/Scripts/datetimepicker/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript">
+    @*起始 DatePicker 同時綁定dp.change事件,用來處理西元轉民國年的日期顯示*@
+    function initDatePicker(target) {
+        $(target)
+            .datetimepicker({
+                locale: 'zh-tw',
+                format: 'YYYY/MM/DD',
+                showClear: true,
+                showClose: true
+            }).on("dp.change", onDPChangeShowZHDate);
+
+        onTextBoxBlur(target);
+    }
+
+    @*處理 datetimepicker 的 db.change 事件, 將選取的 Date 值, 轉成民國年(YYY/MM/DD)顯示*@
+    function onDPChangeShowZHDate(e) {
+        debug_trace("onDPChangeShowZHDate: target=");
+        debug_trace(e.target);
+
+        var disInput = $(e.target).find("input[type=text]").first();
+        debug_trace("onDPChangeShowZHDate: display input=");
+        debug_trace(disInput);
+
+        if (e.date) {
+            var zhDate = (e.date.get('year') - 1911) + "/" + e.date.format('MM/DD');
+            debug_trace("onDPChangeShowZHDate: " + e.date.format('YYYY/MM/DD') + ' -> ' + zhDate);
+            disInput.val(zhDate);
+        }
+        else {
+            disInput.val('');
+        }
+    }
+
+    @* 使用者手動輸入Textbox時，將日期由民國年轉為西元年存在Hidden欄位 *@
+    function onTextBoxBlur(target) {
+        var txtInput = $(target).find("input[type=text]").first();
+        var hidInput = $(target).find("input[type=hidden]").first();
+
+        $(txtInput).on('blur', function () {
+            var dateText = $(txtInput).val();
+            var dateArr = dateText.split('\/');
+
+            if (dateText && dateText.trim().length > 0) {
+                var regex = /^1?[0-9][0-9]\/[0-1][0-9]\/[0-3][0-9]$/;
+                if (regex.test(dateText.trim())) {
+                    var year = parseInt(dateArr[0])
+                    if (!isNaN(year)) {
+                        dateArr[0] = year + 1911;
+                        hidVal = dateArr.join('/');
+                        $(hidInput).val(hidVal);
+                    }
+                } else {
+                    blockAlert('日期格式不正確!');
+                    $(txtInput).val('');
+                    $(hidInput).val('');
+                }
+            } else {
+                $(hidInput).val('');
+            }
+        });
+    }
+</script>
+

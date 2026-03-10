@@ -1,0 +1,147 @@
+﻿@using WDAIIP.WEB.Models
+@model SignUpViewModel
+
+@{
+    ViewBag.Title = "課程查詢報名--線上報名";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+}
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 線上報名</div>
+    <!-- bread end --->
+
+    <h3 class="main-title main-title-blue"><i class="fas fa-edit space-right"></i>線上報名</h3>
+
+    <!-- search form start -->
+    <div class="unit-border">
+        <div class="clearfix"></div>
+        @using (Html.BeginForm("Index", "SignUp", FormMethod.Post, new { id = "main_form", @class = "form-horizontal" }))
+        {
+            @Html.HiddenFor(m => m.Form.PlanType)
+            @Html.HiddenFor(m => m.Form.ProvideLocation)
+
+            <div class="form-group-search">
+                @*@Html.CustomLabelFor(m => m.Form.PlanType, new { @class = "form-label-search" })*@
+                <label for="OCID" class="form-label-search"><span class="text-danger">*</span>類別：</label>
+                <div class="form-input form-inline">
+                    @Html.RadioGroupFor(m => m.Form.PlanType, Model.PlanType_list, new { @class = "group-width", title = "請選擇計畫類別" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="OCID" class="form-label-search"><span class="text-danger">*</span>課程名稱代號(課程代碼)：</label>
+                <div class="form-input">
+                    @Html.TextBoxFor(x => x.Form.OCID, new { id = "OCID", @class = "form-normal", placeholder = "請輸入課程名稱代號", size = "40", title = "請輸入課程名稱代號", maxlength = 10 })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="keyword" class="form-label-search"></label>
+                <div class="form-input" style="text-align:left">
+                    <span>若您不知道課程名稱代號(課程代碼) , 請 <a href="@Url.Action("Index","ClassSearch")" title="前往課程查詢"><strong>點此進入</strong></a> 課程查詢!</span>
+                </div>
+            </div>
+            <div class="form-group-search"> </div>
+            <div class="clearfix"></div>
+            <div class="submit-bar">
+                <button type="button" data-role="GoSignUp" class="btn-orange" title="送出">送出</button>
+                <button type="button" data-role="GoClear" class="btn-refill" title="取消">重填</button>
+            </div>
+        }
+    </div>
+    <!-- search form end -->
+</div>
+
+@using (Html.BeginForm("Index", "SignUp", FormMethod.Post, htmlAttributes: new { id = "GoSignUpdForm" }))
+{
+    @Html.Hidden("PlanType")
+    @Html.Hidden("ProvideLocation")
+    @Html.Hidden("OCID")
+}
+
+<script type="text/javascript">
+    $(function () {
+        @*2019-02-01 fix 問題12:修正輸入課程代號並按Enter後會出現error訊息的問題 *@
+        $("input[name='Form.OCID']").keydown(function (event) {
+            //偵測當按下enter鍵時要觸發「送出」鈕執行事件
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                $("button[data-role=GoSignUp]").click();
+            }
+        });
+
+        //送出報名
+        $("button[data-role=GoSignUp]").on("click", function () {
+            var url = '@Url.Action("StopEnterTempMsg", "Ajax")';
+            var data = {};
+
+            //先查詢是否有設定停止報名設定，有則要先顯示停止報名訊息
+            ajaxLoadMore(url, data, function (resp) {
+                if (resp === undefined || resp.data == null || resp.data == "") {
+                    CheckSendEnterClass1();
+                } else {
+                    if (resp.data != "") {
+                        //檢核有不符報名條件(報名時段)
+                        blockAlert(resp.data, "提示訊息", function () {
+                        });
+                    } else {
+                        CheckSendEnterClass1();
+                    }
+                }
+            });
+        });
+
+        //重填
+        $("button[data-role=GoClear]").on("click", function () {
+            $("#Form_PlanType_2").prop("checked", true);
+            $("#OCID").val("");
+        });
+    });
+
+    //報名送出資料檢核
+    function CheckSendEnterClass1() {
+        // 1. 預先快取 DOM 元素
+        const $btn = $("button[data-role=GoSignUp]");
+        const $ocidInput = $("#OCID");
+        const ocidVal = $ocidInput.val().trim();
+        const planType = $("input[name*='Form.PlanType']:checked").val();
+        const $submitForm = $("#GoSignUpdForm");
+        // 2. 前端基礎驗證
+        if (ocidVal === "") {
+            blockAlert("課程名稱代號(課程代碼)不可為空!(請重新操作)", "提示訊息");
+            return;
+        }
+        // 3. 防止重複點擊：停用按鈕並顯示處理中狀態
+        $btn.prop("disabled", true).text("檢查中...");
+
+        const url = '@Url.Action("CheckSendEnterClass1", "Ajax")';
+        const data = { ocid: ocidVal, planType: planType };
+        // 4. 發送非同步請求
+        ajaxLoadMore(url, data, function (resp) {
+            // 重設按鈕狀態的輔助函數
+            const resetButton = () => $btn.prop("disabled", false).text("送出");
+            if (resp && resp.status) {
+                // 設定隱藏表單內容
+                $submitForm.find("#PlanType").val(planType);
+                $submitForm.find("#OCID").val(ocidVal);
+                if (resp.data && resp.data !== "") {
+                    // 額滿訊息或其他確認提示
+                    blockConfirm(resp.data, "確認訊息", function () { $submitForm.submit(); }, resetButton); // 取消確認時恢復按鈕
+                } else {
+                    // 完全符合報名條件
+                    $submitForm.submit();
+                }
+            } else {
+                // 不符報名條件或後端驗證失敗
+                const errorMsg = (resp && resp.data) ? resp.data : "驗證失敗，請稍後再試";
+                blockAlert(errorMsg, "提示訊息", resetButton);
+            }
+        }, function() {
+            // AJAX 失敗回呼 (伺服器錯誤/連線異常)
+            blockAlert("連線逾時或系統異常，請稍後再試", "系統錯誤", () => resetButton());
+        });
+    }
+</script>

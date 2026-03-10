@@ -1,0 +1,422 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model ClassSearchViewModel
+@{
+    //for 區域據點
+    ViewBag.Title = "課程查詢報名--瀏覽課程明細";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+
+    var cls_sch_url_1 = "https://ojt.wda.gov.tw/"; //複製網址
+    var strAddress = ""; //訓練位置地址
+    var strUrl = ""; //訓練位置地址(google)
+    var strTDate = "";
+    var strEnterDate = "";
+    bool showEnter = false;
+
+    //取得目前(DB)系統時間
+    //MyKeyMapDAO keyDao = new MyKeyMapDAO();
+    DateTime nowTime = Model.GetSysDateNow();
+    string s_ServerTime = nowTime.ToString("yyyyMMddHHmmssfff"); //系統時間2
+    var s_GoogleMapUrl = "https://maps.google.com.tw/maps?hl=zh-TW&t=m&z=16&q={0}";
+
+    if ("5".Equals(Model.Detail.PlanType))
+    {
+        //複製網址
+        cls_sch_url_1 = string.Format("https://ojt.wda.gov.tw/ClassSearch/Detail?OCID={0}&plantype={1}", Model.Detail.detail3.OCID.Value, Model.Detail.PlanType);
+    }
+
+    if (Model.Detail.detail3 == null) { return; }
+    DateTime? senterdate = Model.Detail.detail3.SENTERDATE;
+    DateTime? fenterdate = Model.Detail.detail3.FENTERDATE;
+    DateTime? sdate = Model.Detail.detail3.STDATE;
+    DateTime? fdate = Model.Detail.detail3.FTDATE;
+    DateTime? examdate = Model.Detail.detail3.EXAMDATE;
+    //甄試日期
+    string s_EXAMDATE = (examdate.HasValue ? examdate.Value.ToString("yyyy/MM/dd") : "");
+
+    //如果不在報名期間不顯示報名鈕
+    if (senterdate.HasValue && fenterdate.HasValue)
+    {
+        if (DateTime.Compare(nowTime, senterdate.Value) >= 0 && DateTime.Compare(nowTime, fenterdate.Value) <= 0) { showEnter = true; }
+    }
+
+    if (sdate.HasValue) { strTDate += sdate.Value.ToString("yyyy/MM/dd"); }
+    if (fdate.HasValue) { strTDate += string.Format("～{0}", fdate.Value.ToString("yyyy/MM/dd")); }
+    if (senterdate.HasValue) { strEnterDate += senterdate.Value.ToString("yyyy/MM/dd HH:mm"); }
+    if (fenterdate.HasValue) { strEnterDate += string.Format("～{0}", fenterdate.Value.ToString("yyyy/MM/dd HH:mm")); }
+
+    string s_CAPAGE1_N = string.Format("{0}(歲)", Model.Detail.detail3.CAPAGE);
+
+    string s_PHONE = Model.Detail.detail3.CONTACTPHONE ?? "";
+    string s_MOBILE = Model.Detail.detail3.CONTACTMOBILE ?? "";
+    string s_CPHONEMOBILE = Model.GetCPHONEMOBILE(s_PHONE, s_MOBILE);
+}
+
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 課程查詢</div>
+    <!-- bread end --->
+    @using (Html.BeginForm("Print", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "main_form" }))
+    {
+        <h3 class="main-title main-title-blue">
+            <i class="fab fa-readme space-right"></i>瀏覽課程明細
+            <span class="main-btngroup no-print">
+                @if (showEnter)
+                {
+                    <a href="javascript:void(0);" data-role="EnterClass" class="btn-titlebar bg-red" title="我要報名">我要報名</a>
+                }
+                <a href="javascript:void(0);" data-role="GoClassTrace" class="btn-titlebar bg-green" title="課程收藏">課程收藏</a>
+                <a href="javascript:void(0);" class="btn-titlebar bg-green copy_coupon" title="複製網址" id="BtnCopyUrl">複製網址</a>
+                <a href="javascript:void(0);" data-role="GoPrint" class="btn-titlebar bg-green" title="列印">列印</a>
+                @* 2018-07-11 暫時不放 *@
+                @*<a href="javascript:void(0);" data-role="GoBack" class="btn-titlebar bg-green" title="回上一頁">回上一頁</a>*@
+            </span>
+        </h3>
+
+        <!-- class result start -->
+        <h3 class="titlebar titlebarBg-green">班別資料</h3>
+        <div hidden>
+            @Html.HiddenFor(m => m.Detail.OCID)
+            @Html.HiddenFor(m => m.Detail.ProvideLocation)
+            @Html.HiddenFor(m => m.Detail.PlanType)
+        </div>
+
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                <tr>
+                    <th width="15%">課程代碼：</th>
+                    <td width="35%">@(Model.Detail.detail3.OCID)</td>
+                    <th width="15%">通俗職類：<span class="text-primary"></span></th>
+                    <td width="35%">@(Model.Detail.detail3.CJOB_NAME)</td>
+                </tr>
+                <tr>
+                    <th>課程名稱：</th>
+                    <td>@(Model.Detail.detail3.CLASSCNAME2)</td>
+                    <th>訓練費用：</th>
+                    <td>學員負擔：@(Model.Detail.detail3.DEFSTDCOST)  / 政府負擔：@(Model.Detail.detail3.DEFGOVCOST)</td>
+                </tr>
+                <tr>
+                    <th>訓練單位：</th>
+                    <td>@(Model.Detail.detail3.ORGNAME)</td>
+                    <th>訓練時數：</th>
+                    <td>@(Model.Detail.detail3.THOURS)小時</td>
+                </tr>
+                <tr>
+                    <th>訓練位置：</th>
+                    <td>
+                        @if (!string.IsNullOrEmpty(Model.Detail.detail3.TADDRESS))
+                        {
+                            strAddress = "(" + Model.Detail.detail3.TADDRESSZIP + ")" + Model.Detail.detail3.TADDRESS;
+                            strUrl = Model.Detail.detail3.TADDRESS;
+                        }
+                        @strAddress
+                        @if (!string.IsNullOrEmpty(strUrl) && strUrl.Length > 5) { strUrl = HttpUtility.UrlEncode(strUrl); }
+                        @if (!string.IsNullOrEmpty(strAddress))
+                        {
+                            <span class="text-primary"> <a target="_blank" rel="noreferrer noopener" title="開啟Google地圖查看訓練位置(另開新視窗)" href="https://maps.google.com.tw/maps?hl=zh-TW&t=m&z=16&q=@strUrl">開啟Google地圖(另開新視窗) <i class="fa fa-map-pin" aria-hidden="true"></i></a></span>
+                            if (Model.Detail.ProvideLocation == "Y")
+                            {
+                                @("，距離")<span class="text-success">@(Model.Detail.detail3.Distance)</span>@("公里")
+                            }
+                        }
+                    </td>
+                    <th>訓練時段：</th>
+                    <td>@(Model.Detail.detail3.HOURRANNAME)&nbsp;</td>
+                </tr>
+                <tr>
+                    <th>上課時間：</th>
+                    <td>@(Model.Detail.detail3.NOTE3)&nbsp;</td>
+                    <th>聯絡電話：</th>
+                    <td>@(s_CPHONEMOBILE)</td>
+                </tr>
+                <tr>
+                    <th>訓練日期：</th>
+                    <td>@strTDate</td>
+                    <th>聯絡窗口：</th>
+                    <td>@(Model.Detail.detail3.CONTACTNAME)</td>
+                </tr>
+                <tr>
+                    <th>報名日期：</th>
+                    <td>@strEnterDate</td>
+                    <th>訓練性質：</th>
+                    <td>@(Model.Detail.detail3.TPROPERTY)</td>
+                </tr>
+                <tr>
+                    <th>瀏覽人次：</th>
+                    <td>@(Model.Detail.detail3.BROWSECNT) 人</td>
+                    <th>訓練學員數：</th>
+                    <td>@(Model.Detail.detail3.TNUM) 人</td>
+                </tr>
+                <tr>
+                    <th>報名人數：</th>
+                    <td>@(Model.Detail.detail3.STUD_ENTERTYPE) 人</td>
+                    <th>甄試日期：</th>
+                    <td>@Html.Raw(s_EXAMDATE)</td>
+                </tr>
+            </table>
+        </div>
+        <h3 class="titlebar titlebarBg-green">課程內容</h3>
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                <tr>
+                    <th width="15%">訓練職類：<br></th>
+                    <td width="85%">@(Model.Detail.detail3.TRAINNAME)</td>
+                </tr>
+                <tr>
+                    <th>訓練目標：</th>
+                    <td>
+                        @Html.Raw(Model.Detail.detail3.PURTECH)
+                    </td>
+                </tr>
+                <tr>
+                    <th>課程內容：</th>
+                    <td>
+                        @if (Model.Detail.detail3.TrainDesc != null)
+                        {
+                            foreach (var item in Model.Detail.detail3.TrainDesc)
+                            {
+                                @:&#9679;&nbsp;@((item.PNAME + "(" + item.PHOUR + "小時) - " + item.PCONT).Replace(" ", ""))<br />
+                            }
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">專長能力：</th>@*專長能力標籤-PLAN_ABILITY*@
+                    <td>
+                        @foreach (var abilty in Model.Detail.detail3.AbilityGrid)
+                        {
+                            var s_a1 = abilty.ABILITY;
+                            var s_a2 = abilty.ABILITY_DESC;
+                            string s_a12 = !string.IsNullOrEmpty(s_a2) ? string.Concat("：", s_a2) : "";
+                            <div><b>@(s_a1)</b> @(s_a12)</div>
+                        }
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <h3 class="titlebar titlebarBg-green">參訓資格</h3>
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                <tr>
+                    <th width="15%">性別：</th>
+                    <td width="85%">@(Model.Detail.detail3.CAPSEX)</td>
+                </tr>
+                <tr>
+                    <th>年齡：</th>
+                    <td>@Html.Raw(s_CAPAGE1_N)</td>
+                </tr>
+                <tr>
+                    <th>學歷：</th>
+                    <td>@(Model.Detail.detail3.CAPEDU)</td>
+                </tr>
+                <tr>
+                    <th>兵役：</th>
+                    <td>@(Model.Detail.detail3.CAPMILITARY)</td>
+                </tr>
+                <tr>
+                    <th>其他條件：</th>
+                    <td>
+                        @if (!string.IsNullOrEmpty(Model.Detail.detail3.CAPOTHER1) && Model.Detail.detail3.CAPOTHER1.Trim() != "")
+                        {
+                            @:&#9679;&nbsp;@(Model.Detail.detail3.CAPOTHER1)<br />
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Detail.detail3.CAPOTHER2) && Model.Detail.detail3.CAPOTHER2.Trim() != "")
+                        {
+                            @:&#9679;&nbsp;@(Model.Detail.detail3.CAPOTHER2)<br />
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Detail.detail3.CAPOTHER3) && Model.Detail.detail3.CAPOTHER3.Trim() != "")
+                        {
+                            @:&#9679;&nbsp;@(Model.Detail.detail3.CAPOTHER3)<br />
+                        }
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <h3 class="titlebar titlebarBg-green">錄訓方式</h3>
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                @*<tr>
+                        <th width="15%">持推介單：</th>
+                        <td width="85%">@(Model.Detail.detail3.GETTRAIN1)</td>
+                    </tr>*@
+                <tr>
+                    <th width="15%">自行報名：</th>
+                    <td width="85%">
+                        @Html.Raw(Model.Detail.detail3.GETTRAIN2)
+                    </td>
+                </tr>
+                <tr>
+                    <th>甄試方式：</th>
+                    <td>@(Model.Detail.detail3.GETTRAIN3)</td>
+                </tr>
+                <tr>
+                    <th>其他說明：</th>
+                    <td>@Html.Raw(Model.Detail.detail3.GETTRAIN4)</td>
+                </tr>
+                <tr>
+                    <th>備註：</th>
+                    <td>@*@Html.Raw(("" + Model.Detail.detail3.NOTE).Replace("\n", "<br />"))*@&nbsp;</td>
+                    <td><br /></td>
+                </tr>
+            </table>
+            <div class="titlebar-note">本網頁課程資訊如與訓練單位公告事項不符時，仍以訓練單位公告資訊為準，恕不另行通知。</div>
+        </div>
+        <!-- btn -->
+        <div class="submit-bar-gray text-center no-print">
+            @if (showEnter)
+            {
+                <button type="button" data-role="EnterClass" title="線上報名按鈕" class="btn btn-red ">線上報名</button>
+            }
+        </div>
+
+    }
+</div>
+
+<!--回上一頁-->
+@using (Html.BeginForm("Index", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoBackForm" }))
+{
+    @Html.Hidden("useCache", 1)
+}
+
+<!--課程收藏-->
+@using (Html.BeginForm("AddClassTrace", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoClassForm" }))
+{
+    @Html.Hidden("PlanType", Model.Detail.PlanType)
+    @Html.Hidden("ProvideLocation", Model.Detail.ProvideLocation)
+    @Html.Hidden("OCID", Model.Detail.OCID)
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        //課程收藏 GoClassTrace
+        $("a[data-role=GoClassTrace]").click(function () {
+            $("form#GoClassForm").submit();
+        });
+
+        //友善列印 GoPrint
+        $("a[data-role=GoPrint]").click(doPrint);
+
+        //回上一頁GoBack
+        $("a[data-role=GoBack]").click(function () {
+            $("form#GoBackForm").submit();
+        });
+
+        //我要報名
+        $("a[data-role=EnterClass]").on("click", function () {
+            doSignUp();
+        });
+
+        //我要報名
+        $("button[data-role=EnterClass]").on("click", function () {
+            doSignUp();
+        });
+    });
+
+    //報名
+    function doSignUp() {
+        var showmsg = '@Html.Raw(Model.Detail.detail3.ShowMsg4)';
+        if (showmsg != "") {
+            blockAlert(showmsg);
+            return;
+        }
+        var actionName = '@Url.Action("Index","SignUp")';
+        $("form#GoClassForm").attr("action", actionName).submit();
+    }
+
+    //列印
+    function doPrint() {
+        var content = document.getElementById('main_form').innerHTML;
+        var stime = '@(s_ServerTime)';
+        var sprint = 'Print' + stime;
+        var mywindow = window.open('', sprint, '');
+
+        //設定列印css
+        var printstyle = '<style type="text/css">';
+        printstyle += ' @@page{size: A4; margin: 35px;} ';
+        printstyle += ' @@media print{ .no-print{display: none !important;}}';
+        printstyle += '</style>';
+
+        mywindow.document.write('<html><head><title></title>');
+        mywindow.document.write('<link href="../css/base.css" rel="stylesheet" type="text/css">');
+        mywindow.document.write(printstyle);
+        mywindow.document.write('</head><body onload="window.print(); window.close();">');
+        mywindow.document.write(content);
+        mywindow.document.write('</body></html>');
+        mywindow.document.close();
+        mywindow.focus();
+    }
+
+    window.Clipboard = (function (window, document, navigator) {
+        var textArea, copy;
+
+        function isOS() {
+            return navigator.userAgent.match(/ipad|iphone/i);
+        }
+
+        function createTextArea(text) {
+            textArea = document.createElement('textArea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+        }
+
+        function selectText() {
+            var range, selection;
+
+            if (isOS()) {
+                range = document.createRange();
+                range.selectNodeContents(textArea);
+                selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                textArea.setSelectionRange(0, 999999);
+            } else {
+                textArea.select();
+            }
+        }
+
+        function copyToClipboard() {
+            document.execCommand("Copy");
+            document.body.removeChild(textArea);
+        }
+
+        copy = function (text) {
+            createTextArea(text);
+            selectText();
+            copyToClipboard();
+        };
+
+        return {
+            copy: copy
+        };
+    })(window, document, navigator);
+
+    //複製網址//value = $this.prev("input").val();
+    $(".copy_coupon").on("click", function () {
+        var $this = $(this), value = "@(cls_sch_url_1)".replace("amp;", "");
+        window.Clipboard.copy(value);
+        alert("已複製課程網址。");
+        $("html, body").scrollTop($this.offset().top);
+    });
+
+    //複製網址
+    @*document.getElementById('BtnCopyUrl').addEventListener('click', function () {
+        var textarea = document.createElement('textarea');
+        textarea.textContent = "@(cls_sch_url_1)".replace("amp;", "");//'copied text';
+        document.body.appendChild(textarea);
+
+        var selection = document.getSelection();
+        var range = document.createRange();
+        //range.selectNodeContents(textarea);
+        range.selectNode(textarea);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        console.log('copy success', document.execCommand('copy'));
+        selection.removeAllRanges();
+        document.body.removeChild(textarea);
+
+        alert("已複製課程網址。");
+        //alert("已複製課程網址。"+textarea.textContent);
+        //if(!flag_ok){alert("複製課程網址，失敗!");}else{alert("已複製課程網址。"+textarea.textContent);}
+    })*@
+</script>

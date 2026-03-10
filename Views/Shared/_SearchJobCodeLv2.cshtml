@@ -1,0 +1,12 @@
+﻿@using System.Collections;
+@model IList<Hashtable>
+@foreach (Hashtable row in Model)
+{
+    <div class="col-sm-6">
+        <div class="job-code-group">
+            <a class="link-pointer" onclick="pickupJobCode('@row["CODE"]', '@row["TEXT"]')">
+                <label class="job-code-name"><input type="checkbox" onclick="pickupJobCode('@row["CODE"]', '@row["TEXT"]')">【@row["CODE"]】@row["TEXT"]</label>
+            </a>
+        </div>
+    </div>
+}

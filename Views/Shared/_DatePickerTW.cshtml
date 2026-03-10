@@ -1,0 +1,157 @@
+﻿<link href="~/Content/bootstrap-datetimepicker.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="~/Scripts/datetimepicker/moment-with-locales.min.js"></script>
+<!-- BarrY Add Start -->
+<!-- 這隻檔案更新一下民國年呈現才會比較正常 -->
+<script type="text/javascript" src="~/Scripts/datetimepicker/bootstrap-datetimepicker.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // InputMask
+        if ($.MaskedInput != undefined)
+            $.MaskedInput.init('[data-mask]');
+        // DatePciker
+        $("div.date").each(function () {
+            initDatePicker(this);
+        });
+    });
+
+    function __dtpFindFunc(funcName) {
+        var ret = undefined;
+        if (funcName && funcName.length > 0) {
+            ret = window[funcName];
+            if (typeof ret !== "function") ret = undefined;
+        }
+        return ret;
+    }
+    @* 起始 DatePicker 同時綁定dp.change事件,用來處理西元轉民國年的日期顯示 *@
+    @* 此為顯示日曆元件按鈕為外部按鈕版本, 使用自帶按鈕版本請用 _DatePickerInc *@
+    @* callback將傳回新值及新值的民國年日期 function(newVal, newTwVal){...} *@
+    function initDatePicker(target, callback) {
+        $(target).datetimepicker({
+            locale: 'zh-tw',
+            format: 'YYYY/MM/DD',
+            showClear: true,
+            showClose: true
+        }).on("dp.change", function (e) {
+            onDPChangeShowZHDate(e, callback);
+            // $(this).parent('li').parent('ul').prev('.accordions').css('color', '#0B7285'); //  console.log(this)
+        });
+
+        onTextBoxBlur(target, callback);
+
+        $(target).find('.open-datepicker').on('click', function (event) {
+            try {
+                //console.log('11')
+                event.preventDefault();
+                $(target).data("DateTimePicker").show();
+                $(target).find(".datepicker-days").show();
+                //console.log('22')
+            } catch (ex) {
+                //blockAlert("[initDatePicker] " + ex.message);
+            } finally {
+                //20181012 加入若在頁面內有 dateTimePickerShowCallback() 方法時，就自動執行 dateTimePickerShowCallback 方法。
+                var func = __dtpFindFunc("dateTimePickerShowCallback");
+                if (func) func.call(window, this);
+                return false;
+            }
+        });
+    }
+
+    //20180927 增加數字靠右對齊方法
+    function _dpTWLpad(text, length, padChar) {
+        if (text !== undefined && text != null) {
+            if (text.length >= length) {
+                return text;
+            } else {
+                var s = [],
+                    c = length - text.length;
+                while (c-- > 0) s.push(padChar);
+                s.push(text);
+                return s.join("");
+            }
+        } else return text;
+    }
+
+    @*處理 datetimepicker 的 db.change 事件, 將選取的 Date 值, 轉成民國年(YYY/MM/DD)顯示*@
+    function onDPChangeShowZHDate(e, callback) {
+        //debug_trace("onDPChangeShowZHDate: target="); //debug_trace(e.target);
+        if ($.MaskedInput != undefined)
+            $.MaskedInput.init('[data-mask]');
+        var disInput = $(e.target).find("input[type=text]").first();
+        //debug_trace("onDPChangeShowZHDate: display input="); //debug_trace(disInput);
+        if (e.date) {
+            var tmpYear = e.date.get('year');
+            var year = 0;
+
+            if (e.date.locale() == 'zh-tw') {
+                if (tmpYear < 1911) {
+                    year = tmpYear;
+                } else {
+                    year = tmpYear - 1911; //year = tmpYear;
+                }
+                //20180927 將民國年補齊三位數
+                year = _dpTWLpad(year.toString(), 3, "0");
+            } else {
+                year = tmpYear;
+            }
+
+            var zhDate = year + "/" + e.date.format('MM/DD');
+            //debug_trace("onDPChangeShowZHDate: " + e.date.format('YYYY/MM/DD') + ' -> ' + zhDate);
+            disInput.val(zhDate);
+            if (callback) { callback(e.date.format('YYYY/MM/DD'), zhDate); }
+        } else {
+            disInput.val('');
+            if (callback) { callback('', ''); }
+        }
+    }
+
+    @* 使用者手動輸入Textbox時，將日期由民國年轉為西元年存在Hidden欄位 *@
+    function onTextBoxBlur(target, callback) {
+        var txtInput = $(target).find("input[type=text]").first();
+        var hidInput = $(target).find("input[type=hidden]").first();
+
+        $(txtInput).on('blur', function () {
+            var dateText = $(txtInput).val();
+            if (dateText.length == 7) {
+                dateText = dateText.substring(0, 3) + "/" + dateText.substring(3, 5) + "/" + dateText.substring(5, 7);
+            }
+            if (dateText.length == 6) {
+                dateText = "0" + dateText.substring(0, 2) + "/" + dateText.substring(2, 4) + "/" + dateText.substring(4, 6);
+            }
+            var dateArr = dateText.split('\/');
+            if (dateText && dateText.trim().length > 0) {
+                //20180927 將民國年補齊三位數
+                //dateArr[0] = parseInt(dateArr[0], 10);
+                dateText = dateArr.join("/");
+
+                var regex = /^[0-9][0-9][0-9]\/[0-1][0-9]\/[0-3][0-9]$/;
+                if (regex.test(dateText.trim())) {
+                    var year = parseInt(dateArr[0], 10);
+                    if (!isNaN(year)) {
+                        dateArr[0] = year + 1911;
+                        //dateArr[0] = year;
+                        hidVal = dateArr.join('/');
+
+                        //20180927 將民國年補齊三位數
+                        dateArr = dateText.split('\/');
+                        dateArr[0] = _dpTWLpad(dateArr[0], 3, "0");
+                        dateText = dateArr.join("/");
+
+                        $(hidInput).val(hidVal);
+                        $(txtInput).val(dateText);
+
+                        if (callback) { callback(hidVal, dateText); }
+                    }
+                } else {
+                    blockAlert("日期格式不正確！（範例：1080101 或是 108/01/01）");
+                    $(txtInput).val('');
+                    $(hidInput).val('');
+                    if (callback) { callback('', ''); }
+                }
+            } else {
+                $(hidInput).val('');
+                if (callback) { callback('', ''); }
+            }
+        });
+    }
+</script>
+<!-- BarrY Add End -->

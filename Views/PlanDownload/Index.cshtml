@@ -1,0 +1,58 @@
+﻿@model WDAIIP.WEB.Models.DownloadViewModel
+@{
+    ViewBag.Title = "資料下載--計畫表單";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    string s_MENUNM2 = ViewBag.MENUNM2;
+    if (string.IsNullOrEmpty(s_MENUNM2)) { s_MENUNM2 = "計畫表單"; }
+    string DLPlanName = Model.DLPlanName;
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 資料下載 / @(s_MENUNM2)</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-link space-right"></i>@(s_MENUNM2)</h3>
+
+    <ul class="question-type">
+        @Html.Partial("_DLPlanGridRows", Model)
+    </ul>
+    <div class="clearfix"></div>
+    <h3 class="titlebar titlebarBg-green">@DLPlanName</h3>
+
+    @Html.Partial("_DownloadIndex")
+
+</div>
+
+@using (Html.BeginForm("Index", "PlanDownload", FormMethod.Post, new { id = "main_form" }))
+{
+    @Html.HiddenFor(m => m.Form.KINDID)
+    @Html.HiddenFor(m => m.Form.PLANID)
+}
+
+<script type="text/javascript">
+    //檔案下載
+    function doDownloadFile(dlid, fileSeq) {
+        var data = {
+            "dlid": dlid,
+            "fileSeq": fileSeq
+        };
+        var url = '@Url.Action("DownloadFile", "PlanDownload")';
+        goForwardPage(url, data, 2, "POST");
+    }
+
+    // (document).ready
+    $(document).ready(function () {
+        //控制執行中的計畫別按鈕顏色(class="active")
+        $("ul.question-type a").click(function () {
+            $("a.active").removeClass("active");
+            $(this).addClass("active");
+        });
+    });
+
+    //[計畫表單]計畫別的查詢
+    function doQuery(typeID) {
+        var form = $("#main_form");
+        form.find("#Form_PLANID").val(typeID);
+        form.submit();
+    }
+</script>

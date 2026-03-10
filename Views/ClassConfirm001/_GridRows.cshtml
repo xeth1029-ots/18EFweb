@@ -1,0 +1,28 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassConfirm001ViewModel
+
+@if (Model.Grid != null && Model.Grid.Count > 0)
+{
+    foreach (ClassConfirm001GridModel item in Model.Grid)
+    {
+        Int32? i_OCID = (int)item.OCID;
+        <tr align="center" valign="middle">
+            <td>@item.ORGNAME</td>
+            <td style="text-align:left"><a href="javascript:showclassdetail(1,'N',@item.OCID)" title="@item.CLASSCNAME">@item.CLASSCNAME</a></td>
+            <td>@i_OCID</td>
+            <td>@item.CONFIRDATE_TW</td>
+            <td><a href="javascript:showDetail(@item.OCID,'@item.CFGUID',@item.CFSEQNO)" title="檢視">檢視</a></td>
+        </tr>
+    }
+}
+else
+{
+    <tr><td colspan="5"><center>查無資料</center></td></tr>
+}
+<script type="text/javascript">
+function showclassdetail(PlanType, ProvideLocation, OCID) {
+    var data = { "PlanType": 1, "ProvideLocation": 'N', "OCID": OCID };
+    var url = '@Url.Action("Detail", "ClassSearch")';
+    goBackPage(url, data, 2, 'POST');
+}
+</script>

@@ -1,0 +1,39 @@
+﻿@using WDAIIP.WEB.Models
+@model SignUpViewModel
+
+@{
+    ViewBag.Title = "會員專區--報名資料維護";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/EnterType")" title="首頁">首頁</a> / 會員專區 / 報名資料維護 </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-edit space-right"></i>報名資料維護</h3>
+    <!-- search form start -->
+    <div class="unit-border">
+        <div class="unit-bg unit-bg-green">
+            <p>本功能使用說明：</p>
+            <ol>
+                <li>請按下「報名資料維護」，於台灣就業通網站登入會員後，再繼續本項作業。(目前網站連線逾時為30分鐘)</li>
+                <li>本方案訓練課程報名方式係開訓日前1個月，統一於本網站線上報名。招訓及遴選方式除另有規定外，以報名先後順序為準，故若首次參加本方案訓練課程之學員，請先於本區填寫報名相關資料，以利縮短後續報名作業。 </li>
+                <li>本區所填資料係提供訓練單位審查學員是否具補助參訓身分。填妥本區資料不等於報名及錄訓，故欲參訓之學員仍請於課程報名期間，至【<a href="@Url.Content("~/ClassSearch")" title="前往課程查詢報名">課程查詢報名</a>】完成報名程序。 </li>
+                <li>曾經參訓者，將由系統自動帶入您前次報名時所填寫之資料，若有變動，請於報名前至本區更新。另部分基本資料內容修正為灰階，民眾如欲修正請至台灣就業通個人會員資料維護。 </li>
+                <li>報名資料維護不溯及已報名之課程，若需變更【<a href="@Url.Content("~/ClassSearch")" title="前往課程查詢報名">課程查詢報名</a>】當下所送出之資料，請逕洽訓練單位更正。 </li>
+            </ol>
+        </div>
+        <div class="clearfix"></div>
+        @using (Html.BeginForm("CheckEdit", "EnterType", FormMethod.Post, new { id = "form1" }))
+        {
+            <div class="submit-bar">
+                <p><p>
+                    <button type="submit" class="btn btn-search " title="報名資料維護">報名資料維護</button>
+                <p>
+            </div>
+        }
+        <p>
+        <p>
+    </div>
+    <!-- search form end -->
+</div>

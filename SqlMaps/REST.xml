@@ -1,0 +1,428 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="REST"
+xmlns="http://ibatis.apache.org/mapping"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+  <resultMaps>
+  </resultMaps>
+
+  <statements>
+ 
+    <!-- NFC APP SQL -->
+    <select id="getAccount" 
+            parameterClass="Hashtable"
+            resultClass="Hashtable">
+      <![CDATA[
+        SELECT 
+        RAWTOHEX(SYS_GUID()) AS TRANCODE
+        FROM ACCOUNT 
+        WHERE 1=1 
+        AND USER_ID=#USER_ID#
+        AND (USER_PWD=#USER_PWD# OR USER_PWD=#USER_PWD2#)
+      ]]>
+    </select>
+    
+
+    <!-- NFC_PLAYER 查詢對象資料 -->
+    <select id="NFC_PLAYER"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT 
+        T.NAMELIST_ID,
+        T.NAME AS CNAME,
+        '/Share/Photo/ShowAppPhoto' || CHR(63) || 'CODE=' || TO_CHAR((TO_NUMBER(SUBSTR(IDNO,-4))+7138)*88) || '&motel=' || REPLACE(MOTEL,'-','') PHOTO, 
+        T.TITLE,
+        T.BIRTHDAY,
+        T.IDNO,
+        T.MOTEL as MOBILE,
+        T.EMAIL
+        FROM NAMELIST T 
+        WHERE 1=1
+        /*AND NFC_ID IS NULL*/
+        AND IDNO=#IDNO#
+        AND BIRTHDAY=#BIRTH#
+      ]]>
+    </select>
+
+    <!-- NFC_MKCARD 製卡前先查詢確認卡號是否已被登錄 -->
+    <select id="queryMKCardInfo"
+            resultClass="Hashtable"
+            parameterClass="Hashtable">
+      <![CDATA[
+        SELECT A.NAMELIST_ID
+        FROM NAMELIST A
+        WHERE 1=1
+        AND NFC_ID=#NFC_ID#
+        AND EXISTS (
+          SELECT 1 FROM NAMELIST X
+          WHERE X.NAMELIST_ID=#NAMELIST_ID#
+        )  
+      ]]>
+    </select>
+    
+    <!-- NFC_GET_CATEG_CHECKIN 取得當前有效的報到場次及項目(查詢用) -->
+    <select id="NFC_GET_CATEG_CHECKIN"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT  
+        F.PROF_ID,
+        F.PNAME PROF_NAME,
+        TO_CHAR( SYSDATE,'YYYYMMDD') as PDATE,
+        CK.SEQ,
+        CK.CHECKIN_ITEM_ID as ITEM_ID,
+        CK.ITEM_NAME,
+        CASE WHEN CK.START_TIME IS NULL THEN ''
+          ELSE SUBSTR(CK.START_TIME,1,2) || ':' || SUBSTR(CK.START_TIME,3)
+        END START_TIME,
+        CASE WHEN CK.END_TIME IS NULL THEN ''
+          ELSE SUBSTR(CK.END_TIME,1,2) || ':' || SUBSTR(CK.END_TIME,3)
+        END END_TIME
+        FROM NFCPROF F 
+        JOIN CHECKIN_ITEM CK ON F.PROF_ID = CK.PROF_ID  
+        WHERE F.STATUS='1'
+        AND F.DATES <= TO_CHAR( SYSDATE,'YYYYMMDD') 
+        AND F.DATEE >= TO_CHAR( SYSDATE,'YYYYMMDD')
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="CHECKIN_ITEM_ID">
+            <![CDATA[
+              and CK.CHECKIN_ITEM_ID=#CHECKIN_ITEM_ID#
+                    ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="PROF_ID">
+            <![CDATA[
+              and F.PROF_ID=#PROF_ID#
+                    ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY F.PROF_ID, CK.SEQ
+    </select>
+
+    <!-- NFC_TES_GET_ITEM_LIST 查詢取得特定場次的報到項目資訊 -->
+    <select id="NFC_TES_GET_ITEM_LIST"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT
+        C.SEQ,
+        C.CHECKIN_ITEM_ID ITEM_ID,
+        C.ITEM_NAME,
+        CASE WHEN C.START_TIME IS NULL THEN ''
+          ELSE SUBSTR(C.START_TIME,1,2) || ':' || SUBSTR(C.START_TIME,3)
+        END START_TIME,
+        CASE WHEN C.END_TIME IS NULL THEN ''
+          ELSE SUBSTR(C.END_TIME,1,2) || ':' || SUBSTR(C.END_TIME,3)
+        END END_TIME
+        FROM NFCPROF B 
+          JOIN CHECKIN_ITEM C ON B.PROF_ID=C.PROF_ID
+        WHERE B.STATUS='1'
+        AND B.DATES <= TO_CHAR( SYSDATE,'YYYYMMDD') 
+        AND B.DATEE >= TO_CHAR( SYSDATE,'YYYYMMDD')
+        AND B.PROF_ID=#PROF_ID#
+        ORDER BY C.SEQ
+      ]]>
+    </select>
+
+    <!-- NFC_CARDREAD 讀卡 -->
+    <select id="NFC_CARDREAD"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT 
+        TS.NAMELIST_ID as ID,
+        TS.NAME AS CNAME,
+        TP.PNAME PROF_NAME,
+        TO_CHAR(to_date(CKOK.DATETIME, 'yyyyMMddHH24MISS'),'YYYY-MM-DD HH24:MI:SS') DATETIME
+        FROM NAMELIST TS 
+        JOIN NFCPROF TP ON TS.PROF_ID=TP.PROF_ID
+        JOIN CHECKIN_ITEM CK ON CK.PROF_ID=TP.PROF_ID
+        LEFT JOIN CHECKIN CKOK ON CK.CHECKIN_ITEM_ID=CKOK.CHECKIN_ITEM_ID
+          AND CKOK.NAMELIST_ID=TS.NAMELIST_ID
+        WHERE 1=1
+        AND TP.DATES <= to_char( sysdate,'yyyymmdd') 
+        AND TP.DATEE >= to_char( sysdate,'yyyymmdd') 
+        AND TS.NFC_ID=#CARDNO#
+        AND CK.CHECKIN_ITEM_ID=#CHECKIN_ITEM_ID#
+      ]]>
+    </select>
+
+    <!-- NFC_TES_QRY_PROF 報到場次類型查詢-->
+    <select id="NFC_TES_QRY_PROF"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT
+        PROF_ID,
+        PNAME NAME
+        FROM NFCPROF F
+        WHERE F.STATUS='1'
+        AND F.DATES <= TO_CHAR( SYSDATE,'YYYYMMDD') 
+        AND F.DATEE >= TO_CHAR( SYSDATE,'YYYYMMDD')
+        ORDER BY DATES
+      ]]>
+    </select>
+
+    <!-- NFC_TES_GET_PLAYER_LIST 取得指定場次的報到人員名單-->
+    <select id="NFC_TES_GET_PLAYER_LIST"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT 
+        A.NAMELIST_ID as ID,
+        A.NAME,
+        A.IDNO,
+        A.MOTEL MOBILE,
+        A.NFC_ID
+        FROM NAMELIST A
+        JOIN NFCPROF B ON A.PROF_ID=B.PROF_ID
+        WHERE 1=1
+        AND B.STATUS='1'
+        AND B.PROF_ID = #PROF_ID#
+        ORDER BY A.NAMELIST_ID  
+      ]]>
+    </select>
+
+
+    <!--  NFC_TES_GET_STAFF 報到-查詢取得人員資料 -->
+    <select id="NFC_TES_GET_STAFF"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT DISTINCT 
+        STAFF.NAMELIST_ID,
+        '/Share/Photo/ShowAppPhoto' || CHR(63) || 'CODE=' || TO_CHAR((TO_NUMBER(SUBSTR(STAFF.IDNO,-4))+7138)*88) || CHR(38) || 'motel=' || REPLACE(STAFF.MOTEL,'-','') PHOTO, 
+        STAFF.NAME,
+        STAFF.ID,
+        STAFF.MOTEL PHONE,
+        PROF.DATES,
+        PROF.DATEE,
+        case when ITEM.START_TIME is null then ''
+          else substr(ITEM.START_TIME,1,2) || ':' || substr(ITEM.START_TIME,3,2)
+        end START_TIME,
+        case when ITEM.END_TIME is null then ''
+          else substr(ITEM.END_TIME,1,2) || ':' || substr(ITEM.END_TIME,3,2)
+        end END_TIME,
+        CASE WHEN CKIN.DATETIME IS NULL THEN ''
+          ELSE TO_CHAR(TO_DATE(CKIN.DATETIME, 'YYYYMMddHH24MISS'),'YYYY-MM-dd HH24:MI:SS')
+        END DATETIME
+        
+        FROM NFCPROF PROF
+          JOIN CHECKIN_ITEM ITEM ON PROF.PROF_ID=ITEM.PROF_ID
+          JOIN NAMELIST STAFF ON PROF.PROF_ID=STAFF.PROF_ID
+          LEFT JOIN CHECKIN CKIN ON ITEM.CHECKIN_ITEM_ID=CKIN.CHECKIN_ITEM_ID 
+            AND STAFF.NAMELIST_ID=CKIN.NAMELIST_ID 
+            /*AND CKIN.CHECKIN_DATE=#CHECKIN_DATE#*/
+        WHERE 1=1
+        AND PROF.DATES <= TO_CHAR( SYSDATE,'YYYYMMDD') 
+        AND PROF.DATEE >= TO_CHAR( SYSDATE,'YYYYMMDD')
+        AND PROF.PROF_ID=#PROF_ID#
+        AND ITEM.CHECKIN_ITEM_ID=#ITEM_ID#
+        AND STAFF.NFC_ID=#NFC_ID#
+      ]]>
+    </select>
+    
+    
+    
+    <!-- NFC_CHECKIN 報到-更新報到狀態-->
+    <select id="NFC_CHECKIN"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT DISTINCT CKIN.DATETIME
+        FROM NFCPROF PROF
+        JOIN NAMELIST STAFF ON PROF.PROF_ID=STAFF.PROF_ID
+        JOIN CHECKIN_ITEM ITEM ON PROF.PROF_ID=ITEM.PROF_ID
+        LEFT JOIN CHECKIN CKIN ON ITEM.CHECKIN_ITEM_ID=CKIN.CHECKIN_ITEM_ID 
+          AND STAFF.NAMELIST_ID=CKIN.NAMELIST_ID 
+          /*AND CHECKIN_DATE=#CHECKIN_DATE#*/
+        WHERE 1=1
+        AND STAFF.NAMELIST_ID=#NAMELIST_ID#
+        AND ITEM.CHECKIN_ITEM_ID=#CHECKIN_ITEM_ID#
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isEqual prepend="" property="CHECKIN_TYPE" compareValue="A">
+            <![CDATA[
+              AND STAFF.NFC_ID=#NFC_ID#
+            ]]>
+          </isEqual>
+        </isParameterPresent>
+      </dynamic>
+    </select>
+    
+    <!-- NFC_TES_GET_ALL_CHECKIN_STATUS 報到-取得報到看板資料 -->
+    <select id="NFC_TES_GET_ALL_CHECKIN_STATUS"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT 
+        STAFF.NAMELIST_ID,
+        '/Share/Photo/ShowAppPhoto' || CHR(63) || 'CODE=' || TO_CHAR((TO_NUMBER(SUBSTR(STAFF.IDNO,-4))+7138)*88) || chr(38) ||  'motel=' || REPLACE(STAFF.MOTEL,'-','') PHOTO,
+        STAFF.NAME,
+        STAFF.ID,
+        STAFF.MOTEL PHONE,
+        CASE WHEN CKIN.CKIN.DATETIME IS NULL THEN ''
+          ELSE to_char(TO_DATE(CKIN.CKIN.DATETIME, 'yyyyMMddHH24MISS'), 'YYYY-MM-dd HH24:MI:SS')
+        END DATETIME
+        FROM NFCPROF PROF 
+        JOIN NAMELIST STAFF ON PROF.PROF_ID=STAFF.PROF_ID
+        JOIN CHECKIN_ITEM ITEM ON PROF.PROF_ID=ITEM.PROF_ID
+        LEFT JOIN CHECKIN CKIN ON ITEM.CHECKIN_ITEM_ID=CKIN.CHECKIN_ITEM_ID 
+          AND STAFF.NAMELIST_ID=CKIN.NAMELIST_ID 
+          /*AND CKIN.CHECKIN_DATE=#CHECKIN_DATE#*/
+        WHERE 1=1
+        AND PROF.PROF_ID=#PROF_ID#
+        AND ITEM.CHECKIN_ITEM_ID=#CHECKIN_ITEM_ID#
+        ORDER BY STAFF.ID
+      ]]>
+    </select>
+    
+
+    
+    <!-- 查詢選手資料 -->
+    <select id="getNAMELISTCheckIn"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT 
+        T.TESDIR,
+        TS.NAMELIST_ID, 
+        CKOK.DATETIME,
+        CK.START_TIME,
+        CK.END_TIME,
+        CASE WHEN T.TES_START_DATE IS NOT NULL THEN SUBSTR(T.TES_START_DATE,1,3) + 1911 || SUBSTR(T.TES_START_DATE,4,2) || SUBSTR(T.TES_START_DATE,6,2) ELSE '' END TES_START_DATE_AD,
+        CASE WHEN T.TES_END_DATE IS NOT NULL THEN SUBSTR(T.TES_END_DATE,1,3) + 1911 || SUBSTR(T.TES_END_DATE,4,2) || SUBSTR(T.TES_END_DATE,6,2) ELSE '' END TES_END_DATE_AD
+        FROM NAMELIST TS   
+        JOIN NFCPROF TP ON TS.DIR=TP.DIR AND TS.EXPIRE=TP.EXPIRE AND TS.PID=TP.PID
+        JOIN CHECKIN_ITEM CK ON CK.PROF_ID=TP.PROF_ID
+        JOIN TES_PARM T ON T.TESDIR=TP.DIR AND T.TESEXPIRE =TP.EXPIRE
+        LEFT JOIN CHECKIN CKOK ON CK.CHECKIN_ITEM_ID = CKOK.CHECKIN_ITEM_ID
+          AND (TO_NUMBER(TO_CHAR(SYSDATE,'YYYY'))-1911 || TO_CHAR(SYSDATE,'MMDD'))=SUBSTR(CKOK.DATETIME,1,7)
+        WHERE 1=1 
+        AND TS.NFC_ID=#CARDNO#
+        AND CK.CHECKIN_ITEM_ID=#CHECKIN_ITEM_ID#
+        AND TES_START_DATE <= TO_CHAR( SYSDATE,'YYYYMMDD') - 19110000 
+        AND TES_END_DATE >= TO_CHAR( SYSDATE,'YYYYMMDD') - 19110000 
+      ]]>
+    </select>
+
+    <!-- NFC_GET_COMPET_PLAYER 競賽類型報到狀況 -->
+    <select id="NFC_GET_COMPET_PLAYER"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        SELECT 
+        A.ID,
+        B.SHOULD_NUM,
+        C.REAL_NUM,
+        A.PHOTO,
+        A.CNAME,
+        TO_CHAR(TO_AD_DATETIME(A.CDATETIME),'yyyy-MM-dd HH24:mi:ss') CDATETIME
+        FROM (
+          SELECT 
+          T.ID,
+          '/Share/Photo/ShowAppPhoto' || CHR(63) || 'CODE=' || TO_CHAR((TO_NUMBER(SUBSTR(IDNO,-4))+7138)*88) || '&motel=' || REPLACE(MOTEL,'-','') PHOTO,
+          T.NAME AS CNAME,
+          OK.DATETIME AS CDATETIME
+          FROM NFCPROF F 
+          JOIN CHECKIN_ITEM CK ON F.PROF_ID=CK.PROF_ID  
+          JOIN NAMELIST T ON F.DIR = T.DIR AND F.EXPIRE=T.EXPIRE AND F.PID = T.PID 
+          LEFT JOIN CHECKIN OK ON OK.CHECKIN_ITEM_ID=CK.CHECKIN_ITEM_ID AND OK.NAMELIST_ID=T.NAMELIST_ID 
+            
+          WHERE CK.CHECKIN_ITEM_ID=#CHECKIN_ITEM_ID#
+          ORDER BY F.PROF_ID,CK.SEQ
+        ) A
+        JOIN (
+          SELECT COUNT(1) AS SHOULD_NUM
+          FROM NFCPROF F 
+          JOIN CHECKIN_ITEM CK ON F.PROF_ID = CK.PROF_ID  
+          JOIN NAMELIST T ON F.DIR = T.DIR AND F.EXPIRE=T.EXPIRE
+          AND F.PID = T.PID
+          WHERE CK.CHECKIN_ITEM_ID=#CHECKIN_ITEM_ID#
+          ORDER BY F.PROF_ID,CK.SEQ
+        ) B ON 1=1
+        JOIN (
+          SELECT COUNT(*) AS REAL_NUM
+          FROM NFCPROF F 
+          JOIN CHECKIN_ITEM CK ON F.PROF_ID = CK.PROF_ID  
+          JOIN NAMELIST T ON F.DIR = T.DIR AND F.EXPIRE=T.EXPIRE AND F.PID = T.PID 
+          JOIN CHECKIN OK ON OK.CHECKIN_ITEM_ID=CK.CHECKIN_ITEM_ID AND OK.NAMELIST_ID=T.NAMELIST_ID
+          WHERE CK.CHECKIN_ITEM_ID=#CHECKIN_ITEM_ID#
+          
+          ORDER BY F.PROF_ID,CK.SEQ
+        ) C ON 1=1
+      ]]>
+      <!--
+        AND substr(OK.DATETIME,0,7)=to_number(substr(#CHECKIN_DATE#,1,4))-1911 || substr(#CHECKIN_DATE#,5,2) || substr(#CHECKIN_DATE#,7,2)
+        AND substr(OK.DATETIME,0,7)=to_number(substr(#CHECKIN_DATE#,1,4))-1911 || substr(#CHECKIN_DATE#,5,2) || substr(#CHECKIN_DATE#,7,2)
+      -->
+    </select>
+
+    <!-- TES_GET_PLEAR_LIST -->
+    <select id="TES_GET_PLEAR_LIST"
+            resultClass="Hashtable"
+		        parameterClass="Hashtable">
+      <![CDATA[
+        select m.tesexpire as EXPIRE,m.testit as TESTIT,f.pid as PID ,f.pname as PID_NAME, f.prof_id as PROF_ID, t.NAMELIST_ID,t.ID ,t.NAME as CNAME
+        , '/Share/Photo/ShowAppPhoto' || CHR(63) || 'CODE=' || TO_CHAR((TO_NUMBER(SUBSTR(t.IDNO,-4))+7138)*88) || '&motel=' || REPLACE(motel,'-','') PHOTO, ''as CHECKINCK
+       ,'$TITLE$' AS TITLE,
+        $CODE$ AS CODE        
+        from NAMELIST t
+        join  NFCPROF f on t.dir=f.dir and t.expire =f.expire and t.pid = f.pid
+        join  tes_parm m on m.tesdir = f.dir and m.tesexpire = f.expire
+        join  APP_MOBILE_IMEI i  on f.prof_id= i.prof_id
+        join TES_STAFFING s on i.prof_id = s.prof_id and i.idno = s.idno
+        where i.START_DATE <= (to_char(sysdate,'yyyymmdd') - 19110000)
+        and i.END_DATE >= (to_char(sysdate,'yyyymmdd') - 19110000)
+        and i.CHK_STATUS='Y' and i.SYS_STATUS is null 
+        and i.user_id= #USER_ID#
+         and i.MOBILE_IMEI= #MOBILE_IMEI#
+      ]]>
+    </select>
+
+
+    <!-- 
+    WRS001005 NFC 報到紀錄查詢 
+    20180328, 下列2個欄位修改實際參考的欄位, 但輸出入 Schema 不變
+      PROF_ID 改為參考 SYS_PROF_ID (所屬系統場次代碼)
+      CHECKIN_ITEM_ID 改為參考 SYS_ITEM_ID (所屬系統報到項目代碼)
+    -->
+    <select id="WRS001005" parameterClass="Hashtable" resultClass="Hashtable">
+      <![CDATA[
+      select
+        P.SYS_PROF_ID PROF_ID,  /*報到場次ID(所屬系統場次代碼)*/
+        P.PNAME,    /*報到場次名稱*/
+        I.SYS_ITEM_ID CHECKIN_ITEM_ID,  /*報到項目ID(所屬系統報到項目代碼)*/
+        I.ITEM_NAME as CHECK_ITEM_NAME,  /*報到項目名稱*/
+        N.NAMELIST_ID,  /*報到名單ID*/
+        N.IDNO,         /*報到人員身份證*/
+        N.NAME,         /*報到人員姓名*/
+        N.NFC_ID,       /*報到人員綁定的NFC卡號*/
+        C.CHECKIN_TYPE, /*報到類型【A.RFID報到, B.人工報到, C.取消報到】*/
+        C.DATETIME      /*報到時間 yyyyMMddHH24MISS*/
+      from NFC.CHECKIN C
+        join NFC.NAMELIST N On N.NAMELIST_ID=C.NAMELIST_ID
+        join NFC.CHECKIN_ITEM I ON I.CHECKIN_ITEM_ID=C.CHECKIN_ITEM_ID
+        join NFC.NFCPROF P ON P.PROF_ID=I.PROF_ID
+      where P.SYS_ID=#SYS_ID#
+        and P.SYS_PROF_ID=#PROF_ID#
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="CHECKIN_ITEM_ID">
+            <![CDATA[ and I.SYS_ITEM_ID=#CHECKIN_ITEM_ID# ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+        order by P.SYS_PROF_ID, I.SYS_ITEM_ID, N.NAMELIST_ID, N.IDNO  
+      ]]>
+    </select>
+    
+    <!-- 結束行(這行放在最下面, 不要刪) -->
+  </statements>
+</sqlMap>

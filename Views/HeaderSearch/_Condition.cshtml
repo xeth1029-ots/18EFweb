@@ -1,0 +1,33 @@
+﻿@model WDAIIP.WEB.Models.HomeViewModel
+
+<!-- 計畫類別 -->
+<div class="form-group">
+    <label for="Form_PlanType">計畫別</label>
+    @Html.DropDownListFor(m => m.Form.PlanType, Model.PlanType_list, null, new { @class = "form-control", title = "請選擇計畫別", onchange = "doChangePlan($('#Form_PlanType').val());" })
+</div>@*<span>/</span>*@
+
+@*@Html.TextBoxFor(m => m.Form.OCID, new { placeholder = "課程代碼" })<span>/</span>*@
+<label for="Form_KEYWORDS"><span class="sr-only">課程名稱或課程內容關鍵字</span></label>
+@Html.TextBoxFor(m => m.Form.KEYWORDS, new { placeholder = "課程名稱或課程內容關鍵字", title = "請輸入課程名稱或課程內容關鍵字" })
+
+@switch (Model.Form.PlanType) //計畫別
+{
+    case "1": //產投
+        <div class="form-group">
+            <label for="Form_CTID">縣市別</label>
+            @Html.DropDownListFor(m => m.Form.CTID, Model.CTID_list, "縣市別", new { @class = "form-control", title = "請選擇縣市別" })
+        </div>
+        break;
+    case "2": //自辦在職
+        <div class="form-group">
+            <label for="Form_DISTID">上課地點</label>
+            @Html.DropDownListFor(m => m.Form.DISTID, Model.DISTID_list, "分署別", new { @class = "form-control", title = "請選擇分署別" })
+        </div>
+        break;
+    case "5": //區域產業據點
+        <div class="form-group">
+            <label for="Form_DISTID">上課地點</label>
+            @Html.DropDownListFor(m => m.Form.DISTID, Model.DISTID_list, "分署別", new { @class = "form-control", title = "請選擇分署別" })
+        </div>
+        break;
+}

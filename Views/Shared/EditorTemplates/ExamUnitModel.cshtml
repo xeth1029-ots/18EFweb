@@ -1,0 +1,110 @@
+﻿@using WDAIIP.WEB.Commons
+@model WDAIIP.WEB.Models.ExamUnitModel
+
+@{
+    string divIdControl = "__divExamUnitInputBox_" + DateTime.Now.Ticks.ToString();
+    object htmlAttr = null;
+    bool canEdit = false;
+}
+
+<div class="col-sm-10 form-inline" id="@divIdControl">
+    @if (Model.ShowDISTRICT2 == "Y") {
+        canEdit = Model.Enabled & (Model.EidtDISTRICT2 == "Y");
+        htmlAttr = (canEdit == true) ? new { @class = "form-control", data_tag = "LIST" } as object : new { @class = "form-control", data_tag = "LIST", disabled = "disabled" };
+        @Html.DropDownListFor(m =>m.DISTRICT2, Model.DISTRICT2_list, htmlAttr)
+    }
+
+    @{ canEdit = Model.Enabled & (Model.EditOPCD == "Y"); }
+
+    @Html.HiddenFor(m => m.EXAMKIND, new { data_tag = "KIND" })
+    @Html.TextBoxFor(m => m.OPCD, new { @class = "form-control", size = 5, maxLength = 4, placeholder = "代碼", data_tag = "CODE" }, !canEdit)
+    <div class="input-group">
+        @Html.TextBoxFor(m => m.OPCD_TEXT, new { @class = "form-control formbar-bg", size = 40, placeholder = "單位名稱", data_tag = "NAME" }, true)
+        @if (Model.Enabled && Model.ShowButton == "Y") {
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-info" data-tag="BTN">
+                    <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+                </button>
+            </span>
+        }
+    </div>
+</div>
+
+<script type="text/javascript">
+    //「主辦單位、辦理單位、分召學校」單位輸入控制項類別
+    var __ExamUnitInputBox = function () {
+        var self = this;
+        this.control;
+        this.boxExamKind;
+        this.boxDistrict2;
+        this.boxOpcd;
+        this.boxOpcdText;
+        this.btnShow;
+
+        //顯示單位資料選擇對話框。
+        function doExamUnitSelect() {
+            var data = {
+                "onclickHandler": "__onExamUnitSelect",
+                "DISTRICT2": (self.boxDistrict2.length == 0) ? "" : self.boxDistrict2.val()
+            }
+            var url = "@Url.Action("Index", "EXAMUNIT", new { area = "Share" })?" + $.param(data);
+            popupDialog(url, "單位資料查詢", "", 800);
+        }
+
+        //處理單位資料選取對話框傳回的資料。
+        this.onExamUnitSelect = function (id, name) {
+            this.boxOpcd.val(id);
+            this.boxOpcdText.val(name);
+        }
+
+        //取得單位代碼對應的單位名稱。
+        this.doExamUnitNameGet = function () {
+            if (!self.boxOpcd.prop("readonly")) {
+                var data = {
+                    "url": "@Url.Action("GetExamUnitName", "Ajax", new { area = "" })",
+                    "msg": "查無該單位資訊!!",
+                    "arg": { "EXAMKIND": self.boxExamKind.val(), "OPCD": self.boxOpcd.val().toUpperCase() },
+                    "box": self.boxOpcdText
+                };
+                if ($.trim(data.arg.OPCD) == "") data.box.val("");
+                else {
+                    self.boxOpcd.val(data.arg.OPCD);  //顯示大寫英文
+                    ajaxLoadMore(data.url, data.arg, function (resp) {
+                        if (resp === undefined) data.box.val("");
+                        else {
+                            if (resp.data != "") data.box.val(resp.data);
+                            else {
+                                data.box.val("");
+                                blockAlert(data.msg);
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        //初始化物件
+        this.initialize = function () {
+            self.control = $("#@divIdControl");
+            self.boxExamKind = self.control.find("input[data-tag=\"KIND\"]");
+            self.boxDistrict2 = self.control.find("select[data-tag=\"LIST\"]");
+            self.boxOpcd = self.control.find("input[data-tag=\"CODE\"]");
+            self.boxOpcdText = self.control.find("input[data-tag=\"NAME\"]");
+            self.btnShow = self.control.find("button[data-tag=\"BTN\"]");
+            self.btnShow.on("click", doExamUnitSelect);
+        }
+    }
+
+    var __ExamUnitInputBox = new __ExamUnitInputBox();
+    __ExamUnitInputBox.initialize();
+
+    //處理單位資料選取對話框傳回的資料。
+    function __onExamUnitSelect(id, name) {
+        __ExamUnitInputBox.onExamUnitSelect(id, name);
+    }
+
+    $(function () {
+        //單位代碼文字框失去輸入焦點事件處理。
+        __ExamUnitInputBox.boxOpcd.on("blur", __ExamUnitInputBox.doExamUnitNameGet);
+    })
+</script>

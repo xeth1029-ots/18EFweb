@@ -1,0 +1,146 @@
+﻿@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+@model EnterClassViewModel
+
+@if (Model == null || Model.Grid == null || Model.Grid.Count == 0)
+{
+    <div><center>尚無報名紀錄！</center></div>
+}
+else
+{
+    string img0 = "off.jpg"; //報名狀態
+    string img1 = "off.jpg"; //審核情形
+    string img3 = "off.jpg"; //正取
+    string img4 = "off.jpg"; //備取
+    string img5 = "off.jpg"; //未錄取
+    string img1Text = "";
+    string s_NGText = "(不通過原因)";
+
+    for (int i = 0; i < Model.Grid.Count; i++)
+    {
+        EnterClassGridModel item = Model.Grid[i];
+        //報名狀態
+        img0 = (item.SIGNUPSTATUS_NEW == 0 ? "on.jpg" : "off.jpg");
+
+        switch (item.TPLANID)
+        {
+            case "28":
+                //產投 (審核中) //審核情形
+                img1Text = "審核中";
+                /* SIGNUPSTATUS_NEW 1:審核情形-審核中-"報名失敗":"報名成功"3:正取4:備取5:未錄取 */
+                img1 = (item.SIGNUPSTATUS_NEW == 1 ? "on.jpg" : "off.jpg");
+                img3 = (item.SIGNUPSTATUS_NEW == 3 ? "on.jpg" : "off.jpg");
+                img4 = (item.SIGNUPSTATUS_NEW == 4 ? "on.jpg" : "off.jpg");
+                img5 = (item.SIGNUPSTATUS_NEW == 5 ? "on.jpg" : "off.jpg");
+                s_NGText = "(不通過原因)";
+                break;
+
+            default:
+                //case "06": //在職 (區分 1 報名成功 / 2 報名失敗)
+                //審核情形
+                img1Text = (item.SIGNUPSTATUS == 2 ? "報名失敗" : "報名成功");
+                /* SIGNUPSTATUS 報名狀態(0:收件完成  1:報名成功  2:報名失敗 3:正取 4:備取 5:未錄取) */
+                /* SIGNUPSTATUS_NEW 1:審核情形-審核中-"報名失敗":"報名成功"3:正取4:備取5:未錄取 */
+                img1 = (item.SIGNUPSTATUS != 0 ? "on.jpg" : "off.jpg");
+                img3 = (item.SIGNUPSTATUS_NEW == 3 ? "on.jpg" : "off.jpg");
+                img4 = (item.SIGNUPSTATUS_NEW == 4 ? "on.jpg" : "off.jpg");
+                img5 = (item.SIGNUPSTATUS_NEW == 5 ? "on.jpg" : "off.jpg");
+                s_NGText = "報名失敗原因";
+                break;
+        }
+
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-vert">
+            <tr>
+                <th width="15%">訓練計畫</th>
+                <td width="35%">@item.PLANNAME</td>
+                <th width="15%">班級代碼</th>
+                <td width="35%">@item.OCID</td>
+            </tr>
+            <tr>
+                <th width="15%">班級名稱</th>
+                <td width="35%"><a href="javascript:showDetail(@item.OCID,@item.PLANTYPE)" title="檢視課程明細"><b>@item.CLASSCNAME2</b></a></td>
+                <th width="15%">報名期間</th>
+                <td width="35%">
+                    @item.SENTERDATE_TW ~ @item.FENTERDATE_TW
+                </td>
+            </tr>
+            <tr>
+                <th width="15%">報名日期</th>
+                <td width="35%">@item.RELENTERDATE_TW</td>
+                <th width="15%">開訓日期</th>
+                <td width="35%">
+                    @item.STDATE_TW
+                    @if (item.CLASSDATEMSG != null)
+                    {
+                        <span class="text-info">@(item.CLASSDATEMSG)</span>
+                    }
+                </td>
+            </tr>
+            @switch (item.TPLANID)
+            {
+                case "28": //產投 (審核中)
+                    <tr data-signupstatus="@(Model.Grid[i].SIGNUPSTATUS_NEW)">
+                        <th width="15%">報名狀態</th>
+                        <td width="35%"><img src="@Url.Content("~/images/")@(img0)" alt="報名狀態顯示圖示" />@item.SIGNNO_TEXT &nbsp; @(item.EXAMNO_TEXT)</td>
+                        <th width="15%">審核情形</th>
+                        <td width="35%">
+                            @*<label class="radio-inline">@Html.RadioButtonFor(m => m.Grid[i].SIGNUPSTATUS_NEW, 1, new { id = "SIGNUPSTATUS_NEW1", @disabled = "disalbed" })<label for="SIGNUPSTATUS_NEW1">審核中</label></label>
+                                <label class="radio-inline">@Html.RadioButtonFor(m => m.Grid[i].SIGNUPSTATUS_NEW, 3, new { id = "SIGNUPSTATUS_NEW3", @disabled = "disalbed" })<label for="SIGNUPSTATUS_NEW3">正取</label></label>
+                                <label class="radio-inline">@Html.RadioButtonFor(m => m.Grid[i].SIGNUPSTATUS_NEW, 4, new { id = "SIGNUPSTATUS_NEW4", @disabled = "disalbed" })<label for="SIGNUPSTATUS_NEW4">備取</label></label>
+                                <label class="radio-inline">@Html.RadioButtonFor(m => m.Grid[i].SIGNUPSTATUS_NEW, 5, new { id = "SIGNUPSTATUS_NEW5", @disabled = "disalbed" })<label for="SIGNUPSTATUS_NEW5">未錄取</label></label>*@
+                            <label class="radio-inline"><img src="@Url.Content("~/images/")@(img1)" title="亮燈表示審核情形為@(img1Text)" alt="　" />@(img1Text)</label>
+                            <label class="radio-inline"><img src="@Url.Content("~/images/")@(img3)" title="亮燈表示審核情形為正取" alt="　" />正取</label>
+                            <label class="radio-inline"><img src="@Url.Content("~/images/")@(img4)" title="亮燈表示審核情形為備取" alt="　" />備取</label>
+                            <label class="radio-inline"><img src="@Url.Content("~/images/")@(img5)" title="亮燈表示審核情形為未錄取" alt="　" />未錄取</label>
+                        </td>
+                    </tr>
+                    break;
+
+                default: //case "06": //在職 (區分 1 報名成功 / 2 報名失敗)
+                    <tr data-signupstatus="@(Model.Grid[i].SIGNUPSTATUS_NEW)">
+                        <th width="15%">報名狀態</th>
+                        <td width="35%">
+                            <label class="radio-inline"><img src="@Url.Content("~/images/")@(img0)" alt="報名狀態顯示圖示" />@item.SIGNNO_TEXT</label>
+                            <label class="radio-inline"><img src="@Url.Content("~/images/")@(img1)" title="亮燈表示審核情形為@(img1Text)" alt="　" />@(img1Text)</label>
+                            &nbsp; @(item.EXAMNO_TEXT)
+                        </td>
+                        <th width="15%">審核情形</th>
+                        <td width="35%">
+                            @*<label class="radio-inline">@Html.RadioButtonFor(m => m.Grid[i].SIGNUPSTATUS_NEW, 1, new { id = "SIGNUPSTATUS_NEW1", @disabled = "disalbed" })<label for="SIGNUPSTATUS_NEW1">審核中</label></label>
+                                <label class="radio-inline">@Html.RadioButtonFor(m => m.Grid[i].SIGNUPSTATUS_NEW, 3, new { id = "SIGNUPSTATUS_NEW3", @disabled = "disalbed" })<label for="SIGNUPSTATUS_NEW3">正取</label></label>
+                                <label class="radio-inline">@Html.RadioButtonFor(m => m.Grid[i].SIGNUPSTATUS_NEW, 4, new { id = "SIGNUPSTATUS_NEW4", @disabled = "disalbed" })<label for="SIGNUPSTATUS_NEW4">備取</label></label>
+                                <label class="radio-inline">@Html.RadioButtonFor(m => m.Grid[i].SIGNUPSTATUS_NEW, 5, new { id = "SIGNUPSTATUS_NEW5", @disabled = "disalbed" })<label for="SIGNUPSTATUS_NEW5">未錄取</label></label>*@
+                            <label class="radio-inline"><img src="@Url.Content("~/images/")@(img3)" title="亮燈表示審核情形為正取" alt="　" />正取</label>
+                            <label class="radio-inline"><img src="@Url.Content("~/images/")@(img4)" title="亮燈表示審核情形為備取" alt="　" />備取</label>
+                            <label class="radio-inline"><img src="@Url.Content("~/images/")@(img5)" title="亮燈表示審核情形為未錄取" alt="　" />未錄取</label>
+                        </td>
+                    </tr>
+                    break;
+            }
+            <tr data-tplanid="@item.TPLANID" data-ocid="@item.OCID" data-esetid="@item.ESETID" data-esernum="@item.ESERNUM">
+                <th width="15%">@s_NGText</th>
+                <td width="35%"><span class="text-danger">@Html.Raw(MyHelperUtil.ChangeBreakLine(item.SIGNUPMEMO))</span></td>
+                <th width="15%">取消報名</th>
+                <td width="35%">
+                    @*送件成功 & 尚未過報名截止日才可以做取消報名*@
+                    @*@if (item.SIGNUPSTATUS == 0 || item.SIGNUPSTATUS == 1)*@
+                    @if (item.ABANDON == "Y")
+                    {
+                        <span class="text-danger">@("放棄報到")</span><br />
+                        <span class="text-info">@item.ABANDONReason</span>
+                    }
+                    else if (item.CANCANCEL == "Y")
+                    {
+                        <button type="button" class="btn btn-green2" data-role="CancelEnter" title="取消報名">取消報名</button>
+                    }
+                    else
+                    {
+                        <span class="text-info">@item.NOCANCELMSG</span>
+                        @*<span class="titlebar-timer">@item.NOCANCELMSG</span>*@
+                    }
+
+                </td>
+            </tr>
+        </table>
+    }
+}

@@ -1,0 +1,99 @@
+﻿@model WDAIIP.WEB.Models.EnterClassViewModel
+@{
+    //ViewBag.Title = "會員專區--報名查詢及取消";
+    ViewBag.Title = "報名查詢及取消";
+
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    string s_Msg1 = "";
+    s_Msg1 = "";
+    //s_Msg1 += "<li>若您的審核情形為「審核中」，如欲取消報名請洽訓練單位辦理，並請留意訓練單位的服務時間，謝謝！</li>";
+    s_Msg1 += "<li>當您的審查情形顯示為「審核中」後，如您要取消報名，請逕洽訓練單位辦理，並請留意訓練單位服務時間。</li>";
+    s_Msg1 += "<li>產業人才投資方案補助對象需為開訓當日具勞保、就保、農保投保身分的在職勞工，如報名完成或完成繳費後，訓練單位會於開訓當日確認學員是否具補助資格，如符合補助資格，始完成產業人才投資方案的錄訓作業。</li>";
+    s_Msg1 += "<li>以下顯示之資料為最近2年內曾報名過的課程。</li>";
+    ViewBag.msg1 = s_Msg1;
+}
+
+<form>
+    <div class="col-sm-12">
+        <!-- bread start --->
+        <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回了首頁">首頁</a> / 會員專區 / @Html.Raw(ViewBag.Title)</div>
+        <!-- bread end --->
+        <h3 class="main-title main-title-pink"><i class="far fa-list-alt space-right"></i>@Html.Raw(ViewBag.Title)</h3>
+        <div class="unit-bg unit-bg-green">
+            <p>本功能使用說明及提醒事項：</p>
+            <ol>@Html.Raw(ViewBag.msg1)</ol>
+        </div>
+        <!-- search form start -->
+        <div class="unit-border">
+            <div class="clearfix"></div>
+            <div class="table-responsive">
+                @Html.Partial("_GridRows", Model)
+            </div>
+            <div class="clearfix"></div>
+            <!-- search form end -->
+        </div>
+    </div>
+</form>
+@using (Html.BeginForm("Detail", "ClassSearch", FormMethod.Post, new { id = "detail_form" }))
+{
+    @Html.Hidden("OCID")
+    @Html.Hidden("ProvideLocation")
+    @Html.Hidden("PlanType")
+}
+
+@using (Html.BeginForm("SaveCancel", "EnterClass", FormMethod.Post, new { id = "cancel_form" }))
+{
+    @Html.Hidden("TPLANID")
+    @Html.Hidden("ESETID")
+    @Html.Hidden("ESERNUM")
+    @Html.Hidden("OCID1")
+}
+
+<script type="text/javascript">
+    $(function () {
+        //取消報名鈕 CancelEnter
+        $("button[data-role='CancelEnter']").on("click", function () {
+            var tplanid = $(this).closest("tr").attr("data-tplanid");
+            var ocid = $(this).closest("tr").attr("data-ocid");
+            var esetid = $(this).closest("tr").attr("data-esetid");
+            var esernum = $(this).closest("tr").attr("data-esernum");
+
+            //var msg_log = "";//msg_log += ",tplanid:'" + tplanid;//msg_log += "',esetid:'" + esetid;//msg_log += "',esernum:'" + esernum;//msg_log += "',ocid:'" + ocid;//msg_log += "'";//console.log(msg_log);
+            //2019-02-21 add 再次檢核可否取消報名（已進行審核 or 已過報名時間者不得取消報名）
+            var url = '@Url.Action("ChkCancelEnterType2", "Ajax")';
+            var data = { esetid: esetid, esernum: esernum, ocid: ocid };
+
+            ajaxLoadMore(url, data, function (resp) {
+                if (!(resp === undefined)) {
+                    if (resp.data == null || resp.data == "") {
+                        blockConfirm("您確定要取消-該筆報名資料?", "", function () {
+                            enterCancel(tplanid, esetid, esernum, ocid);
+                        });
+                    } else {
+                        blockAlert(resp.data, "", function () { });
+                    }
+                }
+            });
+        });
+    });
+
+    //導回課程明細頁
+    function showDetail(ocid, plantype) {
+        var form = $("#detail_form");
+        form.find("input[name='OCID']").val(ocid);
+        form.find("input[name='PlanType']").val(plantype);
+        form.find("input[name='ProvideLocation']").val("N");
+        form.submit();
+    }
+
+    //取消報名 SaveCancel
+    function enterCancel(tplanid, esetid, esernum, ocid1) {
+        var form = $("#cancel_form");
+        form.find("input[name='TPLANID']").val(tplanid);
+        form.find("input[name='ESETID']").val(esetid);
+        form.find("input[name='ESERNUM']").val(esernum);
+        form.find("input[name='OCID1']").val(ocid1);
+        form.submit();
+    }
+</script>

@@ -1,0 +1,349 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@using Turbo.DataLayer
+
+@model ClassSearchViewModel
+@{
+    /**/
+
+    //此為課程查詢結果清單上方的條件資訊區塊
+
+    MyKeyMapDAO dao = new MyKeyMapDAO();
+
+    //處理查詢條件
+    DateTime Sdate = Convert.ToDateTime(Model.Form.STDATE);
+    DateTime Edate = Convert.ToDateTime(Model.Form.FTDATE);
+    string strDate = "";
+    if (!string.IsNullOrEmpty(Model.Form.STDATE) && !string.IsNullOrEmpty(Model.Form.FTDATE))
+    {
+        strDate = (Sdate.Year - 1911).ToString() + Sdate.ToString("/MM/dd") + "~" + (Edate.Year - 1911).ToString() + Edate.ToString("/MM/dd");
+    }
+    else if ("2".Equals(Model.Form.CASETYPE)) //2019-02-14 問題17：開訓日期區間增加「今日開放報名」選項
+    {
+        strDate = "今日開放報名";
+    }
+
+    string strCityZip = (string.IsNullOrEmpty(Model.Form.CityName) ? "全部" : Model.Form.CityName) + "(" + (string.IsNullOrEmpty(Model.Form.ZipName) ? "全部" : Model.Form.ZipName) + ")";
+    string strOrg = (string.IsNullOrEmpty(Model.Form.OrgName) ? "全部" : Model.Form.OrgName) + (string.IsNullOrEmpty(Model.Form.SCHOOLNAME) ? "" : "(包含 <b>" + Model.Form.SCHOOLNAME + "</b>)");
+    string strTMIDName = (!Model.Form.JOBTMID.HasValue ? "全部" : Model.Form.JOBNAME + "(" + (!Model.Form.TMID.HasValue ? "全部" : Model.Form.TRAINNAME) + ")");
+    //Model.Form.CJOBNAME
+    string strCJOBName = (Model.Form.CJOBNO == null ? "" : Model.Form.CJOBNAME);
+    string strKeywords = "";
+    if (Model.Form.KEYWORDS_list.Count > 0) { strKeywords += string.Join("、", Model.Form.KEYWORDS_list); }
+    string strABILITYS = ""; //職訓專長能力
+    if (Model.Form.ABILITYS_list.Count > 0) { strABILITYS += string.Join("、", Model.Form.ABILITYS_list); }
+
+    List<string> strHeader = new List<string>();
+    IList<KeyMapModel> strValue = new List<KeyMapModel>();
+
+    string strDistid = "";
+    //2019-01-29 add 縣市別(複選)
+    string strCTName1 = string.Empty;
+    string strCTName2 = string.Empty;
+    string strCTName3 = string.Empty;
+    //上課時段
+    string strTPERIOD28S = "";
+    string[] TPERIOD28s = new string[] { "", "上午", "下午", "晚上" };
+    //上課時間
+    string strWeeks = "";
+    string[] weeks = new string[] { "日", "一", "二", "三", "四", "五", "六" };
+
+}
+@switch (Model.Form.PlanType)
+{
+    case "1":
+        //產業人才投資
+        //上課時段
+        if (Model.Form.TPERIOD28S_SHOW.Length > 0)
+        {
+            foreach (var item in Model.Form.TPERIOD28S_SHOW)
+            {
+                int tmp = 0;
+                if (int.TryParse(item, out tmp))
+                {
+                    strTPERIOD28S += (string.IsNullOrEmpty(strTPERIOD28S) ? "" : "、") + TPERIOD28s[tmp];
+                }
+            }
+        }
+
+        //上課時間
+        if (Model.Form.WEEKS_SHOW.Length > 0)
+        {
+            foreach (var item in Model.Form.WEEKS_SHOW)
+            {
+                int tmp = 0;
+                if (int.TryParse(item, out tmp))
+                {
+                    strWeeks += (string.IsNullOrEmpty(strWeeks) ? "" : "、") + weeks[tmp];
+                }
+            }
+        }
+
+        //2019-07-15 add 上課地點（縣市別）
+        if (Model.Form.CTID_SHOW.Length > 0)
+        {
+            foreach (var item in Model.Form.CTID_SHOW)
+            {
+                var tmp = Model.CTID_list.Where(m => m.Value == item).ToList();
+                if (tmp.Count > 0 && strCTName1.IndexOf(tmp.First().Text) == -1)
+                {
+                    strCTName1 += (string.IsNullOrEmpty(strCTName1) ? "" : "、") + tmp.First().Text;
+                }
+            }
+        }
+
+        string s_TEACHCNAME = Model.Form.TEACHCNAME;
+        string s_ORGKINDNAME = Model.Form.ORGKINDNAME;
+        string s_CLASSCATENAME = Model.Form.CLASSCATENAME;
+        if (!string.IsNullOrEmpty(s_TEACHCNAME) && s_TEACHCNAME.Contains(';')) { s_TEACHCNAME = null; }
+        if (!string.IsNullOrEmpty(s_ORGKINDNAME) && s_ORGKINDNAME.Contains(';')) { s_ORGKINDNAME = null; }
+        if (!string.IsNullOrEmpty(s_CLASSCATENAME) && s_CLASSCATENAME.Contains(';')) { s_CLASSCATENAME = null; }
+
+        //{ new KeyMapModel { CODE="4",TEXT=Model.Form.TMIDNAME }},//訓練職能別,六大職能別
+        strHeader = new List<string> { "師資名稱", "上課地點", "上課時間", "上課時段", "輔助計畫別", "訓練職能別", "訓練業別", "關鍵字", "專長能力關鍵字" };
+        strValue = new List<KeyMapModel> {
+{ new KeyMapModel { CODE="0", TEXT=s_TEACHCNAME }},
+{ new KeyMapModel { CODE="1", TEXT=strCTName1}},
+{ new KeyMapModel { CODE="2", TEXT=strWeeks}},
+{ new KeyMapModel { CODE="3", TEXT=strTPERIOD28S}},
+{ new KeyMapModel { CODE="4", TEXT=s_ORGKINDNAME }},
+{ new KeyMapModel { CODE="5", TEXT=s_CLASSCATENAME  }},
+{ new KeyMapModel { CODE="6", TEXT=strTMIDName }},
+{ new KeyMapModel { CODE="7", TEXT=strKeywords }},
+{ new KeyMapModel { CODE="8", TEXT=strABILITYS }},
+};
+
+        var tmplist = strValue.Where(m => !string.IsNullOrEmpty(m.TEXT)).ToList();
+        var s_OCID = Model.Form.OCID.HasValue ? Model.Form.OCID.ToString() : "";
+        var s_CLASSCNAME = Model.Form.OCID.HasValue ? Model.Form.CLASSCNAME : "";
+        <tr>
+            <td rowspan="7" width="10%" style="color:#2d699e"><h3>查詢條件</h3></td>
+            <td width="40%">課程代碼：<span class="text-primary" style="color:#007b8e">@(s_OCID)</span></td>
+            <td width="40%">課程名稱：<span class="text-primary" style="color:#007b8e">@(s_CLASSCNAME)</span></td>
+            <td width="10%" rowspan="7" align="center" valign="middle">
+                <button type="button" onclick="checkTraceVaild()" class="btn btn-result btn-justified" title="課程收藏">課程收藏</button>
+                <button type="button" onclick="checkCompareVaild()" class="btn btn-result btn-justified" title="課程比一比">課程比一比</button>
+            </td>
+        </tr>
+        <tr>
+            <td>開訓日期間：<span class="text-primary">@strDate</span></td>
+            <td>
+                輔導考證：<span class="text-primary">
+                    @*@(Model.Form.TGOVEXAM == "Y" ? "是" : "否")*@
+                    @{
+                        switch (Model.Form.TGOVEXAM)
+                        {
+                            case "Y":
+                                @Html.Raw("是")
+                                break;
+                            case "N":
+                                @Html.Raw("否")
+                                break;
+                            default:
+                                @Html.Raw("不拘")
+                                break;
+                        }
+                    }
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>縣市別：<span class="text-primary">@strCityZip</span></td>
+            <td>單位名稱：<span class="text-primary">@Html.Raw(strOrg)</span></td>
+        </tr>
+        for (int i = 0; i < Convert.ToDouble(tmplist.Count) / 2; i++)
+        {
+            if ((i + 1) * 2 <= tmplist.Count)
+            {
+                <tr>
+                    <td>@(strHeader[Convert.ToInt32(tmplist[i * 2].CODE)] + "：")<span class="text-primary">@(tmplist[i * 2].TEXT)</span></td>
+                    <td>@(strHeader[Convert.ToInt32(tmplist[(i + 1) * 2 - 1].CODE)] + "：")<span class="text-primary">@(tmplist[(i + 1) * 2 - 1].TEXT)</span></td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td colspan="2">@(strHeader[Convert.ToInt32(tmplist[i * 2].CODE)] + "：")<span class="text-primary">@(tmplist[i * 2].TEXT)</span></td>
+                </tr>
+            }
+        }
+        break;
+
+    case "2":
+        //自辦在職訓練
+        IList<KeyMapModel> distid = new List<KeyMapModel> {
+{ new KeyMapModel {CODE="001",TEXT="北基宜花金馬分署" } },
+{ new KeyMapModel {CODE="003",TEXT="桃竹苗分署" } },
+{ new KeyMapModel {CODE="004",TEXT="中彰投分署" } },
+{ new KeyMapModel {CODE="005",TEXT="雲嘉南分署" } },
+{ new KeyMapModel {CODE="006",TEXT="高屏澎東分署" } },
+};
+        if (Model.Form.DISTID_SHOW.Length > 0)
+        {
+            foreach (var item in Model.Form.DISTID_SHOW)
+            {
+                var tmp = distid.Where(m => m.CODE == item).ToList();
+                if (tmp.Count > 0 && strDistid.IndexOf(tmp.First().TEXT) == -1)
+                {
+                    strDistid += (string.IsNullOrEmpty(strDistid) ? "" : "、") + tmp.First().TEXT;
+                }
+            }
+        }
+
+        //上課時間
+        if (Model.Form.WEEKS_SHOW.Length > 0)
+        {
+            foreach (var item in Model.Form.WEEKS_SHOW)
+            {
+                int tmp = 0;
+                if (int.TryParse(item, out tmp))
+                {
+                    strWeeks += string.IsNullOrEmpty(strWeeks) ? "" : "、";
+                    strWeeks += weeks[tmp];
+                }
+            }
+        }
+
+        //2019-01-29 add 上課地點（縣市別）
+        if (Model.Form.CTID_SHOW.Length > 0)
+        {
+            foreach (var item in Model.Form.CTID_SHOW)
+            {
+                var tmp = Model.CTID_list.Where(m => m.Value == item).ToList();
+                if (tmp.Count > 0 && strCTName2.IndexOf(tmp.First().Text) == -1)
+                {
+                    strCTName2 += (string.IsNullOrEmpty(strCTName2) ? "" : "、") + tmp.First().Text;
+                }
+            }
+        }
+
+        string strContainsOverEnter = "--";
+        if (!string.IsNullOrEmpty(Model.Form.IsContainsOverEnter))
+        {
+            strContainsOverEnter = ("N".Equals(Model.Form.IsContainsOverEnter) ? "否" : ("Y".Equals(Model.Form.IsContainsOverEnter) ? "是" : "--"));
+        }
+
+        strHeader = new List<string> { "分署別", "上課地點", "關鍵字", "包含已截止報名課程", "通俗職業代碼名稱", "專長能力關鍵字", "上課時間" };
+        strValue = new List<KeyMapModel> {
+{ new KeyMapModel {CODE="0", TEXT=strDistid } },
+{ new KeyMapModel { CODE="1", TEXT=strCTName2} },
+{ new KeyMapModel { CODE="2", TEXT=strKeywords } },
+{ new KeyMapModel { CODE="3", TEXT=strContainsOverEnter} },
+{ new KeyMapModel { CODE="4", TEXT=strCJOBName } },
+{ new KeyMapModel { CODE="5", TEXT=strABILITYS } },
+{ new KeyMapModel { CODE="6", TEXT=strWeeks } }
+};
+        List<KeyMapModel> tmplist2 = strValue.Where(m => !string.IsNullOrEmpty(m.TEXT)).ToList();
+
+        <tr>
+            <td rowspan="7" width="10%" style="color:#2d699e"><h3>查詢條件</h3></td>
+            <td width="40%">課程名稱：<span class="text-primary" style="color:#2d699e">@(Model.Form.CLASSCNAME)</span></td>
+            <td width="40%">開訓日期區間：<span class="text-primary" style="color:#2d699e">@strDate</span></td>
+            <td width="10%" rowspan="7" align="center" valign="middle">
+                <button type="button" onclick="checkTraceVaild()" class="btn btn-result btn-justified" title="課程收藏">課程收藏</button>
+                <button type="button" onclick="checkCompareVaild()" class="btn btn-result btn-justified" title="課程比一比">課程比一比</button>
+            </td>
+        </tr>
+        for (int i = 0; i < Convert.ToDouble(tmplist2.Count) / 2; i++)
+        {
+            if ((i + 1) * 2 <= tmplist2.Count)
+            {
+                <tr>
+                    <td>@(strHeader[Convert.ToInt32(tmplist2[i * 2].CODE)] + "：")<span class="text-primary">@(tmplist2[i * 2].TEXT)</span></td>
+                    <td>@(strHeader[Convert.ToInt32(tmplist2[(i + 1) * 2 - 1].CODE)] + "：")<span class="text-primary">@(tmplist2[(i + 1) * 2 - 1].TEXT)</span></td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td colspan="2">@(strHeader[Convert.ToInt32(tmplist2[i * 2].CODE)] + "：")<span class="text-primary">@(tmplist2[i * 2].TEXT)</span></td>
+                </tr>
+            }
+        }
+        break;
+
+    case "5"://區域產業據點
+        IList<KeyMapModel> distid2 = new List<KeyMapModel> {
+{ new KeyMapModel {CODE="001",TEXT="北基宜花金馬分署" } },
+{ new KeyMapModel {CODE="003",TEXT="桃竹苗分署" } },
+{ new KeyMapModel {CODE="004",TEXT="中彰投分署" } },
+{ new KeyMapModel {CODE="005",TEXT="雲嘉南分署" } },
+{ new KeyMapModel {CODE="006",TEXT="高屏澎東分署" } },
+};
+        if (Model.Form.DISTID_SHOW.Length > 0)
+        {
+            foreach (var item in Model.Form.DISTID_SHOW)
+            {
+                var tmp = distid2.Where(m => m.CODE == item).ToList();
+                if (tmp.Count > 0 && strDistid.IndexOf(tmp.First().TEXT) == -1)
+                {
+                    strDistid += (string.IsNullOrEmpty(strDistid) ? "" : "、") + tmp.First().TEXT;
+                }
+            }
+        }
+
+        //上課時間
+        if (Model.Form.WEEKS_SHOW.Length > 0)
+        {
+            foreach (var item in Model.Form.WEEKS_SHOW)
+            {
+                int tmp = 0;
+                if (int.TryParse(item, out tmp))
+                {
+                    strWeeks += (string.IsNullOrEmpty(strWeeks) ? "" : "、") + weeks[tmp];
+                }
+            }
+        }
+
+        //2019-01-29 add 上課地點（縣市別）
+        if (Model.Form.CTID_SHOW.Length > 0)
+        {
+            foreach (var item in Model.Form.CTID_SHOW)
+            {
+                var tmp = Model.CTID_list.Where(m => m.Value == item).ToList();
+                if (tmp.Count > 0 && strCTName3.IndexOf(tmp.First().Text) == -1)
+                {
+                    strCTName3 += (string.IsNullOrEmpty(strCTName3) ? "" : "、") + tmp.First().Text;
+                }
+            }
+        }
+
+        strHeader = new List<string> { "分署別", "上課地點", "關鍵字", "專長能力關鍵字", "上課時間" };
+        strValue = new List<KeyMapModel> {
+{ new KeyMapModel{CODE="0", TEXT=strDistid } },
+{ new KeyMapModel { CODE="1", TEXT=strCTName3} },
+{ new KeyMapModel { CODE="2", TEXT=strKeywords } },
+{ new KeyMapModel { CODE="3", TEXT=strABILITYS } },
+{ new KeyMapModel { CODE="4", TEXT=strWeeks } }
+};
+
+        var tmplist3 = strValue.Where(m => !string.IsNullOrEmpty(m.TEXT)).ToList();
+
+        <tr>
+            <td rowspan="7" width="10%" style="color:#2d699e"><h3>查詢條件</h3></td>
+            <td width="40%">課程名稱：<span class="text-primary" style="color:#2d699e">@(Model.Form.CLASSCNAME)</span></td>
+            <td width="40%">
+                開訓日期區間：<span class="text-primary" style="color:#2d699e">@strDate</span>
+            </td>
+            <td width="10%" rowspan="7" align="center" valign="middle">
+                &nbsp;
+            </td>
+        </tr>
+        for (int i = 0; i < Convert.ToDouble(tmplist3.Count) / 2; i++)
+        {
+            if ((i + 1) * 2 <= tmplist3.Count)
+            {
+                <tr>
+                    <td>@(strHeader[Convert.ToInt32(tmplist3[i * 2].CODE)] + "：")<span class="text-primary">@(tmplist3[i * 2].TEXT)</span></td>
+                    <td>@(strHeader[Convert.ToInt32(tmplist3[(i + 1) * 2 - 1].CODE)] + "：")<span class="text-primary">@(tmplist3[(i + 1) * 2 - 1].TEXT)</span></td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td colspan="2">@(strHeader[Convert.ToInt32(tmplist3[i * 2].CODE)] + "：")<span class="text-primary">@(tmplist3[i * 2].TEXT)</span></td>
+                </tr>
+            }
+        }
+        break;
+}

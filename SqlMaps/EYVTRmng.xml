@@ -1,0 +1,937 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="eYVTRmng" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <resultMaps></resultMaps>
+
+  <cacheModel id="eYVTR_mng_n-cache" implementation="MEMORY" >
+    <flushInterval hours="1"/>
+    <flushOnExecute statement="InsertEFile" />
+    <property name="Type" value="WEAK"/>
+  </cacheModel>
+
+  <statements>
+
+    <!-- 網站功能設定-新增 -->
+    <insert id="InsertEFUN" parameterClass="eYVTR_mng_n.Models.Entities.TblE_FUN">
+      <![CDATA[
+      INSERT INTO E_FUN (
+      FUN_TYPE, FUN_DIR, FUN_PID, FUN_NAME, FUN_PAGE, FUN_SEQ, FUN_USED, FUN_NOTE,
+      FUN_CDATE, FUN_CUSER, FUN_MDATE, FUN_MUSER, FUN_PAGE2
+      ) VALUES (
+      #FUN_TYPE#, #FUN_DIR#, #FUN_PID#, #FUN_NAME#, #FUN_PAGE#, #FUN_SEQ#, #FUN_USED#, #FUN_NOTE#,
+      #FUN_CDATE#, #FUN_CUSER#, #FUN_MDATE#, #FUN_MUSER#, #FUN_PAGE2#
+      )
+      ]]>
+    </insert>
+
+    <!-- 權限設定(1)-新增,並回傳pK值 -->
+    <insert id="InsertEGROUP" parameterClass="eYVTR_mng_n.Models.Entities.TblE_GROUP">
+      <![CDATA[
+      INSERT INTO E_GROUP (
+      GRP_NAME, GRP_NOTE, GRP_USED, GRP_CDATE, GRP_CUSER, GRP_MDATE, GRP_MUSER
+      ) VALUES (
+      #GRP_NAME#, #GRP_NOTE#, #GRP_USED#, #GRP_CDATE#, #GRP_CUSER#, #GRP_MDATE#, #GRP_MUSER#
+      )
+      ]]>
+      <selectKey type="post" resultClass="long" property="GRP_ID">
+        <![CDATA[
+        SELECT @@IDENTITY AS VALUE
+        ]]>
+      </selectKey>
+    </insert>
+
+    <!-- 權限設定(2)-新增 -->
+    <insert id="InsertAuthority" parameterClass="eYVTR_mng_n.Models.Entities.TblE_AUTHORITY">
+      <![CDATA[
+      INSERT INTO E_AUTHORITY (
+      AUTH_GRP_ID, AUTH_FUN_ID
+      ) VALUES (
+      #AUTH_GRP_ID#, #AUTH_FUN_ID#
+      )
+      ]]>
+    </insert>
+    
+    <!-- 帳號設定-新增 -->
+    <insert id="InsertAccountSetting" parameterClass="eYVTR_mng_n.Models.Entities.TblSYS_USER">
+      <![CDATA[
+      INSERT INTO SYS_USER (
+      USR_ID, USR_PWD, USR_NAME, USR_IDNO, USR_ORG, USR_TEL, USR_EMAIL, USR_SFLAG, USR_EFLAG, USR_EUSED,
+      USR_GRP_ID, USR_ESTOPDATE, USR_CHGDATE, USR_CDATE, USR_CUSER, USR_MDATE, USR_MUSER
+      ) VALUES (
+      #USR_ID#, #USR_PWD#, #USR_NAME#, #USR_IDNO#, #USR_ORG#, #USR_TEL#, #USR_EMAIL#, 'N', 'Y', #USR_EUSED#,
+      #USR_GRP_ID#, #USR_ESTOPDATE#, #USR_CHGDATE#, #USR_CDATE#, #USR_CUSER#, #USR_MDATE#, #USR_MUSER#
+      )
+      ]]>
+    </insert>
+    
+    <!-- 新增上傳附件資料,並回傳pK值-->
+    <insert id="InsertEFile" parameterClass="eYVTR_mng_n.Models.Entities.TblE_FILE">
+      <![CDATA[
+      INSERT INTO E_FILE (
+      FILE_GID,FILE_OFILENAME,FILE_NFILENAME,FILE_CDATE,FILE_CUSER
+      ) VALUES (
+      #FILE_GID#,#FILE_OFILENAME#,#FILE_NFILENAME#,#FILE_CDATE#,#FILE_CUSER#
+      )
+      ]]>
+      <selectKey type="post" resultClass="long" property="FILE_ID">
+        <![CDATA[
+        SELECT @@IDENTITY AS VALUE
+        ]]>
+      </selectKey>
+    </insert>
+    
+    <!-- 訊息發佈設定-新增 -->
+    <insert id="InsertNewsSetting" parameterClass="eYVTR_mng_n.Models.Entities.TblE_NEW">
+      <![CDATA[
+      INSERT INTO E_NEW (
+      NEW_PLN_ID,NEW_DIS_ID,NEW_TITLE,NEW_SDATE,NEW_EDATE,NEW_CONTENT,NEW_USED,
+      NEW_FILE_GID,NEW_BROWSE,NEW_CDATE,NEW_CUSER,NEW_MDATE,NEW_MUSER,NEW_NST_ID
+      ) VALUES (
+      #NEW_PLN_ID#,#NEW_DIS_ID#,#NEW_TITLE#,#NEW_SDATE#,#NEW_EDATE#,#NEW_CONTENT#,#NEW_USED#,
+      #NEW_FILE_GID#,#NEW_BROWSE#,GETDATE(),#NEW_CUSER#,GETDATE(),#NEW_MUSER#,#NEW_NST_ID#
+      )
+      ]]>
+    </insert>
+
+    <!-- 訊息類別設定-新增 -->
+    <insert id="InsertNewsTypeSetting" parameterClass="eYVTR_mng_n.Models.Entities.TblE_NEWSTYPE">
+      <![CDATA[
+        INSERT INTO E_NEWSTYPE (
+        NST_NAME,NST_SEQ,NST_USED,
+        NST_CDATE,NST_CUSER,NST_MDATE,NST_MUSER
+        ) values (
+        #NST_NAME#,#NST_SEQ#,#NST_USED#,
+        GETDATE(),#NST_CUSER#,GETDATE(),#NST_MUSER#
+        )
+      ]]>
+    </insert>
+
+    <!-- 下載資料設定-新增 -->
+    <insert id="InsertDownloadSetting" parameterClass="eYVTR_mng_n.Models.Entities.TblE_DOWNLOAD">
+      <![CDATA[
+        INSERT INTO E_DOWNLOAD (
+        DLD_PLN_ID,DLD_DIS_ID,DLD_TITLE,DLD_SDATE,DLD_EDATE,DLD_CONTENT,
+        DLD_USED,DLD_FILE_GID,DLD_CDATE,DLD_CUSER,DLD_MDATE,DLD_MUSER
+        ) VALUES (
+        #DLD_PLN_ID#,#DLD_DIS_ID#,#DLD_TITLE#,#DLD_SDATE#,#DLD_EDATE#,#DLD_CONTENT#,
+        #DLD_USED#,#DLD_FILE_GID#,GETDATE(),#DLD_CUSER#,GETDATE(),#DLD_MUSER#
+        )
+      ]]>
+    </insert>
+    
+    <!-- 活動花絮設定-新增 -->
+    <insert id="InsertActionsSetting" parameterClass="eYVTR_mng_n.Models.Entities.TblE_ACTIONS">
+      <![CDATA[
+        INSERT INTO E_ACTIONS (
+        ACT_PLN_ID,ACT_DIS_ID,ACT_TITLE,ACT_CONTENT,ACT_OBJECT,ACT_SDATE,ACT_EDATE,
+        ACT_USED,ACT_BROWSE,ACT_CDATE,ACT_CUSER,ACT_MDATE,ACT_MUSER
+        ) VALUES (
+        #ACT_PLN_ID#,#ACT_DIS_ID#,#ACT_TITLE#,#ACT_CONTENT#,#ACT_OBJECT#,#ACT_SDATE#,#ACT_EDATE#,
+        #ACT_USED#,#ACT_BROWSE#,GETDATE(),#ACT_CUSER#,GETDATE(),#ACT_MUSER#
+        )
+      ]]>      
+    </insert>
+
+    <!-- ================================================================================================================== -->
+
+    <!-- 取得使用者帳號資訊 -->
+    <select id="geteYVTRmngUser" 
+            parameterClass="Hashtable" 
+            resultClass="eYVTR_mng_n.Models.eYVTRmngUser"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT USR_ID,USR_ORG,USR_PWD,USR_NAME,USR_TEL,USR_EMAIL,USR_EUSED
+        ,USR_ESTOPDATE,USR_GRP_ID,USR_CDATE,USR_CUSER,USR_MDATE,USR_MUSER
+        ,USR_CHGDATE,USR_ELOGINDATE
+        FROM SYS_USER
+        WHERE 1=1
+        AND USR_EFLAG='Y' /*後台使用者 (是Y/否N) ,登入者帳號需為後台使用者才可登入系統操作(密碼資訊安全規定修改需求)*/
+        AND USR_ID=#USERNO#
+        AND USR_PWD=#USERPWD#
+      ]]>
+    </select>
+
+    <!-- 取得系統使用者隸屬群組清單 -->
+    <select id="geteYVTRmngUserGroups"
+            parameterClass="Hashtable"
+            resultClass="eYVTR_mng_n.Models.eYVTRmngUserGroup"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT CONVERT(VARCHAR,B.GRP_ID) AS "GROUP",B.GRP_NAME AS GROUP_NAME
+        FROM SYS_USER A
+        JOIN E_GROUP B ON A.USR_GRP_ID=B.GRP_ID
+        WHERE 1=1
+        AND A.USR_EFLAG='Y'
+        AND A.USR_ID=#USERNO#
+      ]]>
+    </select>
+
+    <!-- 取得系統中已啟用的所有功能模組 -->
+    <select id="geteYVTRmngFuncModules"
+		resultClass="eYVTR_mng_n.Models.eYVTRmngRoleFunc"
+		parameterClass="Hashtable"
+		cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+      SELECT '1' AS NODE,FUN_ID,FUN_NAME,FUN_PAGE,FUN_PAGE2,FUN_SEQ,FUN_DIR,FUN_PID 
+      FROM E_FUN
+      WHERE 1=1
+      AND FUN_USED='Y' 
+      AND FUN_PID IS NULL
+		 ]]>
+    </select>
+
+    <!-- 取得群組功能權限清單 -->
+    <select id="geteYVTRmngRoleFuncs"
+            parameterClass="Hashtable"
+            resultClass="eYVTR_mng_n.Models.eYVTRmngRoleFunc"
+            cacheModel="eYVTR_mng_n-cache">
+      <!-- 以 FUN_PAGE2 存放程式 action path -->
+      <![CDATA[
+      WITH BASEMENU AS (
+	      SELECT DISTINCT C.FUN_ID,C.FUN_NAME,C.FUN_PAGE,C.FUN_PAGE2,C.FUN_SEQ,C.FUN_DIR,C.FUN_PID
+	      FROM E_AUTHORITY A 
+	      JOIN SYS_USER B ON A.AUTH_GRP_ID=B.USR_GRP_ID 
+	      JOIN E_FUN C ON A.AUTH_FUN_ID=C.FUN_ID 
+	      JOIN E_GROUP D ON B.USR_GRP_ID=D.GRP_ID 
+	      WHERE 1=1 
+	      AND C.FUN_USED='Y' 
+	      AND D.GRP_USED='Y' 
+	      AND B.USR_ID=#USERNO#
+      )
+      ,FUNMENU AS (
+	      SELECT FUN_ID,FUN_NAME,FUN_PAGE,FUN_PAGE2,FUN_SEQ,FUN_PID,FUN_DIR
+	      FROM BASEMENU
+	      WHERE FUN_DIR='N'
+      )
+      ,FUNMENUTOP AS (
+	      SELECT FUN_ID,FUN_NAME,FUN_PAGE,FUN_PAGE2,FUN_SEQ,FUN_PID,FUN_DIR
+	      FROM BASEMENU
+	      WHERE FUN_DIR='Y'
+      )
+      SELECT '1' AS NODE,FUN_ID,FUN_NAME,FUN_PAGE,FUN_PAGE2,FUN_SEQ,FUN_PID,FUN_DIR FROM FUNMENUTOP
+      UNION 
+      SELECT '0' NODE,FUN_ID,FUN_NAME,FUN_PAGE,FUN_PAGE2,FUN_SEQ,FUN_PID,FUN_DIR FROM FUNMENU
+      ORDER BY NODE,FUN_PID,FUN_SEQ
+      ]]>
+    </select>
+
+    <!-- 取得系統已啟用的全部功能清單 -->
+    <select id="geteYVTRmngFuncsAll"
+            parameterClass="Hashtable"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_FUN"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT FUN_ID,FUN_TYPE,FUN_DIR,FUN_PID,FUN_NAME,FUN_PAGE2,FUN_SEQ
+        FROM E_FUN
+        WHERE 1=1
+        AND FUN_USED='Y'
+        AND FUN_PAGE2 IS NOT NULL 
+        ORDER BY FUN_PID,FUN_SEQ
+      ]]>
+    </select>
+
+    <!-- 取得系統功能項目所在的功能表階層項目資料集合 -->
+    <select id="queryFuncMenuSet"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_FUN"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_FUN"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        WITH Z AS (
+          SELECT * FROM E_FUN
+          WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="FUN_PAGE">
+            <![CDATA[
+            AND FUN_PAGE=#FUN_PAGE#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="FUN_PAGE2">
+            <![CDATA[
+            AND FUN_PAGE2=#FUN_PAGE2#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+        )
+        SELECT DISTINCT X.* FROM (
+          /*
+          SELECT A.* 
+          FROM E_FUN A 
+          JOIN Z ON Z.FUN_PID=A.FUN_ID
+          UNION 
+          */
+          SELECT A.* 
+	        FROM E_FUN A
+	        JOIN Z ON A.FUN_ID=Z.FUN_ID
+        ) X
+      ]]>
+    </select>
+
+    <!-- Intra/FunctionSetting 網站功能設定-查詢-->
+    <select id="queryFunctionSetting"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.FunctionSettingFormModel"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.FunctionSettingGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT ROW_NUMBER() OVER(ORDER BY FUN_ID) AS SEQ, CASE ISNULL(FUN_PID,'') WHEN '' THEN FUN_ID ELSE FUN_PID END CASE_SEQ,
+               FUN_ID, FUN_NAME, FUN_PAGE, FUN_DIR, FUN_SEQ, FUN_USED, FUN_PID, FUN_TYPE
+        FROM E_FUN WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="FUN_CLASS_ID">
+            <!--功能序號、父節點序號-->
+            <![CDATA[
+              AND (FUN_ID = #FUN_CLASS_ID# OR FUN_PID = #FUN_CLASS_ID#)
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="FUN_NAME">
+            <!--功能名稱-->
+            <![CDATA[
+              AND FUN_NAME LIKE '%' + #FUN_NAME# + '%'
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="FUN_TYPE">
+            <!--功能類型-->
+            <![CDATA[
+              AND FUN_TYPE = #FUN_TYPE#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="FUN_USED">
+            <!--是否使用-->
+            <![CDATA[
+              AND FUN_USED = #FUN_USED#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+      ORDER BY CASE_SEQ, FUN_DIR DESC, FUN_SEQ
+      ]]>
+    </select>
+
+    <!-- 取得特定一筆網站功能設定資料-->
+    <select id="getFunctionSetting"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_FUN"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_FUN"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT FUN_ID, FUN_TYPE, FUN_DIR, FUN_PID, FUN_NAME, FUN_PAGE, FUN_SEQ,
+               FUN_USED, FUN_NOTE, FUN_CDATE, FUN_CUSER, FUN_MDATE, FUN_MUSER
+        FROM E_FUN
+        WHERE FUN_ID = #FUN_ID#
+      ]]>
+    </select>
+    
+    <!-- 判斷『外網功能權限』是否給予此功能項目刪除功能-->
+    <select id="getFunctionAuthority"
+            parameterClass="string"
+            resultClass="long"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT COUNT(*) MYCOUNT FROM E_AUTHORITY WHERE AUTH_FUN_ID = #FUN_ID#
+      ]]>
+    </select>
+
+    <!-- Intra/GroupSetting 權限設定-查詢-->
+    <select id="queryGroupSetting"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.GroupSettingFormModel"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.GroupSettingGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT ROW_NUMBER() OVER(ORDER BY GRP_ID) AS SEQ,GRP_ID,GRP_NAME,GRP_USED FROM E_GROUP WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="GRP_NAME">
+            <!--群組名稱-->
+            <![CDATA[
+              AND GRP_NAME LIKE '%' + #GRP_NAME# + '%'
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="GRP_USED">
+            <!--是否使用-->
+            <![CDATA[
+              AND GRP_USED = #GRP_USED#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+    </select>
+
+    <!-- 取得特定一筆權限設定資料-->
+    <select id="getGroupSetting"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_GROUP"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_GROUP"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT GRP_ID, GRP_NAME, GRP_NOTE, GRP_USED, GRP_CDATE, GRP_CUSER, GRP_MDATE, GRP_MUSER
+        FROM E_GROUP
+        WHERE GRP_ID = #GRP_ID#
+      ]]>
+    </select>
+
+    <!-- 取得外網群組對應外網網站功能項資訊 -->
+    <select id="getGroupSettingFunctionItem"
+            parameterClass="Hashtable"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.GroupSettingFunctionItem"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+      WITH MYDATA(F_ID, F_NAME, S_ID, S_NAME, FUN_NOTE, T_SEQ)
+      AS
+      (
+        /*根目錄查詢*/
+        SELECT ISNULL(A.FUN_PID, 0) AS F_ID,
+               CASE WHEN A.FUN_PID IS NULL THEN A.FUN_NAME ELSE (SELECT FUN_NAME FROM E_FUN WHERE FUN_ID = A.FUN_PID) END AS F_NAME,
+               A.FUN_ID AS S_ID,
+	             CASE WHEN A.FUN_PID IS NULL THEN '' ELSE A.FUN_NAME END AS S_NAME,
+	             ISNULL(A.FUN_NOTE, '') AS FUN_NOTE,
+	             RIGHT('000' + CONVERT(VARCHAR, A.FUN_SEQ), 3) + '-' + '000' AS T_SEQ
+        FROM E_FUN A
+        WHERE A.FUN_USED = 'Y' AND (A.FUN_DIR = 'Y' AND A.FUN_PID IS NULL)
+        UNION ALL
+        /*子目錄查詢*/
+        SELECT B.FUN_PID AS F_ID,
+               CASE WHEN B.FUN_PID IS NULL THEN B.FUN_NAME ELSE (SELECT FUN_NAME FROM E_FUN WHERE FUN_ID = B.FUN_PID) END AS F_NAME,
+               B.FUN_ID AS S_ID,
+	             CASE WHEN B.FUN_PID IS NULL THEN '' ELSE B.FUN_NAME END AS S_NAME,
+	             ISNULL(B.FUN_NOTE, '') AS FUN_NOTE,
+	             RIGHT('000' + CONVERT(VARCHAR, (SELECT FUN_SEQ FROM E_FUN WHERE FUN_ID = B.FUN_PID)), 3) + '-' + RIGHT('000' + CONVERT(VARCHAR, B.FUN_SEQ), 3) AS T_SEQ
+        FROM E_FUN B
+        WHERE B.FUN_USED = 'Y' AND (B.FUN_DIR = 'N' AND B.FUN_PID IS NOT NULL)
+      )
+      /*執行綜合查詢*/
+      SELECT X.*, CASE WHEN (SELECT COUNT(*) FROM E_AUTHORITY WHERE AUTH_FUN_ID = X.S_ID AND AUTH_GRP_ID = #GRP_ID#) > 0 THEN 'Y' ELSE 'N' END AS GRP_USED
+      FROM MYDATA X
+      ORDER BY X.T_SEQ ASC, X.S_ID
+      ]]>
+    </select>
+
+    <!-- Intra/GroupSetting (新增/修改) 權限設定-查詢指定資料是否存在-->
+    <select id="isGroupSettingFound"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.GroupSettingDetailModel"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_GROUP"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+      SELECT GRP_ID FROM E_GROUP 
+      WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isEqual prepend="" property="IsNew" compareValue="TRUE">
+            <![CDATA[
+              AND GRP_NAME = #GRP_NAME#      
+            ]]>
+          </isEqual>
+          <isNotEqual prepend="" property="IsNew" compareValue="TRUE">
+            <![CDATA[
+              AND GRP_NAME = #GRP_NAME#
+              AND GRP_ID <> #GRP_ID#
+            ]]>
+          </isNotEqual>
+        </isParameterPresent>
+      </dynamic>
+    </select>
+
+    <!-- Intra/AccountSetting 帳號設定-查詢-->
+    <select id="queryAccountSetting"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.AccountSettingFormModel"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.AccountSettingGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT USR_ID, USR_NAME, USR_TEL, USR_EUSED, USR_MDATE
+        FROM SYS_USER
+        WHERE 1=1
+              AND USR_EFLAG = 'Y'
+              AND EXISTS (SELECT 1 FROM SYS_DISTRICT X WHERE 1=1 AND SYS_USER.USR_ORG = X.DIS_ORG_ID)
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="DIS_ORG_ID">
+            <!--轄區-->
+            <![CDATA[
+              AND USR_ORG IN ($DIS_ORG_ID$)
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="USR_ID">
+            <!--帳號-->
+            <![CDATA[
+              AND USR_ID LIKE '%' + #USR_ID# + '%'
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="USR_EUSED">
+            <!--啟用狀態-->
+            <![CDATA[
+              AND USR_EUSED = #USR_EUSED#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+      ORDER BY USR_CDATE DESC
+      ]]>
+    </select>
+
+    <!-- 取得特定一筆帳號設定資料-->
+    <select id="getAccountSetting"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblSYS_USER"
+            resultClass="eYVTR_mng_n.Models.Entities.TblSYS_USER"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT USR_ID, USR_PWD, USR_NAME, USR_IDNO, USR_ORG, USR_TEL, USR_EMAIL, USR_USED, USR_STOPDATE, USR_LOGINDATE,
+               USR_CDATE, USR_CUSER, USR_MDATE, USR_MUSER, USR_CHGDATE, USR_SFLAG, USR_GRP_ID, USR_EUSED, USR_ESTOPDATE,
+               USR_ELOGINDATE, USR_EFLAG, USR_VDIS_ID, USR_VDATE, USR_VUSER, USR_VSTATUS, USR_NOTES
+        FROM SYS_USER
+        WHERE 1=1
+              AND USR_EFLAG = 'Y'
+              AND USR_ID = #USR_ID#
+      ]]>
+    </select>
+    
+    <!-- Intra/AccountSetting 帳號設定-查詢身份證號碼是否存在-->
+    <select id="isAccountSettingIdnoFound"
+            parameterClass="Hashtable"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.AccountSettingDetailModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+      SELECT USR_ID, USR_EFLAG, USR_SFLAG, USR_ORG
+      FROM SYS_USER
+      WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="USR_IDNO">
+            <!--身份證號碼-->
+            <![CDATA[
+              AND UPPER(USR_IDNO) = UPPER(#USR_IDNO#)
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+        ORDER BY USR_MDATE ASC
+      ]]>
+    </select>
+    
+    <!-- Intra/AccountSetting (新增/修改) 帳號設定-查詢帳號是否存在-->
+    <select id="isAccountSettingFound"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.AccountSettingDetailModel"
+            resultClass="eYVTR_mng_n.Models.Entities.TblSYS_USER"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+      SELECT USR_ID FROM SYS_USER
+      WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isEqual prepend="" property="IsNew" compareValue="TRUE">
+            <![CDATA[
+              AND UPPER(USR_ID) = UPPER(#USR_ID#)
+            ]]>
+          </isEqual>
+          <isNotEqual prepend="" property="IsNew" compareValue="TRUE">
+            <![CDATA[
+              AND UPPER(USR_ID) = UPPER(#USR_ID#)
+              AND UPPER(USR_IDNO) <> UPPER(#USR_IDNO#)
+            ]]>
+          </isNotEqual>
+        </isParameterPresent>
+      </dynamic>
+    </select>
+
+    <!-- Intra/MemberSetting 網站會員管理-查詢-->
+    <select id="queryMemberSetting"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.MemberSettingFormModel"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.MemberSettingGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT MEM_ID, MEM_NAME, MEM_EMAIL, MEM_TYPE, MEM_STATUS
+        FROM E_MEMBER
+        WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="MEM_ID">
+            <!--帳號-->
+            <![CDATA[
+              AND MEM_ID = #MEM_ID#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="MEM_NAME">
+            <!--姓名-->
+            <![CDATA[
+              AND MEM_NAME LIKE '%' + #MEM_NAME# + '%'
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="MEM_TYPE">
+            <!--帳號類型-->
+            <![CDATA[
+              AND MEM_TYPE = #MEM_TYPE#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="MEM_STATUS">
+            <!--啟用狀態-->
+            <![CDATA[
+              AND MEM_STATUS = #MEM_STATUS#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+    </select>
+
+    <!-- 取得特定一筆網站會員管理資料-->
+    <select id="getMemberSetting"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_MEMBER"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_MEMBER"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT MEM_ID, MEM_TYPE, MEM_PWD, MEM_NAME, MEM_BIRTH, MEM_TEL,
+               MEM_EMAIL, MEM_STATUS, MEM_STOPDATE, MEM_PWD_HINT,
+               MEM_CDATE, MEM_CUSER, MEM_MDATE, MEM_MUSER, MEM_CHGDATE
+        FROM E_MEMBER
+        WHERE MEM_ID = #MEM_ID#
+      ]]>
+    </select>
+
+    <!-- Intra/NewsSetting 訊息發佈設定-查詢-->
+    <select id="queryNewsSetting"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.NewsSettingFormModel"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.NewsSettingGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT 
+        A.NEW_ID,A.NEW_NST_ID,C.NST_NAME,
+        A.NEW_PLN_ID,ISNULL(B.PLN_NAME,'各計畫適用') AS PLN_NAME,
+        A.NEW_TITLE,A.NEW_SDATE,A.NEW_EDATE,A.NEW_USED 
+        FROM E_NEW A 
+        LEFT JOIN SYS_PLAN B ON A.NEW_PLN_ID=B.PLN_ID 
+        LEFT JOIN E_NEWSTYPE C ON C.NST_ID=A.NEW_NST_ID 
+        WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEqual prepend="" property="NEW_DIS_ID" compareValue="1">
+            <!--所屬轄區-->
+            <![CDATA[
+              AND A.NEW_DIS_ID=#NEW_DIS_ID#
+            ]]>
+          </isNotEqual>
+          <isNotEmpty prepend="" property="NEW_PLN_ID">
+            <!--計畫別-->
+            <![CDATA[
+              AND A.NEW_PLN_ID=#NEW_PLN_ID#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="NEW_TITLE">
+            <!--公告主題-->
+            <![CDATA[
+              AND A.NEW_TITLE LIKE '%' + #NEW_TITLE# + '%'
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="NEW_USED">
+            <!--是否上架-->
+            <![CDATA[
+              AND A.NEW_USED=#NEW_USED#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="NEW_NST_ID">
+            <!--訊息類別-->
+            <![CDATA[
+              AND A.NEW_NST_ID=#NEW_NST_ID#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+      ORDER BY A.NEW_SDATE DESC
+      ]]>
+    </select>
+
+    <!-- 訊息發佈設定-取得特定一筆資料 -->
+    <select id="getNewsSetting"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_NEW"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_NEW"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT NEW_ID,NEW_PLN_ID,NEW_DIS_ID,NEW_TITLE,NEW_SDATE,
+        NEW_EDATE,NEW_CONTENT,NEW_USED,NEW_FILE_GID,NEW_BROWSE,NEW_CDATE,
+        NEW_CUSER,NEW_MDATE,NEW_MUSER,NEW_NST_ID
+        FROM E_NEW
+        WHERE NEW_ID=#NEW_ID#
+      ]]>      
+    </select>
+
+    <!-- 依據檔案群組代碼(FILE_GID)查詢其上傳之附件資料 -->
+    <select id="queryFileUploadsByGID"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_FILE"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_FILE"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT FILE_ID,FILE_GID,FILE_OFILENAME,
+        FILE_NFILENAME,FILE_CDATE,FILE_CUSER
+        FROM E_FILE
+        WHERE FILE_GID=#FILE_GID#
+      ]]>
+    </select>
+
+    <!-- Intra/NewsTypeSetting 訊息類型設定-查詢 -->
+    <select id="queryNewsTypeSetting"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.NewsTypeSettingFormModel"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.NewsTypeSettingGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT NST_ID,NST_NAME,NST_SEQ,NST_USED,NST_CDATE
+        FROM E_NEWSTYPE
+        WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="NST_NAME">
+            <!-- 類別名稱 -->
+            <![CDATA[
+              AND NST_NAME LIKE '%' + #NST_NAME# + '%'  
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="NST_USED">
+            <!-- 啟用狀態 -->
+            <![CDATA[
+              AND NST_USED=#NST_USED#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+        ORDER BY NST_SEQ,NST_CDATE
+      ]]>
+    </select>
+
+    <!-- Intra/NewsTypeSetting (新增/修改) 訊息類型設定-查詢指定資料是否存在-->
+    <select id="isNewsTypeSettingFound"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.NewsTypeSettingDetailModel"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_NEWSTYPE"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+      SELECT NST_ID FROM E_NEWSTYPE 
+      WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isEqual prepend="" property="IsNew" compareValue="TRUE">
+            <![CDATA[
+              AND NST_NAME=#NST_NAME#      
+            ]]>
+          </isEqual>
+          <isNotEqual prepend="" property="IsNew" compareValue="TRUE">
+            <![CDATA[
+              AND NST_NAME = #NST_NAME#
+              AND NST_ID <> #NST_ID#
+            ]]>
+          </isNotEqual>
+        </isParameterPresent>
+      </dynamic>
+    </select>
+
+    <!-- 訊息類型設定-取得特定一筆資料 -->
+    <select id="getNewsTypeSetting"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_NEWSTYPE"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_NEWSTYPE"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT NST_ID,NST_NAME,NST_SEQ,NST_USED
+        FROM E_NEWSTYPE
+        WHERE NST_ID=#NST_ID#
+      ]]>
+    </select>
+
+    <!-- Intra/DownloadSetting 下載資料設定-查詢 -->
+    <select id="queryDownloadSetting"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.DownloadSettingFormModel"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.DownloadSettingGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT A.DLD_ID,A.DLD_PLN_ID,B.PLN_NAME,
+        A.DLD_TITLE,A.DLD_SDATE,A.DLD_EDATE,A.DLD_USED
+        FROM E_DOWNLOAD A
+        JOIN SYS_PLAN B ON A.DLD_PLN_ID=B.PLN_ID
+        WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEqual prepend="" property="DLD_DIS_ID" compareValue="1">
+            <!--所屬轄區-->
+            <![CDATA[
+              AND A.DLD_DIS_ID=#DLD_DIS_ID#
+            ]]>
+          </isNotEqual>
+          <isNotEmpty prepend="" property="DLD_PLN_ID">
+            <!--計畫別-->
+            <![CDATA[
+              AND A.DLD_PLN_ID=#DLD_PLN_ID#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="DLD_TITLE">
+            <!--標題名稱-->
+            <![CDATA[
+              AND A.DLD_TITLE LIKE '%' + #DLD_TITLE# + '%'
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="DLD_USED">
+            <!--是否上架-->
+            <![CDATA[
+              AND A.DLD_USED=#DLD_USED#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+      ORDER BY A.DLD_SDATE DESC
+      ]]>
+    </select>
+
+    <!--訊息發佈設定-取得特定一筆資料-->
+    <select id="getDownloadSetting"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_DOWNLOAD"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_DOWNLOAD"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT DLD_ID,DLD_PLN_ID,DLD_DIS_ID,DLD_TITLE,DLD_SDATE,DLD_EDATE,
+        DLD_CONTENT,DLD_USED,DLD_FILE_GID
+        FROM E_DOWNLOAD 
+        WHERE DLD_ID=#DLD_ID#
+      ]]>
+    </select>
+
+    <!-- Intra/ActionsSetting 活動花絮設定-查詢 -->
+    <select id="queryActionsSetting"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.ActionsSettingFormModel"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.ActionsSettingGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT A.ACT_ID,A.ACT_PLN_ID,B.PLN_NAME,A.ACT_TITLE,
+        A.ACT_SDATE,A.ACT_EDATE,A.ACT_USED
+        FROM E_ACTIONS A
+        JOIN SYS_PLAN B ON A.ACT_PLN_ID=B.PLN_ID
+        WHERE 1=1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEqual prepend="" property="ACT_DIS_ID" compareValue="1">
+            <!--所屬轄區-->
+            <![CDATA[
+              AND A.ACT_DIS_ID=#ACT_DIS_ID#
+            ]]>
+          </isNotEqual>
+          <isNotEmpty prepend="" property="ACT_PLN_ID">
+            <!--計畫別-->
+            <![CDATA[
+              AND A.ACT_PLN_ID=#ACT_PLN_ID#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="ACT_TITLE">
+            <!--標題名稱-->
+            <![CDATA[
+              AND A.ACT_TITLE LIKE '%' + #ACT_TITLE# + '%'
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="ACT_USED">
+            <!--是否上架-->
+            <![CDATA[
+              AND A.ACT_USED=#ACT_USED#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+        ORDER BY A.ACT_SDATE DESC
+      ]]>
+    </select>
+    
+    <!-- 活動花絮設定-取得特定一筆資料 -->
+    <select id="getActionsSetting"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_ACTIONS"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_ACTIONS"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT ACT_ID,ACT_PLN_ID,ACT_DIS_ID,ACT_TITLE,ACT_CONTENT,
+        ACT_OBJECT,ACT_SDATE,ACT_EDATE,ACT_USED
+        FROM E_ACTIONS
+        WHERE ACT_ID=#ACT_ID#
+      ]]>
+    </select>
+
+    <!-- FAQ設定-查詢 -->
+    <select id="queryFaqSetting"
+            parameterClass="eYVTR_mng_n.Areas.Intra.Models.FaqSettingFormModel"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.FaqSettingGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT ROW_NUMBER() OVER (ORDER BY CASE WHEN FAT_SEQ IS NULL THEN 1 ELSE 0 END,FAT_SEQ ASC,FAT_CDATE DESC) AS SEQ,
+        A.FAQ_FAT_ID,A.FAT_NAME,A.FAQ_PLN_ID,ISNULL(A.PLN_NAME,'各計畫適用') PLN_NAME,
+        (SELECT COUNT(1) FROM E_FAQ AA WHERE AA.FAQ_FAT_ID=A.FAQ_FAT_ID AND AA.FAQ_PLN_ID=A.FAQ_PLN_ID) CNT
+        FROM (
+          SELECT DISTINCT A.FAQ_FAT_ID,A.FAQ_PLN_ID,C.PLN_NAME,
+          B.FAT_NAME,B.FAT_SEQ,B.FAT_CDATE 
+          FROM E_FAQ A
+          JOIN E_FAQTYPE B ON A.FAQ_FAT_ID=B.FAT_ID
+          LEFT JOIN SYS_PLAN C ON A.FAQ_PLN_ID=C.PLN_ID
+        ) A
+        WHERE 1=1
+      ]]>
+      
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="FAQ_PLN_ID">
+            <!-- 計畫別 -->
+            <![CDATA[
+              AND A.FAQ_PLN_ID=#FAQ_PLN_ID#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="FAQ_FAT_ID">
+            <!-- FAQ類別-->
+            <![CDATA[
+              AND A.FAQ_FAT_ID=#FAQ_FAT_ID#
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+        /*ORDER BY CASE WHEN A.FAT_SEQ IS NULL THEN 1 ELSE 0 END,
+        A.FAT_SEQ ASC,A.FAT_CDATE DESC*/
+      ]]>
+    </select>
+
+    <!-- FAQ設定-查詢結果(計畫,類別) -->
+    <select id="queryFaqSettingList"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_FAQ"
+            resultClass="eYVTR_mng_n.Areas.Intra.Models.FaqSettingGroupGridModel"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT ROW_NUMBER() OVER (ORDER BY CASE WHEN FAQ_SEQ IS NULL THEN 1 ELSE 0 END,FAQ_SEQ ASC,FAQ_CDATE DESC) AS SEQ,
+        A.FAQ_ID,ISNULL(C.PLN_NAME,'各計畫適用') PLN_NAME,
+        B.FAT_NAME,A.FAQ_QUESTION,A.FAQ_ANSWER,A.FAQ_USED,
+        A.FAQ_PLN_ID,A.FAQ_FAT_ID
+        FROM E_FAQ A
+        JOIN E_FAQTYPE B ON A.FAQ_FAT_ID=B.FAT_ID
+        LEFT JOIN SYS_PLAN C ON A.FAQ_PLN_ID=C.PLN_ID
+        WHERE 1=1  
+        AND A.FAQ_PLN_ID=#FAQ_PLN_ID#
+        AND A.FAQ_FAT_ID=#FAQ_FAT_ID#
+      ]]>
+    </select>
+    
+    <!-- FAQ設定-取得特定一筆資料 -->
+    <select id ="getFaqSetting"
+            parameterClass="eYVTR_mng_n.Models.Entities.TblE_FAQ"
+            resultClass="eYVTR_mng_n.Models.Entities.TblE_FAQ"
+            cacheModel="eYVTR_mng_n-cache">
+      <![CDATA[
+        SELECT FAQ_ID,FAQ_FAT_ID,FAQ_PLN_ID,FAQ_QUESTION,
+        FAQ_ANSWER,FAQ_USED,FAQ_SEQ
+        FROM E_FAQ
+        WHERE FAQ_ID=#FAQ_ID#
+      ]]>
+    </select>
+  </statements>
+</sqlMap>

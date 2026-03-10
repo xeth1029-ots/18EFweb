@@ -1,0 +1,3227 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="CLASHARE"
+xmlns="http://ibatis.apache.org/mapping"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+  <resultMaps>
+  </resultMaps>
+
+  <statements>
+    <!-- 取得在指定群組內的角色資料 -->
+    <select id="queryRoleInGroup"
+        resultClass="NFC.CHECKIN.Models.Entities.TblCLAMROLE"
+        parameterClass="NFC.CHECKIN.Models.Entities.TblCLAMROLE"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct GRPID from CLAMROLE 
+    where EXAMKIND=#EXAMKIND# 
+          and ROLE=#ROLE#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="GRPID">
+                    <![CDATA[ 
+	      and GRPID in ($GRPID$)
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by GRPID
+        ]]>
+    </select>
+      
+    <!-- Share/UNIT/Index 單位資料-查詢 -->
+    <select id="queryUNIT"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.UNITGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.UNITFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT DISTINCT OPCD,OPCHNF FROM EXAMUNIT 
+        WHERE EXAMKIND=#EXAMKIND# 
+      ]]>
+        <dynamic>
+          <isParameterPresent>
+            <isEqual property="VALUE" compareValue="131">
+              <![CDATA[
+                AND ROLE='11'
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="132">
+              <![CDATA[
+                AND ROLE='12'
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="133">
+              <![CDATA[
+                AND 1 <> 1
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="100">
+              <![CDATA[
+                AND ROLE='1'
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="231">
+              <![CDATA[
+                AND ROLE='21'
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="232">
+              <![CDATA[
+                AND ROLE='22'
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="233">
+              <![CDATA[
+                AND 1<>1
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="200">
+              <![CDATA[
+                AND ROLE='1'
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="3W1">
+              <![CDATA[
+                AND ROLE='1'
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="3W3">
+              <![CDATA[
+                AND (ROLE='21' OR ROLE='22')
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="3O1">
+              <![CDATA[
+                AND ROLE='32'
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="3O2">
+              <![CDATA[
+                AND 1<>1
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="300">
+              <![CDATA[
+                AND ROLE='1'
+              ]]>
+            </isEqual>
+            <isEqual property="VALUE" compareValue="400">
+              <![CDATA[
+                AND 1<>1
+              ]]>
+            </isEqual>
+
+            <isNotEmpty prepend="" property="OPCD">
+              <![CDATA[
+	            AND OPCD LIKE #OPCD# || '%'
+              ]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="" property="OPCHNF">
+              <![CDATA[
+	            AND OPCHNF LIKE '%' || #OPCHNF# || '%'
+              ]]>
+            </isNotEmpty>
+          </isParameterPresent>
+        </dynamic>
+        ORDER BY OPCD
+      </select>
+
+    <!-- Share/UNIT2/Index 「術科單位、主辦單位、辦理單位、分召學校、單位」單位資料-查詢 -->
+    <select id="queryUNIT2"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.UNIT2GridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.UNIT2FormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct OPCD,OPCHNF from EXAMUNIT
+    where EXAMKIND=#EXAMKIND#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <!-- 不是其他單位層級 -->
+                <isEqual property="SqlMapElseDISTRICT" compareValue="N">
+                    <!-- 主辦單位層級 -->
+                    <isEqual property="DISTRICT" compareValue="1">
+                        <![CDATA[ 
+	      and OPCD like #OPCD#||'%'
+                        ]]>
+                    </isEqual>
+                    <!-- 報名單位層級 -->
+                    <isEqual property="DISTRICT" compareValue="2">
+                        <![CDATA[
+	      and OPCHNF like '%'||#OPCHNF#||'%'
+                        ]]>
+                    </isEqual>
+                    <!-- 學術科承辦單位層級 -->
+                    <isEqual property="DISTRICT" compareValue="3">
+                        <![CDATA[
+	      and OPCHNF like '%'||#OPCHNF#||'%'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!-- 其他單位層級 -->
+                <isEqual property="SqlMapElseDISTRICT" compareValue="Y">
+                    <![CDATA[
+	      and OPCHNF like '%'||#OPCHNF#||'%'
+                    ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by OPCD
+        ]]>
+    </select>
+
+    <sql id="queryUNIT2_samePart">
+        <isParameterPresent>
+            <isNotEmpty prepend="" property="OPCD">
+                <![CDATA[ 
+	      and OPCD like #OPCD#||'%'
+                ]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="" property="OPCHNF">
+                <![CDATA[
+	      and OPCHNF like '%'||#OPCHNF#||'%'
+                ]]>
+            </isNotEmpty>
+        </isParameterPresent>
+    </sql>
+      
+    <!-- Share/EXAMUNIT/Index 「主辦單位、辦理單位、分召學校」單位資料-查詢 -->
+    <select id="queryEXAMUNIT"
+          resultClass="NFC.CHECKIN.Areas.Share.Models.EXAMUNITGridModel"
+          parameterClass="NFC.CHECKIN.Areas.Share.Models.EXAMUNITFormModel"
+          cacheModel="NFC.CHECKIN-cache">
+          <![CDATA[
+    select OPCD,max(OPCHNF) as OPCHNF from EXAMUNIT 
+    where EXAMKIND=#EXAMKIND#
+          ]]>
+        <dynamic>
+            <isParameterPresent>
+                <!--全國檢定-->
+                <isEqual property="EXAMKIND" compareValue="1">
+                    <!--勞動部勞動力發展署技檢中心角色-->
+                    <isEqual property="ROLE" compareValue="0">
+                        <![CDATA[
+          and ROLE in ('1','2')
+                        ]]>
+                    </isEqual>
+                    <!--主辦單位角色-->
+                    <isEqual property="ROLE" compareValue="1">
+                        <![CDATA[
+          and ROLE in ('1','2')
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                    <!--術科承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="32">
+                        <![CDATA[
+          and ROLE in ('1','2')
+                        ]]>
+                    </isEqual>
+                    <!--閱卷登分角色-->
+                    <isEqual property="ROLE" compareValue="T001">
+                        <![CDATA[
+          and ROLE in ('1','2')
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!--在校生專案檢定-->
+                <isEqual property="EXAMKIND" compareValue="3">
+                    <!--術科承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="32">
+                        <![CDATA[
+          and ROLE=decode(#DISTRICT2#,'1','21','2','22','')
+                        ]]>
+                    </isEqual>
+                    <!--非術科承辦單位角色-->
+                    <isNotEqual property="ROLE" compareValue="32">
+                        <!--勞動部勞動力發展署技檢中心角色-->
+                        <isEqual property="ROLE" compareValue="0">
+                            <![CDATA[
+          and ROLE=decode(#DISTRICT2#,'1','21','2','22','')
+                            ]]>
+                        </isEqual>
+                        <!--商科總召單位角色-->
+                        <isEqual property="ROLE" compareValue="11">
+                            <![CDATA[
+          and ROLE='11'
+                            ]]>
+                        </isEqual>
+                        <!--工科總召單位角色-->
+                        <isEqual property="ROLE" compareValue="12">
+                            <![CDATA[
+          and ROLE='12'
+                            ]]>
+                        </isEqual>
+                        <!--商科分召單位角色-->
+                        <isEqual property="ROLE" compareValue="21">
+                            <![CDATA[
+          and ROLE='21'
+          and OPCD='0000'
+                            ]]>
+                        </isEqual>
+                        <!--工科分召單位角色-->
+                        <isEqual property="ROLE" compareValue="22">
+                            <![CDATA[
+          and ROLE='22'
+          and OPCD='0000'
+                            ]]>
+                        </isEqual>
+                    </isNotEqual>
+                </isEqual>
+                <!--職訓機構受訓學員專案檢定-->
+                <isEqual property="EXAMKIND" compareValue="5">
+                    <!--專案檢定承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="1">
+                        <![CDATA[
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!--監院所收容人專案檢定-->
+                <isEqual property="EXAMKIND" compareValue="6">
+                    <!--專案檢定承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="1">
+                        <![CDATA[
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!--國軍人員專案檢定-->
+                <isEqual property="EXAMKIND" compareValue="7">
+                    <!--專案檢定承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="1">
+                        <![CDATA[
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!--事業機構員工專案檢定-->
+                <isEqual property="EXAMKIND" compareValue="9">
+                    <!--專案檢定承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="1">
+                        <![CDATA[
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!--營造業工會專案檢定-->
+                <isEqual property="EXAMKIND" compareValue="B">
+                    <!--專案檢定承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="1">
+                        <![CDATA[
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!--即測即評學科測試檢定-->
+                <isEqual property="EXAMKIND" compareValue="C">
+                    <!--即測即評承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="1">
+                        <![CDATA[
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!--即測即評及發證檢定-->
+                <isEqual property="EXAMKIND" compareValue="G">
+                    <!--即測即評及發證承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="1">
+                        <![CDATA[
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!--營造業專班檢定-->
+                <isEqual property="EXAMKIND" compareValue="H">
+                    <!--專案檢定承辦單位角色-->
+                    <isEqual property="ROLE" compareValue="1">
+                        <![CDATA[
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <!--縣市政府勞工安全作業-->
+                <isEqual property="EXAMKIND" compareValue="I">
+                    <!--勞工安全衛生監評名單比對角色-->
+                    <isEqual property="ROLE" compareValue="LU02">
+                        <![CDATA[
+          and OPCD='0000'
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <isNotEmpty property="OPCD" prepend="">
+                    <![CDATA[
+	      and OPCD like #OPCD#||'%'
+                      ]]>
+                </isNotEmpty>
+                <isNotEmpty property="OPCHNF" prepend="">
+                    <![CDATA[
+	      and OPCHNF like '%'||#OPCHNF#||'%'
+                      ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    group by OPCD 
+    order by OPCD
+          ]]>
+    </select>
+
+    <!-- Share/EXAMUNIT2/Index 術科單位資料-查詢 -->
+    <select id="queryEXAMUNIT2"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.EXAMUNIT2GridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.EXAMUNIT2FormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct OPCD,OPCHNF from EXAMUNIT
+    where EXAMKIND=#EXAMKIND#
+          and ROLE=decode(EXAMKIND,'1','32','3','32','1')
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="OPCD">
+                    <![CDATA[ 
+	      and OPCD like #OPCD#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="OPCHNF">
+                    <![CDATA[
+	      and OPCHNF like '%'||#OPCHNF#||'%'
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by OPCD
+        ]]>
+    </select>
+
+    <!-- Share/CLAMDBURM/Index 單位人員帳號資料-查詢 -->
+    <select id="queryCLAMDBURM"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.CLAMDBURMGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.CLAMDBURMFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select USERNO,USERNAME,UNITID from CLAMDBURM
+    where 1 = 1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="Goal" compareValue="1">
+                    <![CDATA[
+	      and AUTHSTATUS = '1'
+                    ]]>
+                </isEqual>
+                <isEqual prepend="" property="Goal" compareValue="2">
+                    <![CDATA[
+	      and AUTHSTATUS = '1'
+          and UNITID=#UNITID#
+                    ]]>
+                </isEqual>
+                <isEmpty prepend="" property="Goal">
+                    <isNotEmpty prepend="" property="UNITID">
+                        <![CDATA[
+	      and UNITID=#UNITID#
+                        ]]>
+                    </isNotEmpty>
+                </isEmpty>
+                <isNotEmpty prepend="" property="USERNO">
+                    <![CDATA[ 
+	      and USERNO like #USERNO#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="USERNAME">
+                    <![CDATA[
+	      and USERNAME like '%'||#USERNAME#||'%'
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by USERNO
+        ]]>
+    </select>
+
+    <!-- Share/CLAMDBURM/Index1 單位人員帳號資料-查詢 -->
+    <select id="queryCLAMDBURM_VW1"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.CLAMDBURMGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.CLAMDBURMFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select USERNO,USERNAME,UNITID from CLAMDBURM
+    where 1 = 1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="Goal" compareValue="1">
+                    <![CDATA[
+	      and AUTHSTATUS = '1'
+                    ]]>
+                </isEqual>
+                <isEqual prepend="" property="Goal" compareValue="2">
+                    <![CDATA[
+	      and AUTHSTATUS = '1'
+          and UNITID=#UNITID#
+                    ]]>
+                </isEqual>
+                <isEmpty prepend="" property="Goal">
+                    <isNotEmpty prepend="" property="UNITID">
+                        <![CDATA[
+	      and UNITID=#UNITID#
+                        ]]>
+                    </isNotEmpty>
+                </isEmpty>
+                <isNotEmpty prepend="" property="Keyword">
+                    <isEqual prepend="" property="Field" compareValue="1">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and USERNO >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and USERNO <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and USERNO like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and USERNO <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>
+                    <isEqual prepend="" property="Field" compareValue="2">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and USERNAME >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and USERNAME <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and USERNAME like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and USERNAME <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>   
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by USERNO
+        ]]>
+    </select>
+      
+    <!-- Share/CLAMOPUNIT/Index 單位資料-查詢 -->
+    <select id="queryCLAMOPUNIT"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.CLAMOPUNITGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.CLAMOPUNITFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT OPCD, OPCHNF, OPKIND, ZIP, ADDR, CEO, CEOTITLE, CONTACT, TEL, FAX, EMAIL, HIST FROM CLAMOPUNIT
+        WHERE 1 = 1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="OPCD">
+            <![CDATA[
+	            AND OPCD LIKE #OPCD# || '%'
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="OPCHNF">
+            <![CDATA[
+	            AND OPCHNF LIKE '%' || #OPCHNF# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY OPCD
+    </select>
+
+    <!-- Share/CLAMUNIT/Index 科處室資料-查詢 -->
+    <select id="queryCLAMUNIT"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.CLAMUNITGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.CLAMUNITFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct SUBUNIT,SUBUNITN from CLAMUNIT 
+    where UNITID=#UNITID#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="SUBUNIT">
+                    <![CDATA[
+	      and SUBUNIT like #SUBUNIT#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="SUBUNITN">
+                    <![CDATA[
+	      and SUBUNITN like '%'||#SUBUNITN#||'%'
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by SUBUNIT
+        ]]>
+    </select>
+
+    <!-- Share/CLAMGRP/Index 群組資料-查詢 -->
+    <select id="queryCLAMGRP"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.CLAMGRPGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.CLAMGRPFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct GRPID,GRPNAME from CLAMGRP
+    where 1 = 1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="Keyword">
+                    <isEqual prepend="" property="Field" compareValue="1">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and GRPID >= #Keyword#
+                            ]]>
+                          </isEqual>
+                          <isEqual prepend="" property="Operator" compareValue="2">
+                              <![CDATA[
+	      and GRPID <= #Keyword#
+                              ]]>
+                          </isEqual>
+                          <isEqual prepend="" property="Operator" compareValue="3">
+                              <![CDATA[
+	      and GRPID like '%'||#Keyword#||'%'
+                              ]]>
+                          </isEqual>
+                          <isEqual prepend="" property="Operator" compareValue="4">
+                              <![CDATA[
+	      and GRPID <> #Keyword#
+                              ]]>
+                        </isEqual>
+                    </isEqual>
+                    <isEqual prepend="" property="Field" compareValue="2">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and GRPNAME >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and GRPNAME <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and GRPNAME like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and GRPNAME <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by GRPID
+        ]]>
+    </select>
+
+    <!-- Share/CLAMROLE/Index 角色資料-查詢 -->
+    <select id="queryCLAMROLE"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.CLAMROLEGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.CLAMROLEFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct EXAMKIND,ROLE,ROLEN from CLAMROLE
+    where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="EXAMKIND">
+                    <![CDATA[
+	      and EXAMKIND=#EXAMKIND#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="ROLE">
+                    <![CDATA[
+	      and ROLE like #ROLE#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="ROLEN">
+                    <![CDATA[
+	      and ROLEN like '%'||#ROLEN#||'%'
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+          and (EXAMKIND<>' ' and EXAMKIND is not null)
+    order by EXAMKIND,ROLE
+        ]]>
+    </select>
+      
+    <!-- Share/CLAMPLACE/Index 術科合格場地資料-查詢 -->
+    <select id="queryCLAMPLACE"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.CLAMPLACEGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.CLAMPLACEFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select a.PLACEC,a.PLACEN,a.PLACETYPE,c.UNAME as PLACETYPENAME,
+           a.CITY as ZIP,(a.CITY||' '||b.ZIPNAME) as ZIPNAME,a.CADR,a.OTEL
+    from (select distinct PLACEC,PLACEN,PLACETYPE,OTEL,CITY,CADR from CLAMPLACE 
+          where OPCD=#OPCD#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="PLACETYPE">
+                    <![CDATA[
+	            and PLACETYPE=#PLACETYPE#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="PLACEC">
+                    <![CDATA[
+	            and PLACEC like #PLACEC#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="PLACEN">
+                    <![CDATA[
+	            and PLACEN like '%'||#PLACEN#||'%'
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+         ) a
+    left join CLAMCITY b on b.zipcode = a.CITY
+    left join CLAMUNITKIND c on c.ukind = a.PLACETYPE
+    order by a.PLACEC
+        ]]>
+    </select>
+
+    <!-- Share/MultiCLAMOPUNIT/Index 單位資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiCLAMOPUNIT"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiCLAMOPUNITFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select OPCD as CODE,OPCHN as TEXT
+    from (select distinct OPCD,OPCD||' '||OPCHN as OPCHN from CLAMOPUNIT 
+          where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="DataKind" compareValue="C">
+                    <isNotEmpty prepend="" property="InSqlOPCD">
+                        <![CDATA[
+                and OPCD not in ($InSqlOPCD$)
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+                <isEqual prepend="" property="DataKind" compareValue="S">
+                    <![CDATA[
+	            and OPCD in ($InSqlOPCD$)
+                    ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+         )
+    order by OPCD
+        ]]>
+    </select>
+      
+    <!-- Share/MultiCLAMPLACE/Index 場地資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiCLAMPLACE"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiCLAMPLACEFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select CODE,(CODE||' '||TEXT) as TEXT
+    from (select distinct OPCD,PLACEC as CODE,PLACEN as TEXT from CLAMPLACE 
+          where OPCD in ($InSqlOPCD$)
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="DataKind" compareValue="C">
+                    <isNotEmpty prepend="" property="InSqlPLACEC">
+                        <![CDATA[
+                and PLACEC not in ($InSqlPLACEC$)
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+                <isEqual prepend="" property="DataKind" compareValue="S">
+                    <![CDATA[
+	            and PLACEC in ($InSqlPLACEC$)
+                    ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+         )
+    order by OPCD,CODE
+        ]]>
+    </select>
+
+    <!-- Share/MultiCLAMCITY/Index 縣市資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiCLAMCITY"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiCLAMCITYFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select CITYCODE as CODE,(CITYCODE||' '||CITYNAME) as TEXT
+    from (select distinct CITYCODE,CITYNAME from CLAMCITY 
+          where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="DataKind" compareValue="C">
+                    <isNotEmpty prepend="" property="InSqlCITYCODE">
+                        <![CDATA[
+                and CITYCODE not in ($InSqlCITYCODE$)
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+                <isEqual prepend="" property="DataKind" compareValue="S">
+                    <![CDATA[
+	            and CITYCODE in ($InSqlCITYCODE$)
+                    ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+         )
+    order by CITYCODE
+        ]]>
+    </select>
+
+    <!-- Share/MultiZIP/Index 郵遞區號資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiZIP"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiZIPFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+       SELECT ZIPCODE AS CODE,(ZIPCODE||' '||ZIPNAME) AS TEXT
+       FROM (SELECT DISTINCT ZIPCODE,ZIPNAME FROM CLAMCITY 
+       WHERE 1=1
+        ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isEqual prepend="" property="DataKind" compareValue="C">
+            <isNotEmpty prepend="" property="InSqlZIPCODE">
+              <![CDATA[
+                AND ZIPCODE NOT IN ($InSqlZIPCODE$)
+                        ]]>
+            </isNotEmpty>
+          </isEqual>
+          <isEqual prepend="" property="DataKind" compareValue="S">
+            <![CDATA[
+	            AND ZIPCODE IN ($InSqlZIPCODE$)
+                    ]]>
+          </isEqual>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+         )
+    ORDER BY ZIPCODE
+        ]]>
+    </select>
+
+    <!-- Share/MultiPROF/Index 職類資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiPROF"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiPROFFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct PNO as CODE,(PNO||' '||NAME) as TEXT from PROF a
+    where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="DataKind" compareValue="C">
+                    <isNotEmpty prepend="" property="CaseId">
+                        <isEqual prepend="" property="CaseId" compareValue="YRREGULATE">
+                            <![CDATA[
+	      and PNO in (select distinct PNO from YRREGULATE where EXAMKIND=#EXAMKIND# and YR=#YR# and STP=#STP# and JOBTYPE='1')
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="CaseId" compareValue="A8C506TM">
+                            <![CDATA[
+                            and PNO in (
+                            SELECT CASE WHEN MAJ.PNO is not null THEN MAJ.PNO ELSE TRIM(P.COLUMN_VALUE) END AS PNO
+                            FROM XMLTABLE(('"' || REPLACE(#PNOINC#, ',', '","') || '"')) P
+                              LEFT JOIN PRFMAGEJ SEQ ON SEQ.PNO=TRIM(P.COLUMN_VALUE)
+                              LEFT JOIN PRFMAGEJ MAJ ON MAJ.PROFSEQ=SEQ.PROFSEQ
+                              )
+                            ]]>
+                        </isEqual>
+                    </isNotEmpty>
+                    <isNotEmpty prepend="" property="InSqlPNO">
+                        <![CDATA[
+          and PNO not in ($InSqlPNO$)
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+                <isEqual prepend="" property="DataKind" compareValue="S">
+                    <![CDATA[
+	      and PNO in ($InSqlPNO$)
+                   ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by PNO
+        ]]>
+    </select>
+
+    <!-- Share/MultiPROF2/Index 職類資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiPROF2"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiPROF2FormModel"
+        cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+SELECT DISTINCT SKT1.PNO || '~' || SKT1.EGR || '~' || trim(SKT1.DSTNG) AS CODE
+,SKT1.PNO|| SKT1.EGR || trim(SKT1.DSTNG) || ' ' ||PROF.NAME||EGR.DESCR||DSTNG.DESCR AS TEXT
+FROM SKT1 
+LEFT JOIN PROF ON SKT1.PNO=PROF.PNO
+LEFT JOIN CODE1 EGR ON SKT1.EGR=EGR.CODE AND EGR.ITEM='EGR'
+LEFT JOIN CODE1 DSTNG ON SKT1.DSTNG=DSTNG.CODE AND DSTNG.ITEM='DSTNG'
+WHERE 1=1
+AND SKT1.DSTNG <> 'A'
+AND SKT1.EXAMKIND=#EXAMKIND#
+AND SKT1.YR=#YR#
+AND SKT1.STP =#STP#
+AND SKT1.WOPCD =#OPCD#
+        ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isEqual prepend="" property="DataKind" compareValue="C">
+            <isNotEmpty prepend="" property="InSqlPNO">
+              <![CDATA[
+          and SKT1.PNO not in ($InSqlPNO$)
+                        ]]>
+            </isNotEmpty>
+          </isEqual>
+          <isEqual prepend="" property="DataKind" compareValue="S">
+            <![CDATA[
+	      and SKT1.PNO in ($InSqlPNO$)
+                   ]]>
+          </isEqual>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+      ORDER BY CODE
+      ]]>
+    </select>
+
+    <!-- Share/MultiEXAMUNIT/Index 單位資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiEXAMUNIT"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiEXAMUNITFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select OPCD as CODE,(OPCD||' '||OPCHNF) as TEXT
+    from (select distinct OPCD,OPCHNF from EXAMUNIT
+          where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="DataKind" compareValue="C">
+                        <![CDATA[
+	             and EXAMKIND=#EXAMKIND# and ROLE=#ROLE#
+                        ]]>
+                    <isNotEmpty prepend="" property="InSqlOPCD">
+                        <![CDATA[
+                 and OPCD not in ($InSqlOPCD$)
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+                <isEqual prepend="" property="DataKind" compareValue="S">
+                    <![CDATA[
+	             and OPCD in ($InSqlOPCD$)
+                    ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+         )
+    order by OPCD
+        ]]>
+    </select>
+
+    <!-- Share/MultiPRFITEM/Index 術科細項資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiPRFITEM"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiPRFITEMFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct SNO as CODE,(SNO||' '||SNAME) as TEXT from PRFITEM 
+     where 1 = 1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="PNO">
+                    <![CDATA[
+	       and PNO = #PNO#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="EGR">
+                    <![CDATA[
+	       and EGR = #EGR#
+                    ]]>
+                </isNotEmpty>
+                <isEqual prepend="" property="DataKind" compareValue="C">
+                    <isNotEmpty prepend="" property="InSqlSNO">
+                        <![CDATA[
+                and SNO not in ($InSqlSNO$)
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+                <isEqual prepend="" property="DataKind" compareValue="S">
+                    <![CDATA[
+	            and SNO in ($InSqlSNO$)
+                    ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by SNO
+        ]]>
+    </select>
+
+    <!-- Share/MultiSUBUNIT/Index 科處室資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiSUBUNIT"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiSUBUNITFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct SUBUNIT as CODE,(SUBUNIT||' '||SUBUNITN) as TEXT from CLAMUNIT 
+    where UNITID = #UNITID#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="DataKind" compareValue="C">
+                    <isNotEmpty prepend="" property="InSqlUNITID">
+                        <![CDATA[
+          and SUBUNIT not in ($InSqlUNITID$)
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+                <isEqual prepend="" property="DataKind" compareValue="S">
+                    <![CDATA[
+	      and SUBUNIT in ($InSqlUNITID$)
+                    ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by SUBUNIT
+        ]]>
+    </select>
+
+    <!-- Share/MultiSYS/Index 系統資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiSYS"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiSYSFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct SYS_ID as CODE,(SYS_ID||' '||PRGNAME) as TEXT from CLAMFUNCM 
+    where MODULES=' ' and SUBMODULES=' ' and PRGID=' '
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="DataKind" compareValue="C">
+                    <isNotEmpty prepend="" property="InSqlSYSID">
+                        <![CDATA[
+          and SYS_ID not in ($InSqlSYSID$)
+                        ]]>
+                      </isNotEmpty>
+                  </isEqual>
+                  <isEqual prepend="" property="DataKind" compareValue="S">
+                      <![CDATA[
+	      and SYS_ID in ($InSqlSYSID$)
+                    ]]>
+                  </isEqual>
+              </isParameterPresent>
+          </dynamic>
+          <![CDATA[
+    order by SYS_ID
+          ]]>
+    </select>
+
+    <!-- Share/MultiMODULE/Index 模組資料-可選取資料/已選取資料查詢 -->
+      <select id="queryMultiMODULE"
+          resultClass="Turbo.DataLayer.KeyMapModel"
+          parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiMODULEFormModel"
+          cacheModel="NFC.CHECKIN-cache">
+          <![CDATA[
+    select distinct CODE,(CODE||' '||PRGNAME) as TEXT 
+    from (select (SYS_ID||'-'||MODULES) AS CODE,PRGNAME from CLAMFUNCM 
+          where MODULES<>' ' and SUBMODULES=' ' and PRGID=' '
+          ]]>
+          <dynamic>
+              <isParameterPresent>
+                  <isNotEmpty prepend="" property="SYSID">
+                      <![CDATA[
+                and SYS_ID in ($InSqlSYSID$)
+                      ]]>
+                  </isNotEmpty>
+              </isParameterPresent>
+          </dynamic>
+          <![CDATA[
+          )
+    where 1 = 1
+          ]]>
+          <dynamic>
+              <isParameterPresent>
+                  <isEqual prepend="" property="DataKind" compareValue="C">
+                      <isNotEmpty prepend="" property="InSqlMODULES">
+                          <![CDATA[
+          and CODE not in ($InSqlMODULES$)
+                          ]]>
+                      </isNotEmpty>
+                  </isEqual>
+                  <isEqual prepend="" property="DataKind" compareValue="S">
+                      <![CDATA[
+	      and CODE in ($InSqlMODULES$)
+                      ]]>
+                  </isEqual>
+              </isParameterPresent>
+          </dynamic>
+          <![CDATA[
+    order by CODE
+          ]]>
+    </select>
+
+    <!-- Share/MultiSUBMODULE/Index 子模組資料-可選取資料/已選取資料查詢 -->
+    <select id="queryMultiSUBMODULE"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiSUBMODULEFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct CODE,(CODE||' '||PRGNAME) as TEXT
+    from (select SYSMOD,CODE,PRGNAME
+          from (select (SYS_ID||'-'||MODULES) AS SYSMOD,(SYS_ID||'-'||MODULES||'-'||SUBMODULES) AS CODE,PRGNAME 
+                from CLAMFUNCM 
+                where MODULES<>' ' and SUBMODULES<>' ' and PRGID=' '
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="SYSID">
+                    <![CDATA[
+                      and SYS_ID in ($InSqlSYSID$)
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+               )
+         )
+    where 1 = 1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="InSqlMODULES">
+                    <![CDATA[
+          and SYSMOD in ($InSqlMODULES$)
+                    ]]>
+                </isNotEmpty>
+                <isEqual prepend="" property="DataKind" compareValue="C">
+                    <isNotEmpty prepend="" property="InSqlSUBMODULES">
+                        <![CDATA[
+          and CODE not in ($InSqlSUBMODULES$)
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+                <isEqual prepend="" property="DataKind" compareValue="S">
+                    <![CDATA[
+	      and CODE in ($InSqlSUBMODULES$)
+                    ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by CODE
+        ]]>
+    </select>
+      
+    <!-- Share/CLAMCITY/Index 縣市資料-查詢 -->
+    <select id="queryCLAMCITY"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.CLAMCITYGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.CLAMCITYFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select CITYCODE,MAX(CITYNAME) as CITYNAME from CLAMCITY 
+    where 1 = 1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="CITYCODE">
+                    <![CDATA[
+	      and CITYCODE like #CITYCODE#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="CITYNAME">
+                    <![CDATA[
+	      and CITYNAME like '%'||#CITYNAME#||'%'
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    group by AREANO,CITYCODE
+    order by AREANO,CITYCODE
+        ]]>
+    </select>
+
+    <!-- Share/PROF/Index 職類資料-查詢 -->
+    <select id="queryPROF"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.PROFGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.PROFFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT DISTINCT PNO,NAME FROM PROF WHERE 1 = 1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="PNO">
+            <![CDATA[
+	            AND PNO LIKE #PNO# || '%'
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="NAME">
+            <![CDATA[
+	            AND NAME LIKE '%' || #NAME# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY PNO
+    </select>
+    
+    <!-- Share/PROF/Index 跨檢定類別職類資料-查詢（僅限 A8C506TM 功能專用） -->
+    <select id="queryPROF_A8C506TM"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.PROFGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.PROFFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct PNO,NAME from PROF
+    where PNO in (select PNO from PRFMAGEJ 
+                  where PROFSEQ in (select PROFSEQ from PRFMAGEJ where PNO=#CrossPNO#))
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="PNO">
+                    <![CDATA[
+	      and PNO like '%'||#PNO#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="NAME">
+                    <![CDATA[
+	      and NAME like '%'||#NAME#||'%'
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by PNO
+        ]]>
+    </select>
+
+    <!-- Share/SKT1AENO/Index 取得在 SKT1 資料表內的准考證號資料 -->
+    <select id="querySKT1AENO"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.SKT1AENOGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.SKT1AENOFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select a.PNO,a.PNONAME,a.EGR,(a.EGR||' '||b.DESCR) as EGRNAME,
+           a.DSTNG,(a.DSTNG||' '||c.DESCR) as DSTNGNAME,a.AENO,a.IDNO,a.NAME
+    from (select distinct a.PNO,b.NAME AS PNONAME,a.EGR,a.DSTNG,a.IDNO,a.AENO,a.NAME from SKT1 a
+          left join PROF b on b.PNO=a.PNO
+          where a.EXAMKIND=#EXAMKIND# 
+                and a.YR=#YR# 
+                and a.STP=#STP# 
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+              <isNotEmpty prepend="" property="SOPCD">
+                <![CDATA[
+	            and a.SOPCD=#SOPCD# 
+                    ]]>
+              </isNotEmpty>
+              <isNotEmpty prepend="" property="OOPCD">
+                <![CDATA[
+	            and a.OOPCD=#OOPCD#
+                    ]]>
+              </isNotEmpty>
+              <isNotEmpty prepend="" property="WOPCD">
+                <![CDATA[
+	            and a.WOPCD=#WOPCD#
+                    ]]>
+              </isNotEmpty>
+                <isNotEmpty prepend="" property="PNO">
+                    <![CDATA[
+	            and a.PNO like #PNO#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="EGR">
+                    <![CDATA[
+	            and a.EGR=#EGR#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="DSTNG">
+                    <![CDATA[
+	            and a.DSTNG=#DSTNG#
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+         ) a
+    left join CODE1 b on b.ITEM='EGR' and b.CODE=a.EGR
+    left join CODE1 c on c.ITEM='DSTNG' and c.CODE=a.DSTNG
+    order by a.PNO,a.EGR,a.DSTNG,a.AENO
+        ]]>
+    </select>
+      
+    <!-- Share/SKT1UNIT/Index 取得在 SKT1 資料表內的主辦單位、術科單位資料 -->
+    <select id="querySKT1UNIT"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.SKT1UNITGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.SKT1UNITFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="Goal" compareValue="1">
+                    <![CDATA[
+	select OPCD,OPCHNF
+    from (select distinct SOPCD as OPCD,b.OPCHNF from SKT1 a
+          left join CLAMOPUNIT b ON b.OPCD=a.SOPCD
+          where a.EXAMKIND=#EXAMKIND#
+                and a.YR=#YR# 
+                and a.STP=#STP# 
+                and a.OOPCD<>' '
+                    ]]>
+                    <isNotEmpty prepend="" property="OPCD">
+                        <![CDATA[
+                and a.SOPCD like #OPCD#||'%'
+                        ]]>
+                    </isNotEmpty>
+                    <isNotEmpty prepend="" property="OPCHNF">
+                        <![CDATA[
+                and b.OPCHNF like '%'||#OPCHNF#||'%'
+                        ]]>
+                    </isNotEmpty>
+                    <![CDATA[
+         )   
+    order by OPCD
+                    ]]>
+                </isEqual>
+                <isEqual prepend="" property="Goal" compareValue="2">
+                    <![CDATA[
+	select OPCD,OPCHNF
+    from (select distinct a.OOPCD as OPCD,b.OPCHNF from SKT1 a
+          left join CLAMOPUNIT b ON b.OPCD=a.OOPCD
+          where a.EXAMKIND=#EXAMKIND# 
+                and a.YR=#YR# 
+                and a.STP=#STP# 
+                and a.OOPCD<>' '
+                    ]]>
+                    <isNotEmpty prepend="" property="OPCD">
+                        <![CDATA[
+                and a.OOPCD like #OPCD#||'%'
+                        ]]>
+                    </isNotEmpty>
+                    <isNotEmpty prepend="" property="OPCHNF">
+                        <![CDATA[
+                and b.OPCHNF like '%'||#OPCHNF#||'%'
+                        ]]>
+                    </isNotEmpty>
+                    <![CDATA[
+         )
+    order by OPCD
+                    ]]>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+    </select>
+
+    <!-- Share/SKT1SCHOOL/Index 取得在 SKT1 資料表內的報檢學校資料 -->
+    <select id="querySKT1SCHOOL"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.SKT1SCHOOLGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.SKT1SCHOOLFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <isEqual prepend="" property="Goal" compareValue="1">
+            <![CDATA[
+            select ORGID,ORGIDCHNS
+            from (select distinct a.SOPCD,a.ORGID,b.ORGIDCHNS from SKT1 a
+                  inner join ORGID b on b.ORGID=a.ORGID
+                  where a.EXAMKIND=#EXAMKIND# 
+                        and a.YR=#YR#
+                        and a.STP=#STP#
+                        and a.SOPCD=#OPCD#
+            ]]>
+            <include refid="querySKT1SCHOOL_samePart"/>
+            <![CDATA[
+                 )
+            order by SOPCD,ORGID
+            ]]>
+        </isEqual>
+        <isEqual prepend="" property="Goal" compareValue="2">
+            <![CDATA[
+            select ORGID,ORGIDCHNS
+            from (select distinct a.OOPCD,a.ORGID,b.ORGIDCHNS from SKT1 a
+                  inner join ORGID b on b.ORGID=a.ORGID
+                  where a.EXAMKIND=#EXAMKIND# 
+                        and a.YR=#YR#
+                        and a.STP=#STP#
+                        and a.OOPCD=#OPCD#
+            ]]>
+            <include refid="querySKT1SCHOOL_samePart"/>
+            <![CDATA[
+                 )
+            order by OOPCD,ORGID
+            ]]>
+        </isEqual>
+    </select>
+
+    <sql id="querySKT1SCHOOL_samePart">
+        <isParameterPresent>
+            <isNotEmpty prepend="" property="Keyword">
+                <isEqual prepend="" property="Field" compareValue="1">
+                    <isEqual prepend="" property="Operator" compareValue="1">
+                        <![CDATA[
+	                    and a.ORGID >= #Keyword#
+                        ]]>
+                    </isEqual>
+                    <isEqual prepend="" property="Operator" compareValue="2">
+                        <![CDATA[
+	                    and a.ORGID <= #Keyword#
+                        ]]>
+                    </isEqual>
+                    <isEqual prepend="" property="Operator" compareValue="3">
+                        <![CDATA[
+	                    and a.ORGID like '%'||#Keyword#||'%'
+                        ]]>
+                    </isEqual>
+                    <isEqual prepend="" property="Operator" compareValue="4">
+                        <![CDATA[
+	                    and a.ORGID <> #Keyword#
+                        ]]>
+                    </isEqual>
+                </isEqual>
+                <isEqual prepend="" property="Field" compareValue="2">
+                    <isEqual prepend="" property="Operator" compareValue="1">
+                        <![CDATA[
+	                    and b.ORGIDCHNS >= #Keyword#
+                        ]]>
+                    </isEqual>
+                    <isEqual prepend="" property="Operator" compareValue="2">
+                        <![CDATA[
+	                    and b.ORGIDCHNS <= #Keyword#
+                        ]]>
+                    </isEqual>
+                    <isEqual prepend="" property="Operator" compareValue="3">
+                        <![CDATA[
+	                    and b.ORGIDCHNS like '%'||#Keyword#||'%'
+                        ]]>
+                    </isEqual>
+                    <isEqual prepend="" property="Operator" compareValue="4">
+                        <![CDATA[
+	                    and b.ORGIDCHNS <> #Keyword#
+                        ]]>
+                    </isEqual>
+                </isEqual>
+            </isNotEmpty>
+        </isParameterPresent>
+    </sql>
+
+    <!-- Share/PRFOWNER/Index 職類術科試務承辦人資料-查詢 -->
+    <select id="queryPRFOWNER"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.PRFOWNERGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.PRFOWNERFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct OWNERNO,OWNERNAME from PRFOWNER
+    where EXAMKIND=#EXAMKIND#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="PNO">
+                    <![CDATA[
+	      and PNO=#PNO#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="OWNERNO">
+                    <![CDATA[
+	      and OWNERNO like #OWNERNO#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="OWNERNAME">
+                    <![CDATA[
+	      and OWNERNAME like '%'||#OWNERNAME#||'%'
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by OWNERNO
+        ]]>
+    </select>
+
+    <!-- Share/AREADATA2/Index 紙筆術科場地資料-查詢 -->
+    <select id="queryAREADATA2"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.AREADATA2GridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.AREADATA2FormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select AREANO, AREANAME from AREADATA
+    where EXAMKIND=#EXAMKIND#
+          and YR=#YR#
+          and STP=#STP#
+          and AREATYPE=#AREATYPE#
+          and OPCD=#OPCD#
+          and LSHYN='Y'
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="AREANO">
+                    <![CDATA[
+	      and AREANO=#AREANO#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="AREANAME">
+                    <![CDATA[
+	      and AREANAME like '%'||#AREANAME#||'%'
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by EXAMKIND,YR,STP,OPCD,AREANO
+        ]]>
+    </select>
+      
+    <!-- Share/AREADATA/Index 場地資料-查詢 -->
+    <select id="queryAREADATA"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.AREADATAGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.AREADATAFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct AREANO, AREANAME from AREADATA
+    where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="N">
+                    <![CDATA[
+	      and EXAMKIND=#EXAMKIND# 
+                    ]]>
+                </isEqual>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="Y">
+                    <isNotEmpty prepend="" property="ExcludeEXAMKIND">
+                        <![CDATA[
+	      and EXAMKIND<>#ExcludeEXAMKIND#
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+           </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+          and YR=#YR#
+          and STP=#STP# 
+          and OPCD=#OPCD#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="AREATYPE">
+                    <![CDATA[
+	      and AREATYPE = #AREATYPE#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="Keyword">
+                    <isEqual prepend="" property="Field" compareValue="1">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and AREANO >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and AREANO <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and AREANO like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and AREANO <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>
+                    <isEqual prepend="" property="Field" compareValue="2">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and AREANAME >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and AREANAME <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and AREANAME like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and AREANAME <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>   
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+      order by AREANO
+    </select>
+  
+    <!-- Share/AREAROOMMAIN/Index 試場資料-查詢 -->
+    <select id="queryAREAROOMMAIN"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.AREAROOMMAINGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.AREAROOMMAINFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct ROOMNO, ROOMNAME from AREAROOMMAIN
+    where 1=1
+        ]]>  
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="N">
+                    <![CDATA[
+	      and EXAMKIND=#EXAMKIND# 
+                    ]]>
+                </isEqual>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="Y">
+                    <isNotEmpty prepend="" property="ExcludeEXAMKIND">
+                        <![CDATA[
+	      and EXAMKIND<>#ExcludeEXAMKIND#
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+          and YR=#YR#
+          and STP=#STP# 
+          and OPCD=#OPCD#
+          and AREANO=#AREANO#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="AREATYPE">
+                    <![CDATA[
+	      and AREATYPE = #AREATYPE#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="Keyword">
+                    <isEqual prepend="" property="Field" compareValue="1">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and ROOMNO >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and ROOMNO <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and ROOMNO like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and ROOMNO <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>
+                    <isEqual prepend="" property="Field" compareValue="2">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and ROOMNAME >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and ROOMNAME <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and ROOMNAME like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and ROOMNAME <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>   
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+    order by ROOMNO
+    </select>
+      
+    <!-- Share/AREADIST/Index 場次資料-查詢 -->
+    <select id="queryAREADIST"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.AREADISTGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.AREADISTFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct DISTID, DISTNAME from AREADIST
+    where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="N">
+                    <![CDATA[
+	      and EXAMKIND=#EXAMKIND# 
+                    ]]>
+                </isEqual>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="Y">
+                    <isNotEmpty prepend="" property="ExcludeEXAMKIND">
+                        <![CDATA[
+	      and EXAMKIND<>#ExcludeEXAMKIND#
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+           </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+          and YR=#YR#
+          and STP=#STP# 
+          and OPCD=#OPCD#
+          and AREANO=#AREANO#
+          and ROOMNO=#ROOMNO#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="AREATYPE">
+                    <![CDATA[
+	      and AREATYPE = #AREATYPE#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="Keyword">
+                    <isEqual prepend="" property="Field" compareValue="1">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and DISTID >= #Keyword#
+                        ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and DISTID <= #Keyword#
+                        ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and DISTID like '%'||#Keyword#||'%'
+                        ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and DISTID <> #Keyword#
+                        ]]>
+                        </isEqual>
+                    </isEqual>
+                    <isEqual prepend="" property="Field" compareValue="2">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and DISTNAME >= #Keyword#
+                        ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and DISTNAME <= #Keyword#
+                        ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and DISTNAME like '%'||#Keyword#||'%'
+                        ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and DISTNAME <> #Keyword#
+                        ]]>
+                        </isEqual>
+                    </isEqual>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by  DISTID
+        ]]>
+    </select>
+    
+    <!-- Share/AREADIST2/Index 場次資料-查詢 -->
+    <select id="queryAREADIST2"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.AREADIST2GridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.AREADIST2FormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct AREANO,ROOMNO,DISTID,DISTNAME,EXDATE from AREADIST
+    where EXAMKIND = #EXAMKIND#
+          and YR = #YR#
+          and STP = #STP#
+          and AREATYPE = #AREATYPE#
+          and OPCD = #OPCD#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="AREATYPE">
+                    <![CDATA[
+	      and AREATYPE = #AREATYPE#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="Keyword">
+                    <isEqual prepend="" property="Field" compareValue="1">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and DISTNAME >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and DISTNAME <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and DISTNAME like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and DISTNAME <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>
+                    <isEqual prepend="" property="Field" compareValue="2">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and EXDATE >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and EXDATE <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and EXDATE like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and EXDATE <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by EXAMKIND,YR,STP,OPCD,AREANO,ROOMNO,DISTID,EXDATE
+        ]]>
+    </select>
+
+    <!-- Share/AREADIST3/Index 場次資料-查詢 -->
+    <select id="queryAREADIST3"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.AREADIST3GridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.AREADIST3FormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select a.EXAMKIND,a.EXAMKINDNAME, a.AREANO,a.ROOMNO,a.DISTID,a.AREANAME,a.ROOMNAME,a.DISTNAME,
+           listagg(to_char(a.COUNTS),'<br>') within group (order by a.PNO,a.EGR,a.DSTNG) as COUNTS,
+           listagg(to_char(a.PNONAME),'<br>') within group (order by a.PNO) as PNONAME,
+           listagg(to_char(a.EGRNAME),'<br>') within group (order by a.EGR) as EGRNAME,
+           listagg(to_char(a.DSTNGNAME),'<br>') within group (order by a.DSTNG) as DSTNGNAME,
+           to_char(a.CAPACITY) as CAPACITY,a.EXDATE,a.PNOINC,a.EGRINC,' ' as DFlag,a.AREADISTID
+    from (select a.EXAMKIND,h.CHN as EXAMKINDNAME, a.AREANO,b.AREANAME,a.ROOMNO,c.ROOMNAME,a.DISTID,a.DISTNAME,a.EXDATE,d.PNO,e.NAME as PNONAME,
+                 d.EGR,f.DESCR as EGRNAME,d.DSTNG,g.DESCR as DSTNGNAME, count(d.PNO) as COUNTS,c.CAPACITY,
+                 a.PNOINC,a.EGRINC,a.AREADISTID
+          from AREADIST a
+          left join AREADATA b on b.EXAMKIND=a.EXAMKIND and b.YR=a.YR and b.STP=a.STP and b.AREATYPE=a.AREATYPE and b.OPCD=a.OPCD and b.AREANO=a.AREANO
+          left join AREAROOMMAIN c on c.EXAMKIND=a.EXAMKIND and c.YR=a.YR and c.STP=a.STP and c.AREATYPE=a.AREATYPE and c.OPCD=a.OPCD and c.AREANO=a.AREANO and c.ROOMNO=a.ROOMNO
+          left join AREASEAT d on d.EXAMKIND=a.EXAMKIND and d.YR=a.YR and d.STP=a.STP and d.AREATYPE=a.AREATYPE 
+                                  and d.OPCD=a.OPCD and d.AREANO=a.AREANO and d.ROOMNO=a.ROOMNO and d.DISTID=a.DISTID
+          left join PROF e on e.PNO=d.PNO 
+          left join CODE1 f on f.ITEM='EGR' and f.CODE=d.EGR 
+          left join CODE1 g on g.ITEM='DSTNG' and g.CODE=d.DSTNG
+          left join EXAMKIND2 h on h.EXAMKIND2=a.EXAMKIND
+          where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="N">
+                    <![CDATA[
+	            and a.EXAMKIND=#EXAMKIND# 
+                    ]]>
+                </isEqual>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="Y">
+                    <isNotEmpty prepend="" property="ExcludeEXAMKIND">
+                        <![CDATA[
+	            and a.EXAMKIND<>#ExcludeEXAMKIND#
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+           </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+                and a.YR=#YR#
+                and a.STP=#STP# 
+                and a.OPCD=#OPCD#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="AREATYPE">
+                    <![CDATA[
+	            and a.AREATYPE=#AREATYPE#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="AREANO">
+                    <![CDATA[
+	            and a.AREANO=#AREANO# 
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="ROOMNO">
+                    <![CDATA[
+	            and a.ROOMNO=#ROOMNO# 
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="DISTID">
+                    <![CDATA[
+	            and a.DISTID=#DISTID# 
+                    ]]>
+                </isNotEmpty>
+              <isNotEmpty prepend="" property="EXDATE">
+                <![CDATA[
+	            and a.EXDATE=#EXDATE#
+                        ]]>
+              </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+          group by a.EXAMKIND,h.CHN,a.AREANO,b.AREANAME,a.ROOMNO,c.ROOMNAME,a.DISTID,a.DISTNAME,c.CAPACITY,a.EXDATE,
+                   d.PNO,e.NAME,d.EGR,f.DESCR,d.DSTNG,g.DESCR,a.PNOINC,a.EGRINC,a.AREADISTID
+         ) a 
+    group by a.EXAMKIND,a.EXAMKINDNAME,a.AREANO,a.AREANAME,a.ROOMNO,a.ROOMNAME,a.DISTID,a.DISTNAME,a.CAPACITY,a.EXDATE,a.PNOINC,a.EGRINC,a.AREADISTID
+    order by a.AREANO,a.ROOMNO,a.DISTID
+        ]]>
+    </select>
+
+    <!-- Share/AREADIST4/Index 跨檢定類別的場次資料-查詢 -->
+    <select id="queryAREADIST4"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.AREADIST4GridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.AREADIST4FormModel"
+        cacheModel="NFC.CHECKIN-cache">
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="CaseId">
+            <isEqual prepend="" property="CaseId" compareValue="A8C506TM">
+              <![CDATA[
+              WITH PNOLIST AS (
+              SELECT rownum AS NUM,
+                TRIM(COLUMN_VALUE) AS PNO
+              FROM XMLTABLE(('"' || REPLACE(#PNOINC#, ',', '","') || '"'))
+              ),
+              EGRLIST AS (
+              SELECT rownum AS NUM,
+                TRIM(COLUMN_VALUE) AS EGR
+              FROM XMLTABLE(('"' || REPLACE(#EGRINC#, ',', '","') || '"'))
+              ),
+              PNOALL AS (
+              SELECT E.EGR,CASE WHEN MAJ.PNO is not null THEN MAJ.PNO ELSE P.PNO END AS PNO
+              FROM PNOLIST P LEFT JOIN EGRLIST E ON P.NUM=E.NUM
+              LEFT JOIN PRFMAGEJ SEQ ON SEQ.PNO=P.PNO
+              LEFT JOIN PRFMAGEJ MAJ ON MAJ.PROFSEQ=SEQ.PROFSEQ
+              ORDER BY P.PNO,MAJ.PNO
+              )
+              ]]>
+            </isEqual>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+        <![CDATA[
+    select a.EXAMKIND,a.EXAMKINDNAME, a.AREANO,a.ROOMNO,a.DISTID,a.AREANAME,a.ROOMNAME,a.DISTNAME,
+           listagg(to_char(a.COUNTS),'<br>') within group (order by a.PNO,a.EGR,a.DSTNG) as COUNTS,
+           listagg(to_char(a.PNONAME),'<br>') within group (order by a.PNO) as PNONAME,
+           listagg(to_char(a.EGRNAME),'<br>') within group (order by a.EGR) as EGRNAME,
+           listagg(to_char(a.DSTNGNAME),'<br>') within group (order by a.DSTNG) as DSTNGNAME,
+           to_char(a.CAPACITY) as CAPACITY,a.EXDATE,a.PNOINC,a.EGRINC,' ' as DFlag,
+           a.AREADISTID,a.JUDGEORIDISTID
+    from (select a.EXAMKIND,h.CHN as EXAMKINDNAME, a.AREANO,b.AREANAME,a.ROOMNO,c.ROOMNAME,a.DISTID,a.DISTNAME,a.EXDATE,d.PNO,e.NAME as PNONAME,
+                 d.EGR,f.DESCR as EGRNAME,d.DSTNG,g.DESCR as DSTNGNAME, count(d.PNO) as COUNTS,c.CAPACITY,
+                 a.PNOINC,a.EGRINC,a.AREADISTID,a.JUDGEORIDISTID
+          from AREADIST a
+          left join AREADATA b on b.EXAMKIND=a.EXAMKIND and b.YR=a.YR and b.STP=a.STP and b.AREATYPE=a.AREATYPE and b.OPCD=a.OPCD and b.AREANO=a.AREANO
+          left join AREAROOMMAIN c on c.EXAMKIND=a.EXAMKIND and c.YR=a.YR and c.STP=a.STP and c.AREATYPE=a.AREATYPE and c.OPCD=a.OPCD and c.AREANO=a.AREANO and c.ROOMNO=a.ROOMNO
+          left join AREASEAT d on d.EXAMKIND=a.EXAMKIND and d.YR=a.YR and d.STP=a.STP and d.AREATYPE=a.AREATYPE 
+                                  and d.OPCD=a.OPCD and d.AREANO=a.AREANO and d.ROOMNO=a.ROOMNO and d.DISTID=a.DISTID
+          left join PROF e on e.PNO=d.PNO 
+          left join CODE1 f on f.ITEM='EGR' and f.CODE=d.EGR 
+          left join CODE1 g on g.ITEM='DSTNG' and g.CODE=d.DSTNG
+          left join EXAMKIND2 h on h.EXAMKIND2=a.EXAMKIND
+          ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="CaseId">
+            <isEqual prepend="" property="CaseId" compareValue="A8C506TM">
+              <![CDATA[
+              inner join PNOALL i ON i.PNO=d.PNO AND i.EGR=d.EGR
+              ]]>
+            </isEqual>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+          where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="N">
+                    <![CDATA[
+	            and a.EXAMKIND=#EXAMKIND# 
+                    ]]>
+                </isEqual>
+                <isEqual prepend="" property="NeedAllEXAMKIND" compareValue="Y">
+                    <isNotEmpty prepend="" property="EXAMKIND">
+                        <![CDATA[
+	            and a.EXAMKIND=#EXAMKIND#
+                        ]]>
+                    </isNotEmpty>
+                    <isNotEmpty prepend="" property="ExcludeEXAMKIND">
+                        <![CDATA[
+	            and a.EXAMKIND<>#ExcludeEXAMKIND#
+                        ]]>
+                    </isNotEmpty>
+                </isEqual>
+           </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+                and a.YR=#YR#
+                and a.STP=#STP# 
+                and a.OPCD=#OPCD#
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="AREATYPE">
+                    <![CDATA[
+	            and a.AREATYPE=#AREATYPE#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="AREANO">
+                    <![CDATA[
+	            and a.AREANO=#AREANO# 
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="ROOMNO">
+                    <![CDATA[
+	            and a.ROOMNO=#ROOMNO# 
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="DISTID">
+                    <![CDATA[
+	            and a.DISTID=#DISTID# 
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="EXDATE">
+                    <![CDATA[
+	            and a.EXDATE=#EXDATE#
+                    ]]>
+              </isNotEmpty>
+              <isNotEmpty prepend="" property="InSqlPNO">
+                    <![CDATA[
+	            and d.PNO in ($InSqlPNO$)
+                            ]]>
+              </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+          group by a.EXAMKIND,h.CHN,a.AREANO,b.AREANAME,a.ROOMNO,c.ROOMNAME,a.DISTID,a.DISTNAME,c.CAPACITY,a.EXDATE,
+                   d.PNO,e.NAME,d.EGR,f.DESCR,d.DSTNG,g.DESCR,a.PNOINC,a.EGRINC,a.AREADISTID,a.JUDGEORIDISTID
+         ) a 
+    group by a.EXAMKIND,a.EXAMKINDNAME,a.AREANO,a.AREANAME,a.ROOMNO,a.ROOMNAME,a.DISTID,a.DISTNAME,a.CAPACITY,a.EXDATE,a.PNOINC,a.EGRINC,a.AREADISTID,a.JUDGEORIDISTID
+    order by a.AREANO,a.ROOMNO,a.DISTID
+        ]]>
+    </select>
+
+    <!-- Share/SCHOOL/Index 學校單位資料-查詢 -->
+    <select id="querySCHOOL"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.SCHOOLGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.SCHOOLFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct ORGID,ORGIDCHNF from ORGID
+    where 1 = 1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="ORGID">
+                    <![CDATA[
+	      and ORGID like #ORGID#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="ORGIDCHNF">
+                    <![CDATA[
+	      and ORGIDCHNF like '%'||#ORGIDCHNF#||'%'
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="OPCD">
+                    <![CDATA[
+	       AND ORGID IN (
+                    SELECT distinct ORGID FROM SKT1 
+                    WHERE EXAMKIND='3'
+                    AND SOPCD=#OPCD#
+                    ]]>
+                  <isNotEmpty prepend="" property="YR">
+                    <![CDATA[
+                    AND YR=#YR#
+                    ]]>
+                  </isNotEmpty>
+                  <isNotEmpty prepend="" property="STP">
+                    <![CDATA[
+                    AND STP=#STP#
+                    ]]>
+                  </isNotEmpty>
+                    <![CDATA[
+                    )
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by ORGID
+        ]]>
+    </select>
+      
+    <!-- 傳回場地資料是否存在 -->
+    <select id="existAREADATA"
+        resultClass="NFC.CHECKIN.Models.Entities.TblAREADATA"
+        parameterClass="NFC.CHECKIN.Models.Entities.TblAREADATA"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select AREANO from AREADATA
+    where EXAMKIND=#EXAMKIND#
+          and YR=#YR#
+          and STP=#STP#
+          and OPCD=#OPCD#
+          and AREANO=#AREANO#
+        ]]>
+    </select>
+      
+    <!-- 傳回試場資料是否存在 -->
+    <select id="existAREAROOMMAIN"
+        resultClass="NFC.CHECKIN.Models.Entities.TblAREAROOMMAIN"
+        parameterClass="NFC.CHECKIN.Models.Entities.TblAREAROOMMAIN"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select ROOMNO from AREAROOMMAIN
+    where EXAMKIND=#EXAMKIND#
+          and YR=#YR#
+          and STP=#STP#
+          and OPCD=#OPCD#
+          and AREANO=#AREANO#
+          and ROOMNO=#ROOMNO#
+        ]]>
+    </select>
+      
+    <!-- 傳回場次資料是否存在 -->
+    <select id="existAREADIST"
+        resultClass="NFC.CHECKIN.Models.Entities.TblAREADIST"
+        parameterClass="NFC.CHECKIN.Models.Entities.TblAREADIST"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select DISTID from AREADIST
+    where EXAMKIND=#EXAMKIND#
+          and YR=#YR#
+          and STP=#STP#
+          and OPCD=#OPCD#
+          and AREANO=#AREANO#
+          and ROOMNO=#ROOMNO#
+          and DISTID=#DISTID#
+    ]]>
+    </select>
+      
+    <!-- 傳回監場人員資料是否存在 -->
+    <select id="existAREAWATCH"
+        resultClass="NFC.CHECKIN.Models.Entities.TblAREAWATCH"
+        parameterClass="NFC.CHECKIN.Models.Entities.TblAREAWATCH"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select IDNO from AREAWATCH
+    where EXAMKIND=#EXAMKIND#
+          and YR=#YR#
+          and STP=#STP#
+          and OPCD=#OPCD#
+          and AREANO=#AREANO#
+          and ROOMNO=#ROOMNO#
+          and DISTID=#DISTID#
+          and IDNO=#IDNO#
+        ]]>
+    </select>
+
+    <!-- 職類代碼(多選)-未選擇 -->
+    <select id="QueryPNAME"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            parameterClass="NFC.CHECKIN.Areas.Share.Models.PNAMEViewModel"
+            cacheModel="NFC.CHECKIN-cache">
+
+      <![CDATA[
+        SELECT DISTINCT PNO AS CODE,PNO || ' '|| NAME AS TEXT FROM PROF WHERE 1 = 1 
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="PNO">
+            <![CDATA[
+            AND PNO NOT IN($PNO$)
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY PNO
+    </select>
+
+    <!-- 職類代碼(多選)-已選擇 -->
+    <select id="QueryPNAMESelect"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            parameterClass="NFC.CHECKIN.Areas.Share.Models.PNAMEViewModel"
+            cacheModel="NFC.CHECKIN-cache">
+
+      <![CDATA[
+        SELECT DISTINCT PNO AS CODE,PNO || ' '|| NAME AS TEXT FROM PROF WHERE 1 = 1 
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="PNO">
+            <![CDATA[
+            AND PNO IN($PNO$)
+            ]]>
+          </isNotEmpty>
+          <isEmpty prepend="" property="PNO">
+            <![CDATA[
+            AND 1 <> 1
+            ]]>
+          </isEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY PNO
+    </select>
+
+    <!-- 場地與機具評鑑 人員來源-人員下拉選單 -->
+    <!--
+      參數:
+      MANTYPE  ("1": 命題人員，"2": 監評人員) 
+      RETIRE ("": 傳回退休與未退休人員，"0": 傳回未退休人員)
+      IDNO: 身份證號(like)
+      NAME: 姓名(like)
+      UNITNAME: 單位名稱(like)
+    -->
+    <select id="QueryAREAEVALUATOR"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.AREAEVALUATORGridModel"
+        parameterClass="Hashtable"
+        cacheModel="NFC.CHECKIN-cache">
+
+      SELECT #MANTYPE# as MANTYPE, IDNO, NAME, UNITNAME, TITLE, SCIENCE, WZIP, WADR
+      <dynamic>
+        <isEqual prepend="" property="MANTYPE" compareValue="1">
+          <!-- 命題人員 -->
+          FROM POSITION
+        </isEqual>
+        <isNotEqual prepend="" property="MANTYPE" compareValue="1">
+          <!-- 監評人員 -->
+          FROM JUDGE
+        </isNotEqual>
+      </dynamic>
+      <![CDATA[
+      WHERE ROWNUM <= 1000
+      ]]>
+      <dynamic>
+        <isNotEmpty prepend="" property="RETIRE">
+          and RETIRE = #RETIRE#
+        </isNotEmpty>
+        <isNotEmpty prepend="" property="IDNO">
+          and IDNO like '%' || #IDNO# || '%'
+        </isNotEmpty>
+        <isNotEmpty prepend="" property="NAME">
+          and NAME like '%' || #NAME# || '%'
+        </isNotEmpty>
+        <isNotEmpty prepend="" property="UNITNAME">
+          and UNITNAME like '%' || #UNITNAME# || '%'
+        </isNotEmpty>
+      </dynamic>
+      order by UNITNAME, NAME
+    </select>
+
+    <!-- Share/SIGNPLAC/Index 報名地點資料-查詢 -->
+    <select id="querySIGNPLACE"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.SIGNPLACEGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.SIGNPLACEFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct PID,PNAME from SIGNPLACE
+    where EXAMKIND=#EXAMKIND# 
+          and YR=#YR#
+          and SOPCD=#SOPCD#
+        ]]>  
+        <dynamic>
+            <isNotEmpty prepend="" property="PID">
+                <![CDATA[
+          and PID like '%'||#PID#||'%'
+                ]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="" property="PNAME">
+                <![CDATA[
+          and PNAME like '%'||#PNAME#||'%'
+                ]]>
+            </isNotEmpty>
+        </dynamic>
+        <![CDATA[
+    order by PID
+        ]]>
+    </select>
+
+    <!-- Share/SIGNPLAC/Index 報名地點資料-查詢 -->
+    <select id="QueryAPPLAREA"
+      resultClass="NFC.CHECKIN.Areas.Share.Models.APPLAREAGridModel"
+      parameterClass="NFC.CHECKIN.Areas.Share.Models.APPLAREAFormModel"
+      cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT DISTINCT B.OPCHN,A.OPCD,A.AREAC,A.AREAN,A.EXAMKIND,D.CHN AS EXAMKINDN,A.TEL,A.FAX,A.CNAME,A.SUSERNO,A.SNAME 
+        FROM APPLAREA A  
+        LEFT JOIN CLAMOPUNIT B ON A.OPCD = B.OPCD 
+        LEFT JOIN EXAMTECH D ON A.EXAMKIND = D.EXAMKIND
+        WHERE 1 = 1
+        ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="OPCD">
+            <![CDATA[
+              AND A.OPCD LIKE '%'||#OPCD#||'%'
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="EXAMKIND">
+            <![CDATA[
+              AND A.EXAMKIND = #EXAMKIND#
+            ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="SUSERNO">
+            <![CDATA[
+              AND A.SUSERNO LIKE '%'||#SUSERNO#||'%'
+            ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+        ORDER BY A.OPCD, A.EXAMKIND
+        ]]>
+    </select>
+
+    <!-- 級別代碼(多選)-未選擇 -->
+    <select id="QueryEGR"
+            resultClass="Turbo.DataLayer.KeyMapModel"
+            parameterClass="Hashtable"
+            cacheModel="NFC.CHECKIN-cache">
+
+      <![CDATA[
+        SELECT DISTINCT CODE,CODE || ' '|| DESCR AS TEXT FROM CODE1 WHERE ITEM='EGR'
+      ]]>
+      ORDER BY CODE
+    </select>
+
+    <!-- Share/NEWPROFDEV/Index 職類開發-查詢 -->
+    <select id="queryNEWPROFDEV"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.NEWPROFDEVGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.NEWPROFDEVFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+    SELECT 
+      CASENO, PNAME, PNAMEEN, CENTRALCOMP 
+    FROM NEWPROFDEV
+    WHERE 1=1
+    AND VERFLAG='1'
+    AND ISSTOP='N'
+    AND NOT EXISTS (SELECT PNO FROM PROF WHERE DEVCASENO = NEWPROFDEV.CASENO)
+]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="CASENO">
+            <![CDATA[
+	            AND CASENO = #CASENO#
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="PNAME">
+            <![CDATA[
+	            AND PNAME LIKE '%' || #PNAME# || '%'
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="CENTRALCOMP">
+            <![CDATA[
+	            AND CENTRALCOMP LIKE '%' || #CENTRALCOMP# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY CASENO
+    </select>
+      
+    <!-- Share/UNITKIND3/Index 機構別3資料-查詢 -->
+    <select id="queryUNITKIND3"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.UNITKIND3GridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.UNITKIND3FormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select CODE,DESCR from CODE1
+    where ITEM='UNITKIND3'
+        ]]>
+        <dynamic>
+            <isNotEmpty prepend="" property="PLACETYPE1">
+                <![CDATA[
+          and AUX1 in (select CODE from CODE1 where ITEM='UNITKIND2' and AUX1=#PLACETYPE1#)
+                ]]>
+            </isNotEmpty>
+            <isNotEmpty prepend="" property="PLACETYPE2">
+                <![CDATA[
+          and AUX1=#PLACETYPE2#
+                ]]>
+            </isNotEmpty>
+        </dynamic>
+        <![CDATA[
+    order by FREQ,CODE
+        ]]>
+      </select>
+
+    <!-- Share/EXAMKIND2/Index 檢定類別-查詢 -->
+    <select id="queryEXAMKIND"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.EXAMKIND2GridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.EXAMKIND2FormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+      SELECT EXAMKIND as EXAMKIND2, CHN FROM EXAMKIND
+      WHERE 1=1
+        ]]>
+          <dynamic>
+              <isParameterPresent>
+                  <isNotEmpty prepend="" property="KEYWORD">
+                      <isEqual property="FIELD" compareValue="EXAMKIND2">
+                          <isEqual property="OPERATOR" compareValue="1">
+                              <![CDATA[
+            AND EXAMKIND >= #KEYWORD#
+                              ]]>
+                          </isEqual>
+                          <isEqual property="OPERATOR" compareValue="2">
+                              <![CDATA[
+            AND EXAMKIND <= #KEYWORD#
+                              ]]>
+                          </isEqual>
+                          <isEqual property="OPERATOR" compareValue="3">
+                              <![CDATA[
+            AND EXAMKIND LIKE '%'|| #KEYWORD# ||'%'
+                              ]]>
+                          </isEqual>
+                          <isEqual property="OPERATOR" compareValue="4">
+                              <![CDATA[
+            AND EXAMKIND <> #KEYWORD#
+                              ]]>
+                          </isEqual>
+                      </isEqual>
+                      <isEqual property="FIELD" compareValue="CHN">
+                          <isEqual property="OPERATOR" compareValue="1">
+                              <![CDATA[
+            AND CHN >= #KEYWORD#
+                              ]]>
+                          </isEqual>
+                          <isEqual property="OPERATOR" compareValue="2">
+                              <![CDATA[
+           AND CHN <= #KEYWORD#
+                              ]]>
+                          </isEqual>
+                          <isEqual property="OPERATOR" compareValue="3">
+                              <![CDATA[
+           AND CHN LIKE '%'|| #KEYWORD# ||'%'
+                              ]]>
+                          </isEqual>
+                          <isEqual property="OPERATOR" compareValue="4">
+                              <![CDATA[
+           AND CHN <> #KEYWORD#
+                              ]]>
+                          </isEqual>
+                      </isEqual>
+                  </isNotEmpty>
+              </isParameterPresent>
+          </dynamic>
+          <![CDATA[
+      ORDER BY EXAMKIND
+          ]]>
+    </select>
+
+    <!-- Share/EXAMKIND2/Index 檢定類別-查詢 -->
+    <select id="queryEXAMKIND2"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.EXAMKIND2GridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.EXAMKIND2FormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+      SELECT EXAMKIND2, CHN 
+      FROM EXAMKIND2
+      WHERE 1=1
+        ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="KEYWORD">
+            
+            <isEqual property="FIELD" compareValue="EXAMKIND2">
+              <isEqual property="OPERATOR" compareValue="1">
+                <![CDATA[
+                AND EXAMKIND2 >= #KEYWORD#
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="2">
+                <![CDATA[
+                AND EXAMKIND2 <= #KEYWORD#
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="3">
+                <![CDATA[
+                AND EXAMKIND2 LIKE '%'|| #KEYWORD# ||'%'
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="4">
+                <![CDATA[
+                AND EXAMKIND2 <> #KEYWORD#
+                ]]>
+              </isEqual>
+            </isEqual>
+            
+            <isEqual property="FIELD" compareValue="CHN">
+              <isEqual property="OPERATOR" compareValue="1">
+                <![CDATA[
+                AND CHN >= #KEYWORD#
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="2">
+                <![CDATA[
+                AND CHN <= #KEYWORD#
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="3">
+                <![CDATA[
+                AND CHN LIKE '%'|| #KEYWORD# ||'%'
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="4">
+                <![CDATA[
+                AND CHN <> #KEYWORD#
+                ]]>
+              </isEqual>
+            </isEqual>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY EXAMKIND2
+    </select>
+
+    <!-- Share/IDNO/Index 身分證號-查詢 -->
+    <select id="queryIDNO"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.IDNOGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.IDNOFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+      SELECT IDNO,NAME
+      FROM VW_POSITION
+      WHERE 1=1
+        ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="KEYWORD">
+
+            <isEqual property="FIELD" compareValue="IDNO">
+              <isEqual property="OPERATOR" compareValue="1">
+                <![CDATA[
+                AND IDNO >= #KEYWORD#
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="2">
+                <![CDATA[
+                AND IDNO <= #KEYWORD#
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="3">
+                <![CDATA[
+                AND IDNO LIKE '%'|| #KEYWORD# ||'%'
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="4">
+                <![CDATA[
+                AND IDNO <> #KEYWORD#
+                ]]>
+              </isEqual>
+            </isEqual>
+
+            <isEqual property="FIELD" compareValue="NAME">
+              <isEqual property="OPERATOR" compareValue="1">
+                <![CDATA[
+                AND NAME >= #KEYWORD#
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="2">
+                <![CDATA[
+                AND NAME <= #KEYWORD#
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="3">
+                <![CDATA[
+                AND NAME LIKE '%'|| #KEYWORD# ||'%'
+                ]]>
+              </isEqual>
+              <isEqual property="OPERATOR" compareValue="4">
+                <![CDATA[
+                AND NAME <> #KEYWORD#
+                ]]>
+              </isEqual>
+            </isEqual>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY IDNO
+    </select>
+    
+    <!-- Share/JUDGEWORKUNIT/Index 監評人員服務單位資料-查詢 -->
+    <select id="queryJUDGEWORKUNIT"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.JUDGEWORKUNITGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.JUDGEWORKUNITFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct a.WUNIT,a.WUNITNF,a.WUNITKIND,b.DESCR as WUNITKINDNAME from JUDGEWORKUNIT a
+    left join CODE1 b on b.ITEM='OPATTR' and b.CODE=a.WUNITKIND
+    where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="WUNITKIND">
+                    <![CDATA[
+	      and WUNITKIND = #WUNITKIND#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="Keyword">
+                    <isEqual prepend="" property="Field" compareValue="1">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+	      and WUNIT >= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+	      and WUNIT <= #Keyword#
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+	      and WUNIT like '%'||#Keyword#||'%'
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+	      and WUNIT <> #Keyword#
+                            ]]>
+                        </isEqual>
+                    </isEqual>
+                    <isEqual prepend="" property="Field" compareValue="2">
+                        <isEqual prepend="" property="Operator" compareValue="1">
+                            <![CDATA[
+          and (a.WUNITN >= #Keyword# or a.WUNITNF >= #Keyword#)
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="2">
+                            <![CDATA[
+          and (a.WUNITN <= #Keyword# or a.WUNITNF <= #Keyword#)
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="3">
+                            <![CDATA[
+          and (a.WUNITN like '%'||#Keyword#||'%' or a.WUNITNF like '%'||#Keyword#||'%')
+                            ]]>
+                        </isEqual>
+                        <isEqual prepend="" property="Operator" compareValue="4">
+                            <![CDATA[
+          and (a.WUNITN <> #Keyword# or a.WUNITNF <> #Keyword#)
+                            ]]>
+                        </isEqual>
+                    </isEqual>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[
+    order by a.WUNIT
+        ]]>
+    </select>
+
+    <!-- Share/EXAMUNIT_A7C403R/Index 術科單位資料-查詢 -->
+    <select id="queryEXAMUNIT_A7C403R"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.EXAMUNIT_A7C403RGridModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.EXAMUNIT_A7C403RFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+    select distinct OPCD,OPCHNF from EXAMUNIT
+    where EXAMKIND=#EXAMKIND#
+          and ROLE=#ROLE#
+        ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="OPCD">
+            <![CDATA[ 
+	      and OPCD like #OPCD#||'%'
+                    ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="OPCHNF">
+            <![CDATA[
+	      and OPCHNF like '%'||#OPCHNF#||'%'
+                    ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+    order by OPCD
+        ]]>
+    </select>
+
+    <!-- Share/AMEXTIME/Index 上午測驗時間資料-查詢 -->
+    <select id="queryAMEXTIME"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.AMEXTIMEGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.AMEXTIMEFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT *
+        FROM SETEXTIME
+        WHERE SEQNO <> 0
+              AND AMPM = 'A'
+              AND EXAMKIND = #EXAMKIND#
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="EXTIME1">
+            <![CDATA[
+             AND EXTIME1 LIKE '%' || #EXTIME1# || '%'
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="EXTIME2">
+            <![CDATA[
+	            AND EXTIME2 LIKE '%' || #EXTIME2# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY EXTIME1
+    </select>
+
+    <!-- Share/PMEXTIME/Index 下午測驗時間資料-查詢 -->
+    <select id="queryPMEXTIME"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.PMEXTIMEGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.PMEXTIMEFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT *
+        FROM SETEXTIME
+        WHERE SEQNO <> 0
+              AND AMPM = 'P'
+              AND EXAMKIND = #EXAMKIND#
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="EXTIME1">
+            <![CDATA[
+              AND EXTIME1 LIKE '%' || #EXTIME1# || '%'
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="EXTIME2">
+            <![CDATA[
+	            AND EXTIME2 LIKE '%' || #EXTIME2# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY EXTIME1
+    </select>
+    
+    <!-- Share/TESAPROF/Index 技能競賽職類資料-查詢 -->
+    <select id="queryTESAPROF"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.TESAPROFGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.TESAPROFFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+SELECT TESAPROF.PID ,TESAPROF.PNAME ,TESAPROF.TESDIR 
+FROM TESAPROF 
+JOIN (
+  SELECT MAX(TESEXPIRE) AS TESEXPIRE ,PID ,TESDIR 
+  FROM TESAPROF 
+  GROUP BY PID,TESDIR 
+) TESAPROFB 
+  ON TESAPROF.TESEXPIRE=TESAPROFB.TESEXPIRE 
+  AND TESAPROF.PID=TESAPROFB.PID 
+  AND TESAPROF.TESDIR=TESAPROFB.TESDIR
+WHERE 1=1
+  AND TESAPROF.TESDIR= #TESDIR#
+      ]]>
+  <dynamic>
+    <isParameterPresent>
+    <isNotEmpty prepend="" property="PID">
+      <![CDATA[
+	AND TESAPROF.PID LIKE #PID# || '%'
+              ]]>
+    </isNotEmpty>
+    <isNotEmpty prepend="" property="PNAME">
+      <![CDATA[
+  AND TESAPROF.PNAME LIKE '%' || #PNAME# || '%'
+              ]]>
+    </isNotEmpty>  
+  </isParameterPresent>
+</dynamic>
+ORDER BY TESAPROF.TESDIR,TESAPROF.PID
+    </select>
+    
+    <!-- Share/MultiCLAMGRP/Index 依權限查詢群組資料 -->
+    <select id="queryMultiCLAMGRP"
+        resultClass="Turbo.DataLayer.KeyMapModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.MultiCLAMGRPFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    SELECT GRPID AS CODE,GRPID||' '||GRPNAME AS TEXT FROM CLAMGRP
+    WHERE 1 = 1
+    AND GRPID IN (
+      SELECT GRPID FROM CLAMUROLE WHERE 1=1
+    ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="EXAMKIND">
+            <![CDATA[
+	       AND EXAMKIND = #EXAMKIND#
+                    ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="USERNO">
+            <![CDATA[
+	       AND USERNO = #USERNO#
+                    ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+    )
+    ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="InSql">
+            <isEqual prepend="" property="DataKind" compareValue="C">
+              <![CDATA[
+    AND GRPID NOT IN ($InSql$)
+                        ]]>
+            </isEqual>
+            <isEqual prepend="" property="DataKind" compareValue="S">
+              <![CDATA[
+	  AND GRPID IN ($InSql$)
+                      ]]>
+            </isEqual>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+    order by GRPID
+    ]]>
+    </select>    
+
+    <!-- Share/JDREJECT/Index 監評人員無法遴聘原因-查詢 -->
+    <select id="queryJDREJECT"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.JDREJECTDetailModel"
+        parameterClass="NFC.CHECKIN.Areas.Share.Models.JDREJECTFormModel"
+        cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+      SELECT REASON,REASONDETL,REASONOTHER 
+      FROM   OPJUDGEREASON 
+      WHERE  EXAMKIND = #EXAMKIND# 
+      AND YR = #YR# 
+      AND STP = #STP# 
+      AND OOPCD = #OOPCD# 
+      AND PNO = #PNO# 
+      AND IDNO = #IDNO# 
+      AND EGR = #EGR# 
+        ]]>
+    </select>
+
+    <!-- 監評人員無法受聘原因-主要原因清單 -->
+    <select id="getJDREJECTList"
+        resultClass="NFC.CHECKIN.Areas.Share.Models.JDREJECTGridModel"
+        parameterClass="Hashtable"
+        cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT CODE,DESCR FROM CODE1 WHERE ITEM= 'JDREJECT' AND CODE <> ' ' order by CODE
+        ]]>
+    </select>
+
+    <!-- Share/JDREJECT/Index 監評人員無法遴聘原因-資料是否存在 -->
+    <select id="isExistJDREJECT"
+        resultClass="NFC.CHECKIN.Models.Entities.TblOPJUDGEREASON"
+        parameterClass="Hashtable"
+        cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT *
+        FROM   OPJUDGEREASON 
+        WHERE  EXAMKIND = #EXAMKIND# 
+        AND YR = #YR# 
+        AND STP = #STP# 
+        AND OOPCD = #OOPCD# 
+        AND IDNO = #IDNO# 
+        AND EGR = #EGR# 
+        ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="COPNOYN">
+            <![CDATA[
+            AND PNO IN ($COPNOYN_IN$) 
+            ]]>
+          </isNotEmpty>
+          <isEmpty prepend="" property="COPNOYN">
+            <![CDATA[
+            AND PNO =#PNO# 
+            ]]>
+          </isEmpty>
+        </isParameterPresent>
+      </dynamic>
+    </select>
+
+    <!-- Share/JDREJECT/Index 監評人員無法遴聘原因-更新維護資料 -->
+    <update id="updateJDREJECT"
+        resultClass="Hashtable"
+        parameterClass="Hashtable"
+        cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        UPDATE OPJUDGEREASON SET 
+        REASON = #REASON#, 
+        REASONDETL = #REASONDETL#, 
+        REASONOTHER = #REASONOTHER#,
+        MODUSERID = #MODUSERID#, 
+        MODUSERNAME = #MODUSERNAME#,
+        MODIP = #MODIP#, 
+        MODTIME = #MODTIME# 
+        WHERE  1=1 
+        AND EXAMKIND = #EXAMKIND#
+        AND YR = #YR# 
+        AND STP = #STP# 
+        AND OOPCD = #OOPCD# 
+        AND IDNO = #IDNO# 
+        AND EGR = #EGR# 
+        ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="COPNOYN">
+            <isNotEmpty prepend="" property="COPNOYN_IN">
+            <![CDATA[
+            AND PNO IN ($COPNOYN_IN$) 
+            ]]>
+            </isNotEmpty>
+          </isNotEmpty>
+          <isEmpty prepend="" property="COPNOYN">
+            <![CDATA[
+            AND PNO =#PNO# 
+            ]]>
+          </isEmpty>
+        </isParameterPresent>
+      </dynamic>
+    </update>
+    
+        <!-- Share/PROF/Index 職類資料 供A5C209M-查詢 -->
+    <select id="queryPROF_A5C209M"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.PROFGridModel"
+		parameterClass="Hashtable"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+SELECT DISTINCT PNO,NAME FROM PROF WHERE 1 = 1
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="PNO">
+            <![CDATA[
+	            AND PNO LIKE #PNO# || '%'
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="NAME">
+            <![CDATA[
+	            AND NAME LIKE '%' || #NAME# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <isEqual property="EXAMKIND" compareValue="5">
+        <![CDATA[
+AND ((EGRSEL LIKE '%2%') OR (EGRSEL LIKE '%3%') OR (EGRSEL LIKE '%4%') )
+        ]]>
+      </isEqual>
+      <isEqual property="EXAMKIND" compareValue="7">
+        <![CDATA[
+AND ((EGRSEL LIKE '%2%') OR (EGRSEL LIKE '%3%') OR (EGRSEL LIKE '%4%') )
+        ]]>
+      </isEqual>
+      <isNotEqual property="EXAMKIND" compareValue="5">
+        <isNotEqual property="EXAMKIND" compareValue="7">
+          <![CDATA[
+AND ((EGRSEL LIKE '%3%') OR (EGRSEL LIKE '%4%') )
+          ]]>
+        </isNotEqual>
+      </isNotEqual>
+      <![CDATA[      
+AND TRANSACT='Y'
+AND (SUBSTR(STARTDATE,1,3) <= #YR# OR STARTDATE IS NULL)
+AND (SUBSTR(ENDDATE,1,3) >= #YR# OR ENDDATE IS NULL)
+AND (
+      ]]>
+      <isEqual property="EXAMKIND" compareValue="5">
+        <![CDATA[
+  (PNO || '2' IN (SELECT CLAMPLACENUM.PNO || CLAMPLACENUM.EGR FROM CLAMPLACENUM WHERE CLAMPLACENUM.OPCD = #OPCD#))
+  OR (SUBSTR(PNO,1,3) IN ($ThreeWordPno$) 
+    AND SUBSTR(PNO,1,3) || '2' IN (SELECT SUBSTR(CLAMPLACENUM.PNO,1,3) || CLAMPLACENUM.EGR FROM CLAMPLACENUM WHERE CLAMPLACENUM.OPCD = #OPCD#))
+        ]]>        
+      </isEqual>
+      <isEqual property="EXAMKIND" compareValue="7">
+        <![CDATA[
+  (PNO || '2' IN (SELECT CLAMPLACENUM.PNO || CLAMPLACENUM.EGR FROM CLAMPLACENUM WHERE CLAMPLACENUM.OPCD = #OPCD#))
+  OR (SUBSTR(PNO,1,3) IN ($ThreeWordPno$) 
+    AND SUBSTR(PNO,1,3) || '2' IN (SELECT SUBSTR(CLAMPLACENUM.PNO,1,3) || CLAMPLACENUM.EGR FROM CLAMPLACENUM WHERE CLAMPLACENUM.OPCD = #OPCD#))
+        ]]>
+      </isEqual>
+      <isNotEqual property="EXAMKIND" compareValue="5">
+        <isNotEqual property="EXAMKIND" compareValue="7">
+          <![CDATA[
+  (1 <> 1)
+]]>
+        </isNotEqual>
+      </isNotEqual>
+      <![CDATA[
+  OR (SUBSTR(PNO,1,3) IN ($ThreeWordPno$) 
+    AND SUBSTR(PNO,1,3) || '3' IN (SELECT SUBSTR(CLAMPLACENUM.PNO,1,3) || CLAMPLACENUM.EGR FROM CLAMPLACENUM WHERE CLAMPLACENUM.OPCD = #OPCD#))
+  OR (SUBSTR(PNO,1,3) IN ($ThreeWordPno$) 
+    AND SUBSTR(PNO,1,3) || '4' IN (SELECT SUBSTR(CLAMPLACENUM.PNO,1,3) || CLAMPLACENUM.EGR FROM CLAMPLACENUM WHERE CLAMPLACENUM.OPCD = #OPCD#))
+  OR (PNO || '3' IN (SELECT CLAMPLACENUM.PNO || CLAMPLACENUM.EGR FROM CLAMPLACENUM WHERE CLAMPLACENUM.OPCD= #OPCD#))
+  OR (PNO || '4' IN (SELECT CLAMPLACENUM.PNO || CLAMPLACENUM.EGR FROM CLAMPLACENUM WHERE CLAMPLACENUM.OPCD= #OPCD#))
+)
+
+ORDER BY PNO
+]]>
+
+    </select>
+
+    <!-- Share/SKT1PROF/Index 報檢職類資料-查詢 -->
+    <select id="querySKT1PROF"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.SKT1PROFGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.SKT1PROFFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT DISTINCT SKT1.PNO,PROF.NAME 
+        FROM SKT1  LEFT JOIN PROF ON PROF.PNO=SKT1.PNO 
+        WHERE EXAMKIND= #EXAMKIND# 
+        AND YR= #YR# 
+        AND STP= #STP# 
+        AND SOPCD= #SOPCD# 
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="PNO">
+            <![CDATA[
+	            AND SKT1.PNO LIKE #PNO# || '%'
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="NAME">
+            <![CDATA[
+	            AND PROF.NAME  LIKE '%' || #NAME# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY SKT1.PNO
+    </select>
+
+    <!-- Share/JUDGEPROF/Index 亂數監評職類資料-查詢(PROF) -->
+    <select id="queryJUDGEPROF1"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.JUDGEPROFGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.JUDGEPROFFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+                SELECT DISTINCT PNO,NAME 
+                FROM PROF 
+                WHERE 1 = 1
+                AND RANDOM='Y'
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="PNO">
+            <![CDATA[
+	            AND PROF.PNO LIKE #PNO# || '%'
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="NAME">
+            <![CDATA[
+	            AND PROF.NAME  LIKE '%' || #NAME# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY PROF.PNO
+    </select>
+
+    <!-- Share/JUDGEPROF/Index 亂數監評職類資料-查詢(YRREGULATE) -->
+    <select id="queryJUDGEPROF2"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.JUDGEPROFGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.JUDGEPROFFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+                SELECT YRREGULATE.PNO,PROF.NAME,PROF.TESTDAY 
+                FROM YRREGULATE  
+                LEFT JOIN PROF ON PROF.PNO=YRREGULATE.PNO 
+                WHERE EXAMKIND= #EXAMKIND# 
+                AND YR= #YR#
+                AND STP= #STP#
+                AND OPCD= #OPCD#
+      ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="PNO">
+            <![CDATA[
+	            AND PROF.PNO LIKE #PNO# || '%'
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="NAME">
+            <![CDATA[
+	            AND PROF.NAME  LIKE '%' || #NAME# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY YRREGULATE.PNO
+    </select>
+    
+
+    <!-- Share/TECHD/Index 技術士證(含重複)-查詢 -->
+    <select id="queryTECHD"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.TECHDGridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.TECHDFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+SELECT 
+  TECHD.PNO
+  ,CASE WHEN TECHD.PNAME IS NOT NULL 
+    THEN TO_CHAR(TECHD.PNAME) 
+    ELSE TO_CHAR(PROF.NAME) END AS PNAME
+  ,TECHD.EGR, EGR.DESCR AS EGR_TEXT, TECHD.CRDITNO, TECHD.IDNO
+FROM TECHD
+LEFT JOIN PROF ON PROF.PNO=TECHD.PNO
+LEFT JOIN CODE1 EGR ON EGR.ITEM='EGR' AND EGR.CODE=TECHD.EGR
+WHERE 1=1
+  AND TECHD.IDNO = #IDNO# 
+  AND TECHD.EFFYN='1'
+  
+UNION
+SELECT DISTINCT 
+  TECHD_DU.PNO, TO_CHAR(PROF.NAME), TECHD_DU.EGR, EGR.DESCR, TECHD_DU.CRDITNO, TECHD_DU.IDNO
+FROM TECHD_DU
+LEFT JOIN PROF ON PROF.PNO=TECHD_DU.PNO 
+LEFT JOIN CODE1 EGR ON EGR.ITEM='EGR' AND EGR.CODE=TECHD_DU.EGR
+WHERE 1 = 1
+  AND TECHD_DU.IDNO= #IDNO# 
+  AND TECHD_DU.EFFYN='1'
+        ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="KEYWORD">
+            
+            <iterate property="fields">
+              <isEqual property="FIELD" compareValue="fields[]">
+                <isEqual property="OPERATOR" compareValue="1">
+                  <![CDATA[
+                AND $FIELD$ >= #KEYWORD#
+                ]]>
+                </isEqual>
+                <isEqual property="OPERATOR" compareValue="2">
+                  <![CDATA[
+                AND $FIELD$ <= #KEYWORD#
+                ]]>
+                </isEqual>
+                <isEqual property="OPERATOR" compareValue="3">
+                  <![CDATA[
+                AND $FIELD$ LIKE '%'|| #KEYWORD# ||'%'
+                ]]>
+                </isEqual>
+                <isEqual property="OPERATOR" compareValue="4">
+                  <![CDATA[
+                AND $FIELD$ <> #KEYWORD#
+                ]]>
+                </isEqual>
+              </isEqual>
+            </iterate>
+            
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+ORDER BY PNO, EGR, CRDITNO
+    </select>
+
+    <!-- Share/IDNO1/Index 身分證號1-查詢 -->
+    <select id="queryIDNO1"
+		resultClass="NFC.CHECKIN.Areas.Share.Models.IDNO1GridModel"
+		parameterClass="NFC.CHECKIN.Areas.Share.Models.IDNO1FormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+SELECT SKT1.EXAMKIND,A.CHN AS EXAMKINDN, SKT1.YR,SKT1.STP,SKT1.SOPCD,SKT1.DSTNG,NVL(B.DESCR,'')  AS DSTNGN ,SKT1.PNO,SKT1.EGR,SKT1.IDNO ,SKT1.NAME,SKT1.AENO ,
+SKT1.BIRDTE,SKT1.WRSC ,SKT1.WRPASS,NVL(C.DESCR,'') AS WRPASSN ,SKT1.OPPASS ,NVL(D.DESCR,'') AS OPPASSN,E.DESCR AS EGRN,PROF.NAME AS PNAME,SKT1.WREXDT,SKT1.OPEXDT,SKT1.OOPCD  FROM SKT1  
+LEFT JOIN EXAMKIND2 A ON A.EXAMKIND2 = SKT1.EXAMKIND 
+LEFT JOIN CODE1 E ON E.CODE = SKT1.EGR AND E.ITEM='EGR'  
+LEFT JOIN CODE1 B ON B.CODE = SKT1.DSTNG AND B.ITEM='DSTNG'  
+LEFT JOIN CODE1 C ON C.CODE = SKT1.WRPASS AND C.ITEM='WRPASS' 
+LEFT JOIN CODE1 D ON D.CODE = SKT1.OPPASS AND D.ITEM='OPPASS' 
+LEFT JOIN PROF ON  PROF.PNO = SKT1.PNO   
+     
+WHERE 1 = 1 
+AND SKT1.IDNO = #IDNO#
+AND SKT1.EXAMKIND = #EXAMKIND# 
+AND SKT1.YR = #YR#
+AND SKT1.STP = #STP# 
+AND SKT1.SOPCD = #OPCD# 
+        ]]>
+    </select>
+
+    
+    <!-- 結束行(這行放在最下面, 不要刪) -->
+    </statements>
+</sqlMap>

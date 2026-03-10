@@ -1,0 +1,80 @@
+﻿@using WDAIIP.WEB.Models
+@{
+    SessionModel sm = SessionModel.Get();
+    string s_Env = ConfigModel.WebEnvironment ?? "";
+    bool fg_use_timer = true; // ConfigModel.FG_USE_CLASS_TIMER;新增倒數計時器
+    string s_logo_png = (s_Env == "test") ? "~/images/logo_test.png" : "~/images/logo.png";
+    //timer 套用 timer-member
+    string s_class_timer = string.IsNullOrEmpty(sm.UserID) ? "timer" : "timer timer-member";
+    //navbar-header 套用 nav-bar-member,string s_class_navbarheader = string.IsNullOrEmpty(sm.UserID) ? "navbar-header" : "navbar-header nav-bar-member";
+    string s_class_colsm6_loggedin = string.IsNullOrEmpty(sm.UserID) ? "col-sm-6 not-logged-in" : "col-sm-6 logged-in";
+}
+
+
+<!--TOP link-->
+@*fix無障礙檢測:EV1120200：暴露名稱與角色，允許直接設定可由使用者設定的屬性，並在變更時提供通知*@
+<noscript>
+    <div class="text-center" style="font-size:1.2em">
+        您的瀏覽器不支援JavaScript功能，若網頁功能無法正常使用時，請開啟瀏覽器JavaScript狀態
+    </div>
+</noscript>
+
+<div class="header">
+    <div class="header-right">
+        <a href="#C" class="sr-only sr-only-focusable" title="跳到主要內容區塊" tabindex="0">跳到主要內容區塊</a>
+        <a title="右上方功能選項區" accesskey="U" id="U" href="#U" style="padding-right:0;">:::</a>
+        @*｜<a href="#">瀏覽紀錄</a>*@
+        <a href="@Url.Content("~/SiteMap")" title="前往網站導覽">網站導覽</a>
+        @*｜<a href="@Url.Action("GoogleSearch", "Home")">站內查詢</a>*@
+        ｜<a href="@Url.Content("~/QA")" title="前往Q&A">Q&A</a>
+        ｜
+        @if (string.IsNullOrEmpty(sm.UserID))
+        {
+            <a href="@Url.Action("Login", "Member")" title="前往會員登入"><span class="sr-only">前往會員登入</span><i class="fas fa-sign-in-alt"></i>會員登入</a>
+        }
+        else
+        {
+            @*<button title="會員登出"><span class="sr-only">會員登出</span><i class="fas fa-sign-out-alt"></i>會員登出</button>*@
+            @*<a href="@Url.Action("Logout", "Member")" class="btnLogout" title="會員登出"><span class="sr-only">會員登出</span><i class="fas fa-sign-out-alt"></i>會員登出</a>*@
+            <a href="#" class="btnLogout" title="會員登出"><span class="sr-only">會員登出</span><i class="fas fa-sign-out-alt"></i>會員登出</a>
+        }
+        ｜<a href="@Url.Content("~/")" title="回首頁">回首頁</a>
+    </div>
+</div>
+<div class="container-fluid head-Bg">
+    <!--logo -->
+    <div class="col-sm-6 col-xs-12">
+        <h1 style="font-size: 0em; margin: 0;">勞動部勞動力發展署在職訓練網</h1>
+        <h2 style="font-size: 0em; margin: 0;">歡迎光臨 在職訓練網</h2>
+        <a href="@Url.Content("~/")" class="alogo"><div class="navbar-logo"><img src="@Url.Content(s_logo_png)" class="img-responsive" alt="台灣就業通｜在職訓練網" title="台灣就業通｜在職訓練網" /></div></a>
+        <!--header-link-->
+        <!--行動版選單按鈕-->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar" style="margin-top: 10px !important;" alt="行動版選單按鈕">
+                <span class="sr-only">行動版選單按鈕</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+    </div>
+    <div class="@(s_class_colsm6_loggedin)">
+        <ul class="head-list">
+            @if (!string.IsNullOrEmpty(sm.UserID) && fg_use_timer)
+            {
+                <!-- 新增倒數計時器 -->
+                <li>
+                    <div class="@(s_class_timer)"><span>0分0秒</span>後自動登出<a href="@Url.Content("~/")" class="btn-timer">重新計時</a></div>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+<!-- nav -->
+<div class="col-sm-12 nav-bg">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse " id="myNavbar">
+            @Html.Partial("_HeaderMenu")
+        </div>
+    </div>
+</div>

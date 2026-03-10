@@ -1,0 +1,115 @@
+﻿@*
+    用來作為多檔案上傳的 Partial View
+    直接引用即可
+*@
+<script type="text/javascript" src="~/Scripts/jquery.Huploadify.js"></script>
+<style>
+.uploadify-button{
+	display:inline-block;
+	margin:12px;
+	border:1px solid #808080;
+	background-color: #707070;
+	line-height:24px;
+	border-radius:12px;
+	padding:0 18px;
+    font-size:0.75em;
+    font-weight: 600;
+    font-family: '微軟正黑體';
+	color:#FFF;
+	cursor:pointer;
+	text-decoration:none;
+}
+.uploadify-button:hover{
+    color:#FFF;
+	background-color: #888;
+}
+.uploadfile{
+	width:0;
+	}
+.uploadify-queue .uploadify-queue-item{
+	list-style-type:none;
+	margin-top:10px;
+	}
+.uploadbtn,.delfilebtn{
+	display:inline-block;
+	border:1px solid #999;
+	line-height:24px;
+	border-radius:4px;
+	padding:0 18px;
+    font-size:0.75em;
+	color:#666;
+	cursor:pointer;
+	background:url(images/btnbg.png) repeat-x 0 0;
+	text-decoration:none;
+	}
+.up_filename,.progressnum,.delfilebtn,.uploadbtn,.up_percent{
+	font-size:0.75em;
+	color:#666;
+	margin-left:10px;
+	}
+.uploadify-progress{
+	 display:inline-block; 
+	 width:600px; 
+	 height:10px; 
+	 background-color:white;
+	 border-radius:20px;
+	 border:2px groove #666;
+	 vertical-align:middle;
+	 padding:0;
+	 }
+.uploadify-progress-bar{
+	width:0;
+	height:100%;
+	border-radius:20px;
+	background-color: #0099FF;
+	}
+</style>
+
+<script type="text/javascript">
+    @*接收檔案上傳的 Action *@
+    var postUrl = "@Url.Action("Upload", "UploadTest")";
+    @*要隨著檔案上傳一併 POST 的參數(name 要跟 action 接收的 model 定義一樣)*@
+    var postData =
+        {
+            ID: "123456",
+            CAT: "測試"
+        };
+
+    $(function () {
+        $('#uploadContainer').Huploadify({
+            auto: true,//是否在選擇檔案後自動上傳
+            fileTypeExts: '*.jpg;*.png;*.pdf;*.doc;*.docx',
+            multi: true,//允許多檔案上傳
+            formData: postData,
+            fileSizeLimit: 9999,
+            showUploadedPercent: true,//顯示上傳進度的百分比，如20%
+            showUploadedSize: true,
+            removeTimeout: 9999999,
+            uploader: postUrl,
+            onUploadStart: function () {
+                // 開始上傳時會觸發這個 event
+                debugTrace("FileUpload: onUploadStart");
+            },
+            onInit: function () {
+                // Upload初始化時會觸發這個 event
+                debugTrace("FileUpload: onInit");
+            },
+            onUploadComplete: function () {
+                // 上傳完成時會觸發這個 event
+                debugTrace("FileUpload: onUploadComplete");
+            },
+            onDelete: function (file) {
+                // 刪除已選擇的上傳檔案時會觸發這個 event
+                debugTrace("FileUpload: onDelete " + file);
+            },
+            onUploadError: function (file, responseText) {
+                // 上傳檔案發生錯誤(Http Status != 200)時會觸發這個 event
+                debugTrace("FileUpload: onUploadError");
+                debugTrace(file);
+                blockAlert(file.name + "<br/>" + responseText, "檔案上傳失敗");
+            }
+        });
+    });
+</script>
+@*檔案上傳元件的 Container*@
+<div id="uploadContainer"></div>

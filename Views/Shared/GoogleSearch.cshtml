@@ -1,0 +1,45 @@
+﻿
+@{
+    ViewBag.Title = "站內查詢";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<div class="col-sm-12">
+
+    <!-- bread start --->
+    <div class="breadlink"><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Action("GoogleSearch",new { Controller = "Home"})">站內搜尋</a></div>
+    <!-- bread end --->
+    <div class="clearfix"></div>
+
+    <div class="col-md-12">
+        <div class="searchzone">
+            <div style="padding: 10px 20px; overflow: auto;">
+                <script>
+                    var isGoogleCustomerSearch = false;
+                    (function () {
+                        if (!isGoogleCustomerSearch) {
+                            var cx = '008491477192668828237:juzj5nnvscg';
+                            var gcse = document.createElement('script');
+                            gcse.type = 'text/javascript';
+                            gcse.async = true;
+                            gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//cse.google.com/cse.js?cx=' + cx +'&key=@(ViewBag.keyWord)';
+                            var s = document.getElementsByTagName('script')[0];
+                            s.parentNode.insertBefore(gcse, s);
+                            isGoogleCustomerSearch = true;
+                        }
+                    })();
+                </script>
+                <gcse:search></gcse:search>
+                <style>
+                    .gsc-adBlock {
+                        display: none;
+                    }
+                </style>
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+    <div class="gotop"><a href="#gotop" title="移到最上方"><i class="fa fa-arrow-alt-circle-up" aria-hidden="true"></i></a></div>
+
+</div>

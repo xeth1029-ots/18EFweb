@@ -1,0 +1,387 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.Models.Entities
+@using WDAIIP.WEB.Services
+@using WDAIIP.WEB.Commons
+
+@{
+    //_MainLayout_NoClassSearch.cshtml
+    SessionModel sm = SessionModel.Get();
+    string date = DateTime.Now.ToString("yyyyMMdd");
+    string securityCode = MyCommonUtil.GetSecurityCodeByDay();
+    string s_Env = ConfigModel.WebEnvironment ?? "";
+    string s_logo_png = (s_Env == "test") ? "~/images/logo_test.png" : "~/images/logo.png";
+    string s_logoPng2 = (s_Env == "test") ? "https://ojt.wda.gov.tw/images/logo_test.png" : "https://ojt.wda.gov.tw/images/logo.png";
+    ViewBag.MainLayoutNM = "_Main2";
+
+}
+
+<!DOCTYPE html>
+@*
+    2019-02-23 無障礙修正： 9.1每1個網頁所使用的預設人類語言，都可以程式化的方式判讀
+    https://www.w3schools.com/tags/ref_language_codes.asp
+*@
+<html lang="zh-Hant">
+<head>
+    @*修正無障礙檢測：EV1080200：提供網頁的描述性標題*@
+    <title>在職訓練網 @(string.IsNullOrEmpty(ViewBag.Title) ? "" : "--" + ViewBag.Title)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=8,9,edge,chrome=1" />
+    <meta charset="utf-8" />
+    <meta name="keywords" content="在職,訓練,上課,進修,在職訓練,在職進修,進修訓練,產投,產業人才,提升勞工,自主學習,分署自辦,自辦在職,充電起飛,3年10萬,三年10萬,三年十萬,台灣就業通,在職訓練網,就業,產業人才投資方案,充電起飛計畫,分署自辦在職訓練,關鍵就業力課程,自辦在職進修" />
+    <meta name="google-site-verification" content="mum_z7wVBiGkC83I3ZTpnMbNsoIPgbniIyM0v-gPhO0" />
+    <meta name="description" content="勞動部勞動力發展署在職訓練網,在職訓練網,在職訓練,產業人才" />
+    @*The<!-- Open Graph Protocol -->*@
+    <meta property="og:title" content="勞動部勞動力發展署在職訓練網" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ojt.wda.gov.tw/" />
+    <meta property="og:description" content="勞動部勞動力發展署在職訓練網,在職訓練網,在職訓練,產業人才" />
+    <meta property="og:image" content="@s_logoPng2" />
+    <meta property="og:image:width" content="408" />
+    <meta property="og:image:height" content="66" />
+    <meta name="author" content="東柏資訊" />
+    <meta name="copyright" content="本網頁著作權屬勞動部勞動力發展署所有" />
+    <meta name="robots" content="all" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    <style id="antiClickjack" type="text/css">
+        html { display: none; }
+        body { display: none !important; background-color: #ffffff; }
+    </style>
+    <script type="text/javascript">
+        //解決不支援 X-Frame-Options設定，需額外判斷 //if (top != self) { top.location = self.location; }
+        if (self === top || self == top) {
+            var antiClickjack = document.getElementById("antiClickjack");
+            if (antiClickjack) { antiClickjack.parentNode.removeChild(antiClickjack); }
+            document.documentElement.style.display = 'block';
+        }
+        else { top.location = self.location; }
+        if (parent.document.frames != undefined && parent.document.frames.length != 0) {
+            top.location.replace(self.location);
+        }
+    </script>
+    @Styles.Render("~/Content/jquery")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/bootstrap")
+    @*Scripts.Render("~/bundles/jqueryval")*@
+    @Scripts.Render("~/bundles/globaljs")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/common")
+
+    @Styles.Render("~/css/base")
+    @Styles.Render("~/Content/bootstrap")
+    @Styles.Render("~/css/flexslider")
+    @Scripts.Render("~/bundles/flexslider")
+    @Scripts.Render("~/bundles/popupDialog")
+    @Styles.Render("~/Content/fontawesome")
+    <script src="~/js/autocomplete.js"></script>
+    @*/*就業通 SSO 登入階段追蹤 JS 套件*/*@
+    <script src="https://sso.taiwanjobs.gov.tw/Internet/Index/js/twjobsSsoTrack.js" type="text/javascript" charset="utf-8"></script>
+    <!-- Latest compiled and minified CSS -->
+    @*<link href="~/css/fontawesome-free-5.9.0-web/css/all.css" rel="stylesheet" />*@
+    @*<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">*@
+    @*Google Tag Manager標記管理工具安裝說明-全球華人股份有限公司(勞動部台灣就業通) _110.02.25*@
+    @*<script>(function (w, d, s, l, i) {w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);})(window, document, 'script', 'dataLayer', 'GTM-NC745S5');</script>*@
+    @*Global site tag (gtag.js) - Google Ads: 666624111*@
+    @*<script async src="https://www.googletagmanager.com/gtag/js?id=AW-666624111"></script><script type="text/javascript">window.dataLayer = window.dataLayer || [];function gtag() { dataLayer.push(arguments); }gtag('js', new Date(), { cookie_flags: 'max-age=7200;secure;samesite=none' });gtag('config', 'AW-666624111', { cookie_flags: 'max-age=7200;secure;samesite=none' });</script>*@
+    <script type="text/javascript">
+        @*2019-01-16 無障礙檢測：add 按esc鍵關閉彈跳視窗*@
+        var app = {
+            alertWindow: null,
+            alertWindowCallback: [], // function[]
+            confirmWindow: null,
+            confirmWindowCallback: [], // function[]
+        };
+        //全域的Localhost路徑
+        var _LocalhostURL = "@Request.Url.Scheme" + "://" + "@Request.Url.Authority" + ("@Request.ApplicationPath.Replace("/", "")" == "" ? "" : "/") + "@Request.ApplicationPath.Replace("/", "")";
+        @* 前一個頁面最後錯誤或結果訊息 *@
+        var lastErrorMessage = '@Html.Raw(sm.LastErrorMessage)';
+        var lastResultMessage = '@Html.Raw(sm.LastResultMessage)';
+        var redirectUrl = '@Html.Raw(sm.RedirectUrlAfterBlock)';
+        @* 20190104 加入 RedirectByHttpMethod 引用 *@
+        var redirectByHttpMethod = "@(sm.RedirectByHttpMethod)";
+
+        function RedirectAfterPopup() {
+            if (redirectUrl) {
+                @*有指定 RedirectUrlAfterBlock, 進行重導動作 *@
+                var form = $("form[name=RedirAfterBlockResult]");
+                var p = redirectUrl.indexOf("?");
+                if (p > 0) {
+                    var parms = redirectUrl.substring(p + 1).split("&");
+                    redirectUrl = redirectUrl.substring(0, p);
+                    for (var i = 0; i < parms.length; i++) {
+                        var ptoken = parms[i].split("=");
+                        if (ptoken.length == 2) {
+                            var input = document.createElement("input");
+                            $(input).attr("type", "hidden");
+                            $(input).attr("name", ptoken[0]);
+                            $(input).attr("value", ptoken[1]);
+
+                            form.append(input);
+                        }
+                        else {
+                            debugTrace("RedirectUrlAfterBlock: parameter syntax error '" + parms[i] + "'");
+                        }
+                    }
+                }
+                //20190104 增加設定 form.method 設定
+                form.attr("method", (redirectByHttpMethod === "GET") ? "get" : "post");
+
+                form.attr("action", redirectUrl);
+                form.submit();
+            }
+        }
+
+        var url_GetFooter = '@Url.Content("~/Ajax/GetFooter")';
+
+        $(document).ready(function () {
+
+            @* blockUI 引用的 loading image *@
+            globalSetting.processingImg = "@Url.Content("~/images/processing.gif")";
+
+            @* 前一個頁面最後錯誤或結果訊息 popup 處理*@
+            if (lastErrorMessage) {
+                blockAlert(lastErrorMessage, "錯誤訊息", function () {
+                    RedirectAfterPopup()
+                });
+            }
+            else if (lastResultMessage) {
+                blockMessage(lastResultMessage, null, function () {
+                    RedirectAfterPopup()
+                });
+            }
+            else {
+                @* 前一個表單 Post 後的 Validation Summary 訊息顯示 *@
+                var IsValid = '@(ViewData.ModelState.IsValid)';
+                var validationMsg = $("#ValidationSummary").html();
+                if (IsValid == 'False' && validationMsg) {
+                    blockAlert(validationMsg, "表單檢核訊息");
+                }
+            }
+
+            @* 設定  div[class='wrap'] 的 min-height *@
+            $("div.wrap").css("min-height",
+                $("div.container-fluid").innerHeight()
+                - $("div.header").outerHeight()
+                - $("div.type-bar").outerHeight()
+                );
+
+            @*binding OnlineHelp button's click*@
+            $("input[type=button][data-role=OnlineHelp]").click(function () {
+                popupHelp();
+            });
+
+            @*動態載入頁尾資訊*@
+            if (url_GetFooter != '') {
+                ajaxLoadMore(url_GetFooter, {}, function (resp) {
+                    //var div = $("div#footer-content");
+                    $("div#footer-content").html(resp);
+                });
+            }
+
+            @*$('form').each(function (index, item) {
+                var el = $('<input type="hidden"/>');
+                $(el).attr('name', '__SECURITY_FORM_ID__');
+                $(el).attr('value', '@(DateTime.Now.ToString("yyyyMMdd"))');
+                $(item).append(el);
+            });*@
+
+            $('body').on('submit', 'form', function (e) {
+                var form = $(e.target);
+                var el = $('<input type="hidden"/>');
+                var chkObj = form.find("input[name='__SECURITY_FORM_ID__']").length; //2019-01-16 補加判斷不要重覆加hidden
+
+                if (chkObj == 0) {
+                    $(el).attr('name', '__SECURITY_FORM_ID__');
+                    $(el).attr('value', '@(securityCode)');
+                    $(form).append(el);
+                }
+            });
+
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            //SyntaxHighlighter.all();
+            var activeFunID = "@(sm.ACTIVEFUNCTION)";
+
+            $("li.dropdown").removeClass("active");
+
+            if (activeFunID != "") {
+                $("li.dropdown[data-role='mainmenu_" + activeFunID + "']").addClass("active");
+            }
+
+            //預設隱藏展開功能項link
+            $("a[data-role=expand]").hide();
+
+            //展開功能項事件
+            $("a[data-role=expand]").on("click", function () {
+                doExpand();
+            });
+
+            //收合功能項事件
+            $("a[data-role=collapse]").on("click", function () {
+                doExpand();
+            });
+        });
+        $(window).load(function () {
+            $('.flexslider').flexslider({
+                animation: "slide",
+                animationLoop: false,
+                itemWidth: 185,
+                itemMargin: 5,
+                pausePlay: true,
+                start: function (slider) {
+                    $('body').removeClass('loading');
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        @*2019-01-16 無障礙檢測：add 按esc鍵關閉彈跳視窗*@
+        $(document).on('keyup', function (e) {
+            if (app && app.confirmWindow) {  // app.confirmWindow in global.js: blockMessage function
+                if (e.keyCode === 27) { // 如果按下esc
+                    console.log('confirm escape press');
+                    app.confirmWindow.close();
+                }
+            }
+            if (app && app.alertWindow) {  // app.alertWindow in global.js: blockMessage function
+                if (e.keyCode === 27) { // 如果按下esc
+                    console.log('alert escape press');
+                    app.alertWindow.close();
+                }
+            }
+        });
+    </script>
+    <script>
+        /* 就業通SSO登入階段追蹤碼 */
+        var TwjobsSsoUuid = undefined;
+
+        /* 就業通SSO登入階段追蹤 JS 套件會於載入後自動呼叫此 function */
+        function TwjobsSsoUcodeReady(uuid) {
+            TwjobsSsoUuid = uuid;
+        }
+
+        $(document).ready(function () {
+
+            $(".btnLogout").click(function () {
+                // 1. 檢查 xdSsoTrack 是否已定義且存在
+                if (typeof xdSsoTrack !== 'undefined') {
+                    //SSO 登出,debugger;會員登出,登出前,要先登出 TwjobsSsoTrack Session
+                    xdSsoTrack.logoutSession(TwjobsSsoUuid, function (result) {
+                        if (result.status == "OK") {
+                            // 執行 登出
+                            location.href = '@Url.Content("~/Member/Logout")';
+                        }
+                        else {
+                            var tErrorMessage = "登出失敗，請直接關閉瀏覽器。";
+                            alert(tErrorMessage); //blockAlert("登出失敗，請直接關閉瀏覽器。");
+                        }
+                    });
+                }
+                else {
+                    // 2. 如果 xdSsoTrack 沒載入 (例如被擋掉或載入失敗)，直接執行本地登出,避免使用者按了按鈕卻完全沒反應
+                    console.log("xdSsoTrack 未定義，直接執行本地登出");
+                    location.href = '@Url.Content("~/Member/Logout")';
+                }
+            });
+        });
+        $(document).ready(function () {
+            setTimeout(() => {
+                if ($('.buttons .btn-info-Confirm').length > 0) { $('.buttons .btn-info-Confirm').focus(); }
+            }, 3000); // 3000 milliseconds = 3 seconds
+        });
+    </script>
+    <style type="text/css">
+        /*2019-01-08 無障礙檢測：聚焦當前物件(加粗邊框)*/
+        input:focus, a:focus, select:focus, textarea:focus, button:focus, .form-control:focus, .dropdown-toggle:focus { /*border: 0.17em dashed;*/ outline-style: dashed; outline-color: #0000ff; outline-width: 3px; }
+        .aBanner { display: block; }
+        .alogo:focus, .aBanner:focus { border: 3px dashed; border-color: #0000ff; }
+        .carousel-control:focus { outline-style: dashed; outline-color: #0000ff; outline-width: 5px; }
+    </style>
+</head>
+<body>
+    @Html.Partial("_MainHeader_NoClassSearch")
+
+    <div class="container wrap">
+        <!-- content start -->
+        @RenderBody()
+        <!-- content end -->
+    </div>
+    <div class="clearfix"></div>
+    <div class="gotop">
+        @*<a href="#gotop" title="移到最上面"><i class="fa fa-arrow-alt-circle-up" aria-hidden="true"></i></a>*@
+        @*無障礙機器檢測*@
+        @*<a href="#" onclick="window.parent.document.getElementById('GoTop').click();document.getElementById('GoTop').click()" title="移到最上面"><i class="fa fa-arrow-alt-circle-up" aria-hidden="true"></i></a>*@
+        @*2019-02-23 無障礙修正：
+            指引五：讓所有的功能都能透過鍵盤使用
+            EV1050101：確認所有功能都能透過鍵盤介面來操作
+            當用鍵盤tab遊走至右下方「移到最上面」＜向上箭頭＞功能符號並按Enter鍵，網頁要能向上移動，且游標焦點移動至頁首第一個連結*@
+        <a href="#" onclick="doGoTop();" title="移到最上面"><span class="sr-only">向上箭頭移到最上面</span><i class="fa fa-arrow-alt-circle-up" aria-hidden="true"></i></a>
+    </div>
+
+    @Html.Partial("_Footer")
+    @Html.Partial("_CommonDialog")
+    <div class="hide" id="ValidationSummary">@Html.ValidationSummary()</div>
+    <form name="RedirAfterBlockResult" action="" method="POST"></form>
+
+    @Html.Partial("_DatePickerTW")
+
+    @*Loading Mask*@
+    <div id="loadingMask" style="display:none;text-align:center;padding-top:10px;">
+        <img src="@Url.Content("~/images/processing.gif")" width="90" alt="處理中圖示" /><br />
+        <div style="text-align:center;height:42px;color:burlywood">處理中...</div>
+    </div>
+
+    <script type="text/javascript">
+        $(function () {
+            //2019-02-25 無障礙修正 5.1內容的所有功能都能透過鍵盤介面來操作，而且不能額外要求在限定時間內完成按鍵操作
+            //EV1050100：提供由鍵盤觸發的事件處理程式
+            //使用鍵盤操作時，游標遊走至主選單按Enter鍵後雖會展開次選單，但當游標跳離後，子選單並未收合或隱藏
+            //從功能表區（Q&A）tab到下一個非功能表區時，要移除功表開啟的狀態
+            $("#C").on("focus", function () {
+                $("li.dropdown.open").removeClass("open");
+            });
+        });
+
+        function ShowNowYear() {
+            var now = new Date();
+            var year = now.getFullYear();
+            $("span#copyrightText").html(year);
+        }
+
+        // 展開/收合頁尾功能表
+        function doExpand() {
+            $("a[data-role=expand]").toggle();
+            $("a[data-role=collapse]").toggle();
+            $("#divFooter").slideToggle();
+        }
+
+        // 移到最上面
+        function doGoTop() {
+            $('html, body').animate({ scrollTop: 0 }, 'fast');
+            //$(':focus').blur();
+            $("a#U").focus();
+        }
+    </script>
+    @RenderSection("scripts", required: false)
+    <noscript>
+        <div class="text-center" style="font-size:1.2em">
+            @*fix無障礙檢測:EV1120200：暴露名稱與角色，允許直接設定可由使用者設定的屬性，並在變更時提供通知*@
+            您的瀏覽器不支援JavaScript功能，若網頁功能無法正常使用時，請開啟瀏覽器JavaScript狀態
+        </div>
+        <style type="text/css">
+            html { display: block; }
+            body { display: block !important; }
+        </style>
+
+        @*Google Tag Manager標記管理工具安裝說明-全球華人股份有限公司(勞動部台灣就業通) _110.02.25*@
+        @*<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NC745S5" height="0" width="0" style="display:none;visibility:hidden" title="標記管理工具"></iframe>*@
+    </noscript>
+
+
+
+</body>
+
+<!--@ViewBag.MainLayoutNM-->
+</html>

@@ -1,0 +1,181 @@
+﻿@model WDAIIP.WEB.Models.DistClassSearchViewModel
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+
+@switch (Model.Form.PLANTYPE)
+{
+    case "1": //產投
+        if (Model == null || Model.Grid1 == null || Model.Grid1.Count == 0)
+        {
+            <tr valign="middle">
+                <td colspan="@("Y".Equals(Model.Form.PROVIDELOCATION) ? 14 : 13)" headers="a" style="text-align:center;">尚無資料</td>
+            </tr>
+        }
+        else
+        {
+            //取得目前(DB)系統時間
+            MyKeyMapDAO keyDao = new MyKeyMapDAO();
+            DateTime nowTime = keyDao.GetSysDateNow();
+            //「訓練班別」、「課程名稱」有期別則顯示期別
+            var v_OJT22090201 = keyDao.GetSystemConfig("OJT22090201");
+            bool flag_ShowClass2 = (!string.IsNullOrEmpty(v_OJT22090201) && v_OJT22090201 == "Y") ? true : false;
+
+            for (int i = 0; i < Model.Grid1.Count; i++)
+            {
+                var item = Model.Grid1[i];
+                string v_CLASSCNAME = flag_ShowClass2 ? item.CLASSCNAME2 : item.CLASSCNAME;
+                string strStatus = "招生中";
+                string strColor = "black";
+                if (item.SENTERDATE != null && item.FENTERDATE != null)
+                {
+                    if (string.IsNullOrEmpty(Convert.ToString(item.TNUM))) { item.TNUM = 0; }
+                    int intCnt = (new MyKeyMapDAO()).GetEnterCount(item.OCID); // 取得報名人數 (扣除e網審核失敗)
+
+                    if (DateTime.Compare(nowTime, Convert.ToDateTime(item.SENTERDATE)) < 0)
+                    {
+                        strStatus = "尚未開始招生";
+                    }
+                    else if (DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) > 0)
+                    {
+                        strStatus = "已招生結束";
+                    }
+                    else if (Convert.ToString(item.ISCLOSED) == "Y")
+                    {
+                        strStatus = "此班已結訓";
+                    }
+                    /*else if (Convert.ToString(item.ISCLOSED) == "N" && DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) > 0 && (intCnt > item.TNUM))*/
+                    else if (Convert.ToString(item.ISCLOSED) == "N" && DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) < 0 && (intCnt >= item.TNUM))
+                    {
+                        strStatus = "接受以備取身份報名";
+
+                        if (!string.IsNullOrEmpty(Convert.ToString(item.ADMISSIONS)))
+                        {
+                            switch (Convert.ToString(item.ADMISSIONS))
+                            {
+                                case "1": strStatus = "招生中"; strColor = "red"; break;
+                                case "2": strStatus = "接受以備取身份報名"; break;
+                                case "3": strStatus = "報名額滿"; strColor = "red"; break;
+                            }
+                        }
+                    }
+                }
+                <tr valign="middle">
+                    @*<td align="center">
+                        @Html.CheckBoxFor(m => Model.Grid1[i].SELECTIS)
+                    </td>*@
+                    <td headers="a"><a title="@(v_CLASSCNAME)" href="javascript:doDetail('@(Model.Form.PLANTYPE)','@(Model.Form.PROVIDELOCATION)','@(item.OCID)');">@(v_CLASSCNAME)</a></td>
+                    <td headers="b" align="center">@(item.OCID) @Html.HiddenFor(m => m.Grid1[i].OCID)</td>
+                    <td headers="c" align="center">@(item.TNUM)</td>
+                    <td headers="d" align="center">@(item.THOURS)</td>
+                    <td headers="e" align="center">@(item.DEFSTDCOST)</td>
+                    <td headers="f" align="center">@(item.DEFGOVCOST)</td>
+                    <td headers="g" align="center">@(item.CTNAME1)</td>
+                    <td headers="h" align="center">@(item.CTNAME2)</td>
+                    @*@if (Model.Form.PROVIDELOCATION == "Y")//TODO:顯示距離
+                    {
+                        <td align="center">@(item.Distance)</td>
+                    }*@
+                    <td align="center" headers="i">
+                        @item.SENTERDATE_TW_TIME
+                        <br />|<br />
+                        @item.FENTERDATE_TW_TIME
+                    </td>
+                    <td style="color:@strColor;" headers="j">@strStatus</td>
+                    <td align="center" headers="k">
+                        @item.STDATE_TW
+                        <br />|<br />
+                        @item.FTDATE_TW
+                    </td>
+                    <td headers="l">@item.ENTERSUPPLYSTYLE</td>
+                </tr>
+            }
+        }
+        break;
+    case "2": //在職
+        if (Model == null || Model.Grid2 == null || Model.Grid2.Count == 0)
+        {
+            <tr valign="middle">
+                <td headers="a" colspan="@("Y".Equals(Model.Form.PROVIDELOCATION) ? 10 : 9)" style="text-align:center;">尚無資料</td>
+            </tr>
+        }
+        else
+        {
+            for (int i = 0; i < Model.Grid2.Count; i++)
+            {
+                var item = Model.Grid2[i];
+                <tr valign="middle">
+                    @*<td align="center">
+                        @Html.CheckBoxFor(m => Model.Grid2[i].SELECTIS) @Html.HiddenFor(m => m.Grid2[i].OCID)
+                    </td>*@
+                    <td headers="a"><a title="@(item.TRAINCLASS)" href="javascript:doDetail('@(Model.Form.PLANTYPE)','@(Model.Form.PROVIDELOCATION)','@(item.OCID)');" >@(item.TRAINCLASS)</a></td>
+                    <td headers="b">@(item.TRAINORG)</td>
+                    <td headers="c" align="center">@(item.TRAINPLACE)</td>
+                    @*@if ("Y".Equals(Model.Form.PROVIDELOCATION))//TODO:顯示距離
+                    {
+                        <td align="center">@(item.Distance)</td>
+                    }*@
+                    <td headers="d">@(item.CJOBNAME)</td>
+                    <td headers="e" align="center">
+                        @item.SENTERDATE_TW_TIME
+                        <br />|<br />
+                        @item.FENTERDATE_TW_TIME
+                    </td>
+                    <td headers="f" align="center">
+                        @item.STDATE_TW
+                        <br />|<br />
+                        @item.FTDATE_TW
+                    </td>
+                    <td headers="g" align="center">
+                        @*@Html.Raw(item.TPERIODNAME)*@
+                        @Html.Raw(MyHelperUtil.ChangeBreakLine(item.NOTE3))
+                    </td>
+                    <td headers="h" align="center">@(item.TRAINEDGE)</td>
+                </tr>
+            }
+        }
+        break;
+    case "5": //區域據點
+        if (Model == null || Model.Grid5 == null || Model.Grid5.Count == 0)
+        {
+            <tr valign="middle">
+                <td headers="a" colspan="@("Y".Equals(Model.Form.PROVIDELOCATION) ? 10 : 9)" style="text-align:center;">尚無資料</td>
+            </tr>
+        }
+        else
+        {
+            for (int i = 0; i < Model.Grid5.Count; i++)
+            {
+                var item = Model.Grid5[i];
+                <tr valign="middle">
+                    @*<td align="center">
+                            @Html.CheckBoxFor(m => Model.Grid2[i].SELECTIS) @Html.HiddenFor(m => m.Grid2[i].OCID)
+                        </td>*@
+                    <td headers="a"><a title="@(item.TRAINCLASS)" href="javascript:doDetail('@(Model.Form.PLANTYPE)','@(Model.Form.PROVIDELOCATION)','@(item.OCID)');">@(item.TRAINCLASS)</a></td>
+                    <td headers="b">@(item.TRAINORG)</td>
+                    <td headers="c" align="center">@(item.TRAINPLACE)</td>
+                    @*@if ("Y".Equals(Model.Form.PROVIDELOCATION))//TODO:顯示距離
+                        {
+                            <td align="center">@(item.Distance)</td>
+                        }*@
+                    <td headers="d">@(item.CJOBNAME)</td>
+                    <td headers="e" align="center">
+                        @item.SENTERDATE_TW_TIME
+                        <br />|<br />
+                        @item.FENTERDATE_TW_TIME
+                    </td>
+                    <td headers="f" align="center">
+                        @item.STDATE_TW
+                        <br />|<br />
+                        @item.FTDATE_TW
+                    </td>
+                    <td headers="g" align="center">
+                        @*@Html.Raw(item.TPERIODNAME)*@
+                        @Html.Raw(MyHelperUtil.ChangeBreakLine(item.NOTE3))
+                    </td>
+                    <td headers="h" align="center">@(item.TRAINEDGE)</td>
+                </tr>
+            }
+        }
+        break;
+}

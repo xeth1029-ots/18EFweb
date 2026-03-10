@@ -1,0 +1,44 @@
+﻿@using WDAIIP.WEB.Models
+@model DownloadViewModel
+@{ 
+    string s_libreofficestillUrl= ConfigModel.libreofficestillUrl;
+}
+
+<div class="col-sm-12">
+
+    @if (Model.Grid != null)
+    {
+        <div class="clearfix"></div>
+        <div>
+            <span color="#d03b00">
+                ※為提供使用者有文書軟體選擇的權利，本文件為ODF開放文件格式，<br />
+                建議您安裝免費開源軟體 (<a href="@(s_libreofficestillUrl)" target="_blank" rel="noreferrer noopener" title="前往下載ODF開放文件格式閱讀軟體(另開新視窗)">@(s_libreofficestillUrl)</a>)<br />
+                或以您慣用的軟體開啟文件。<br />
+            </span>
+        </div>
+        <div class="clearfix"></div>
+        <div class="table-responsive">
+            @if (Model.Grid.Count > 0) {
+            <table width="95%" border="0" cellspacing="0" cellpadding="0" class="table table-responsive table-newsList">
+                    <tbody id="rows">
+                        @Html.Partial("_DownloadGridRows")
+                    </tbody>
+            </table>
+            }
+            else
+            {
+                <div style="width:100%; text-align:center"><span color="df0000">查無資料</span></div>
+            }
+        </div>
+        @Html.Partial("_PagingLink", Model.Form)
+    }
+
+    @if (TempData["message"] != null)
+    {
+        <script type="text/javascript">
+            var message = @Html.Raw(Json.Encode(TempData["message"]));
+            //alert(message);
+            blockAlert(@Html.Raw(Json.Encode(TempData["message"])),"錯誤資訊");
+        </script>
+    }
+</div>

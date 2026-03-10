@@ -1,0 +1,197 @@
+﻿@model WDAIIP.WEB.Models.PlanClassSearchViewModel
+@using WDAIIP.WEB.Models
+@{
+    ViewBag.Title = "課程查詢報名--計畫課程列表";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    string tPlanType = Model.Form.PlanType;
+    string tABILITYS = Model.Form.ABILITYS;
+
+    bool fg_test = ConfigModel.CHK_IS_TEST_ENVC; //(fg_test || fg_use1)
+    bool fg_use1 = (DateTime.Now.Year >= 2025);
+    ViewBag.PT2NM = "分署自辦在職訓練";
+    ViewBag.PT1NM = "產業人才投資方案(三年七萬)";
+    if (fg_test || fg_use1) { ViewBag.PT1NM = "產業人才投資方案(三年十萬)"; }
+    ViewBag.PT5NM = "區域產業據點";
+
+}
+
+<div class="col-sm-12">
+    @Html.HiddenFor(m => m.Form.ABILITYS, new { id = "HiddenFor_ABILITYS" })
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 計畫課程列表  </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fas fa-search space-right"></i>計畫別</h3>
+
+    <ul class="question-type">
+        @if ((Model.Form.PlanType).Equals("2"))
+        {
+            <li style="width:48%"><a id="a06" href="javascript:classsearch('2')" class="active" title="@(ViewBag.PT2NM)">@(ViewBag.PT2NM)</a></li>
+        }
+        else
+        {
+            <li style="width:48%"><a id="a06" href="javascript:classsearch('2')" title="@(ViewBag.PT2NM)">@(ViewBag.PT2NM)</a></li>
+        }
+        @if ((Model.Form.PlanType).Equals("1"))
+        {
+            <li style="width:48%"><a id="a28" href="javascript:classsearch('1')" class="active" title="@(ViewBag.PT1NM)">@(ViewBag.PT1NM)</a></li>
+        }
+        else
+        {
+            <li style="width:48%"><a id="a28" href="javascript:classsearch('1')" title="@(ViewBag.PT1NM)">@(ViewBag.PT1NM)</a></li>
+        }
+        @if ((Model.Form.PlanType).Equals("5"))
+        {
+            <li style="width:48%"><a id="a70" href="javascript:classsearch('5')" class="active" title="@(ViewBag.PT5NM)">@(ViewBag.PT5NM)</a></li>
+        }
+        else
+        {
+            <li style="width:48%"><a id="a70" href="javascript:classsearch('5')" title="@(ViewBag.PT5NM)">@(ViewBag.PT5NM)</a></li>
+        }
+    </ul>
+    @if (!string.IsNullOrEmpty(tABILITYS))
+    {
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-result">
+                <tr>
+                    <td width="20%" style="color:#2d699e"><h3>查詢條件</h3></td>
+                    <td width="80%"></td>
+                </tr>
+                <tr>
+                    <td colspan="2">專長能力關鍵字：<span class="text-primary" style="color:#007b8e">@(Model.Form.ABILITYS)</span></td>
+                </tr>
+            </table>
+        </div>
+    }
+    @*<ul class="question-type">
+            @if ((Model.Form.PlanType).Equals("3"))
+            {
+                <li style="width:48%"><a href="javascript:classsearch('3')" class="active" ttile="接受企業委託訓練">接受企業委託訓練</a></li>
+            }
+            else
+            {
+                <li style="width:48%"><a href="javascript:classsearch('3')" title="接受企業委託訓練">接受企業委託訓練</a></li>
+            }
+            @if ((Model.Form.PlanType).Equals("4"))
+            {
+                <li style="width:48%"><a href="javascript:classsearch('4')" class="active" title="充電起飛計畫(補助在職勞工及自營作業者參訓)">充電起飛計畫(補助在職勞工及自營作業者參訓)</a></li>
+            }
+            else
+            {
+                <li style="width:48%"><a href="javascript:classsearch('4')" title="充電起飛計畫(補助在職勞工及自營作業者參訓)">充電起飛計畫(補助在職勞工及自營作業者參訓)</a></li>
+            }
+        </ul>*@
+    <div class="col-sm-12">
+        <br />
+    </div>
+    <div class="clearfix"></div>
+
+    <!-- 上下的分隔線 -->
+    @if (Model.Grid1 != null || Model.Grid3 != null || Model.Grid2 != null || Model.Grid4 != null || Model.Grid5 != null)
+    {
+        <div class="table-responsive">
+            <table width="100" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    @*用來判斷是用哪一個標頭*@
+                    @if (Model.Grid1 != null || Model.Grid4 != null)
+                    {
+                        <tr>
+                            <th width="14%" rowspan="2">訓練班別(訓練單位)</th>
+                            <th width="6%" rowspan="2">課程代碼</th>
+                            <th width="6%" rowspan="2">訓練人數</th>
+                            <th width="6%" rowspan="2">訓練時數</th>
+                            <th colspan="2">訓練費用</th>
+                            <th width="7%" rowspan="2">學科訓練地點</th>
+                            <th width="7%" rowspan="2">術科訓練地點</th>
+                            @*@if (Model.Form.ProvideLocation == "Y")
+                                {
+                                <th width="8%" rowspan="2">
+                                    距離公里數
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-up text-primary" aria-hidden="true"></i></a>
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-down text-primary" aria-hidden="true"></i></a>
+                                </th>
+                                }*@
+                            <th width="8%" rowspan="2">報名日期</th>
+                            <th width="8%" rowspan="2">招生狀態</th>
+                            <th width="8%" rowspan="2">預訂訓練起迄日期</th>
+                            <th width="8%" rowspan="2">報名繳費方式</th>
+                        </tr>
+                        <tr>
+                            <th width="6%">學員負擔</th>
+                            <th width="6%">政府負擔</th>
+                        </tr>
+                    }
+                    else if (Model.Grid2 != null || Model.Grid3 != null || Model.Grid5 != null)
+                    {
+                        <tr>
+
+                            <th width="15%">訓練班別</th>
+                            <th width="15%">訓練單位</th>
+                            <th>上課地點</th>
+                            @*@if (Model.Form.ProvideLocation == "Y")
+                                {
+                                    <th width="8%" rowspan="2">
+                                        距離公里數
+                                        <a href="javascript: doSort();"><i class="fa fa-caret-up text-primary" aria-hidden="true"></i></a>
+                                        <a href="javascript: doSort();"><i class="fa fa-caret-down text-primary" aria-hidden="true"></i></a>
+                                    </th>
+                                }*@
+                            <th width="12%">通俗職類</th>
+                            <th width="10%">報名起迄日</th>
+                            <th width="10%">訓練起迄日</th>
+                            <th width="10%">@*訓練時段*@上課時間</th>
+                            <th width="10%">學歷資格</th>
+                        </tr>
+                    }
+                </thead>
+                <tbody id="rows">
+                    @Html.Partial("_GridRows", Model)
+                </tbody>
+            </table>
+        </div>
+        @Html.Partial("_PagingLink", Model.Form)
+    }
+    <!-- pager end -->
+</div>
+
+@using (Html.BeginForm("Index", "PlanClassSearch", FormMethod.Post, new { id = "main_form" }))
+{
+    @Html.HiddenFor(m => m.Form.PlanType)
+    @Html.HiddenFor(m => m.Form.ABILITYS)
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var isFirst = '@Model.Form.IsFirst';
+        var planTypeSel = '@Model.Form.PlanType';
+
+        if (isFirst == "N") {
+            switch (planTypeSel) {
+                case "1": //產投
+                    $("#a28").focus();
+                    break;
+                case "2": //在職
+                    $("#a06").focus();
+                    break;
+                case "5": //區域產業據點
+                    $("#a70").focus();
+                    break;
+            }
+        }
+    });
+
+    //課程清單查詢
+    function classsearch(PlanType) {
+        var form = $("#main_form");
+        form.find("#Form_PlanType").val(PlanType);
+        form.find("#Form_ABILITYS").val($("#HiddenFor_ABILITYS").val());
+        //form.find("#Form_PlanType").val(PlanType);
+        form.submit();
+    }
+
+    //滑出式的問與答
+    function ajaxCallback(rasp) {
+        if (rasp) {
+            $("#rows").empty().html(rasp);
+        }
+    }
+</script>

@@ -1,0 +1,163 @@
+﻿@using WDAIIP.WEB.Models
+@model ZipViewModel
+@{
+    ViewBag.Title = "Index";
+
+}
+<div id="ZipSearch" class="wrap">
+    <div>
+        <div class="unit-border" style="border-radius:15px 15px 15px 15px;">
+            <div class="form-group-search">
+                <label class="form-label-search">郵遞區號種類</label>
+                @*<div class="form-input-helf"> @Html.HiddenFor(m => m.Form.POSTTYPE1) </div>*@
+                <div class="form-input form-inline">
+                    @Html.HiddenFor(m => m.Form.POSTTYPE1)
+                    @Html.RadioGroupFor(m => m.Form.POSTTYPE1, Model.POSTTYPE1_list, new { @class = "group-width", title = "郵遞區號種類" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label class="form-label-search">郵遞區號</label>
+                <div class="form-input-helf">
+                    @Html.TextBoxFor(m => m.Form.CTIDZIP, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label class="form-label-search">縣市/鄉鎮區</label>
+                <div class="form-input-helf">
+                    @Html.DropDownListFor(m => m.Form.CTID, Model.CTID_list, "請選擇", new { @class = "form-control" })
+                </div>
+                <div class="form-input-helf">
+                    @Html.DropDownListFor(m => m.Form.ZIPCODE, Model.ZIPCODE_list, "請選擇", new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label class="form-label-search">街道名稱</label>
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.ROAD, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="submit-bar">
+                <button type="button" onclick="doQuery()" class="btn-orange">送出</button>
+                @* 產投系統取消是直接關閉，因PopupDialog最下方以有關閉取消，這邊功能不重複做 *@
+                @*<button type="reset" class="btn-refill">取消</button>*@
+            </div>
+            <p>
+            <p>
+        </div>
+    </div>
+    <div style="overflow-x:auto;height:300px;">
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    <tr>
+                        <th width="6%"></th>
+                        <th width="15%">郵遞區號</th>
+                        <th width="30%">地區</th>
+                        <th width="30%">街道名稱</th>
+                        <th>說明</th>
+                    </tr>
+                </thead>
+                <tbody id="rows">
+                    @Html.Partial("_ZipGridRows")
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var callBack = @(string.IsNullOrEmpty(Model.Form.onclickHandler) ? "''" : Model.Form.onclickHandler );
+    //查詢前條件檢核
+    function vaildCheck(){
+        var CTIDZIP = $("div#ZipSearch #Form_CTIDZIP").val();
+        var CTID = $("div#ZipSearch #Form_CTID option:selected").val();
+        var ROAD = $("div#ZipSearch #Form_ROAD").val();
+
+        if(CTIDZIP.trim()==""&&CTID.trim()==""&&ROAD.trim()=="")
+        {
+            blockAlert("請選擇或輸入任一條件！");
+            return false;
+        }
+
+        return true;
+    }
+
+    //查詢
+    function doQuery() {
+        if(vaildCheck())
+        {
+            var POSTTYPE1= $("div#ZipSearch #Form_POSTTYPE1");;
+            var CTIDZIP = $("div#ZipSearch #Form_CTIDZIP");
+            var CTID = $("div#ZipSearch #Form_CTID option:selected");
+            var ZIPCODE = $("div#ZipSearch #Form_ZIPCODE option:selected");
+            var ROAD = $("div#ZipSearch #Form_ROAD");
+            var url = "@Url.Action("SearchZip", "Zip")";
+            var parms = {
+                POSTTYPE1: POSTTYPE1.val(),
+                CTIDZIP: CTIDZIP.val(),
+                CTID: CTID.val(),
+                ZIPCODE: ZIPCODE.val(),
+                ZIPNAME: ZIPCODE.text(),
+                ROAD: ROAD.val()
+            };
+
+            ajaxLoadMore(url, parms, function (data) {
+                $("div#ZipSearch").find("tbody#rows").html(data);
+            });
+        }
+    }
+
+    /*回填顯示資料*/
+    //object參數為任意字串物件
+    function doSetDetail(zipcode,zipcode2,ctname,zipname,road) {
+        if (callBack) {
+            var data={
+                "zipcode":zipcode,
+                "zipcode2":zipcode2,
+                "ctname":ctname,
+                "zipname":zipname,
+                "road":road
+            };
+            callBack(data);
+        }
+        else {
+            blockAlert("callBack Not defined");
+        }
+        closeDialog();
+    }
+
+    $(document).ready(function () {
+        var idHead = "#Form_";
+        //縣市代碼改變事件
+        $(idHead + "CTID").on("change", doZipCodeGet);
+        $("input#Form_POSTTYPE1_3").on("click",function(){ $("#Form_POSTTYPE1").val("3"); });
+        $("input#Form_POSTTYPE1_2").on("click",function(){ $("#Form_POSTTYPE1").val("2"); });
+    });
+
+    //取得縣市代碼相對應的鄉鎮市區清單
+    function doZipCodeGet() {
+        var idHead = "#Form_";
+        var data = {
+            "url": "@Url.Action("GetZipCode")",
+            "arg": { "CTID": $(idHead + "CTID option:selected").val() },
+            "box": $(idHead + "ZIPCODE")
+        }
+
+        var blankHtml = "<option value=\"\">請選擇</option>";
+        if ($.trim(data.arg.CTID) == "") data.box.html(blankHtml);
+        else {
+            ajaxLoadMore(data.url, data.arg, function (resp) {
+                if (resp === undefined) data.box.html(blankHtml);
+                else {
+                    if (resp.data != "") {
+                        data.box.html(resp.data);
+                    }
+                    else {
+                        data.box.html(blankHtml);
+                    }
+                }
+            });
+        }
+    }
+</script>

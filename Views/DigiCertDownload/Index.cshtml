@@ -1,0 +1,117 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model DigiCertViewModel
+
+@{
+    ViewBag.Title = "數位結訓證明--數位結訓證明下載";
+    ViewBag.Tit2 = "數位結訓證明下載";
+
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+
+    SessionModel sess = SessionModel.Get();
+
+    string memMsg = "如欲修改個人基本資料，請至台灣就業通「會員中心」變更";
+}
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration: none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 數位結訓證明 / @ViewBag.Tit2 </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-pink"><i class="fas fa-edit space-right"></i>@ViewBag.Tit2</h3>
+
+    <div class="table-responsive">
+        <div class="form-group-search">
+            <label for="TBF_DPForm_CNAME" class="form-label-data"><span class="text-danger">*</span> 中文姓名</label>
+            <div class="form-input-dataHelf form-inline">
+                @Html.TextBoxFor(m => m.DPForm.CNAME, new { @id = "TBF_DPForm_CNAME", @class = "form-control", placeholder = "", @readonly = true, title = @memMsg, maxlength = "99" })
+            </div>
+            <label for="TBF_DPForm_IDNO" class="form-label-data"><span class="text-danger">*</span> 身分證字號</label>
+            <div class="form-input-dataHelf">
+                @Html.TextBoxFor(m => m.DPForm.IDNO, new { @id = "TBF_DPForm_IDNO", @class = "form-control", placeholder = "", @readonly = true, title = @memMsg, maxlength = "13" })
+            </div>
+        </div>
+    </div>
+
+    <!-- result table -->
+    @using (Html.BeginForm("Index", "DigiCertDownload", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+    {
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    <tr>
+                        <th width="30%">案件編號</th>
+                        <th width="30%">申請時間</th>
+                        <th width="40%">功能</th>
+                    </tr>
+                </thead>
+                <tbody id="rows">
+                    @Html.Partial("_GridRows")
+                </tbody>
+            </table>
+        </div>
+    }
+    <!--  pager start -->
+    @Html.Partial("_PagingLink", Model.DPForm)
+    <!-- pager end -->
+</div>
+
+<script type="text/javascript">
+    //$(document).ready(function () { });
+    //下載 數位結訓證明下載-封面
+    function doDownload1(dcano, dcaseno, emvcode) {
+        //var logmsg = "#doDownload1, dcano: " + dcano + ", dcaseno: " + dcaseno + ", emvcode: " + emvcode;
+        //console.log(logmsg)
+        var url = "@Url.Action("GetOJTSD14031C", "Ajax")";
+        var data = { dcano: dcano, dcaseno: dcaseno, emvcode: emvcode };
+        var rptUrl = "@ConfigModel.RptQuery_URL";
+
+        ajaxLoadMore(url, data, function (resp) {
+            if (resp.data === undefined || resp.data == undefined) {
+                blockAlert("數位結訓證明下載，失敗，請洽系統管理者!", "", function () { }); return;
+            }
+            else {
+                //console.log(resp.data);
+                var parms = "";
+                var w = window.open('', 'print1', 'toolbar=0,location=0,status=0,menubar=0,resizable=1');
+                var data1 = resp.data;
+                parms = "RptID=" + data1.PRINTFILENAME;
+                parms += "&DCANO=" + data1.DCANO;
+                parms += "&DCASENO=" + data1.DCASENO;
+                parms += "&EMVCODE=" + data1.EMVCODE;
+                w.location = rptUrl + parms;
+            }
+        });
+    }
+
+     //下載 數位結訓證明下載-內容
+    function doDownload2(dcano, dcaseno, emvcode) {
+        //var logmsg = "#doDownload2, dcano: " + dcano + ", dcaseno: " + dcaseno + ", emvcode: " + emvcode;
+        //console.log(logmsg)
+        var url = "@Url.Action("GetOJTSD14031D", "Ajax")";
+        var data = { dcano: dcano, dcaseno: dcaseno, emvcode: emvcode };
+
+        var rptUrl = "@ConfigModel.RptQuery_URL";
+
+        ajaxLoadMore(url, data, function (resp) {
+            if (resp.data === undefined || resp.data == undefined) {
+                blockAlert("數位結訓證明下載，失敗，請洽系統管理者!!", "", function () { }); return;
+            }
+            else {
+                //console.log(resp.data);
+                var parms = "";
+                var w = window.open('', 'print1', 'toolbar=0,location=0,status=0,menubar=0,resizable=1');
+                var data1 = resp.data;
+                parms = "RptID=" + data1.PRINTFILENAME;
+                parms += "&DCANO=" + data1.DCANO;
+                parms += "&DCASENO=" + data1.DCASENO;
+                parms += "&EMVCODE=" + data1.EMVCODE;
+                w.location = rptUrl + parms;
+            }
+        });
+    }
+
+</script>

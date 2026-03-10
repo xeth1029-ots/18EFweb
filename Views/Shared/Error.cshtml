@@ -1,0 +1,50 @@
+﻿@using WDAIIP.WEB.Commons
+@{
+    Layout = null;
+    //ViewBag.Title = "錯誤";
+    string s_hostIP = MyCommonUtil.GetLocalAddr("2");
+    string s_time1 = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    string s_errmsg1 = "處理您的要求時發生異常，請重新操作，若持續發生請聯絡管理人員!";
+}
+@*<!--http://localhost:2866/ErrorPage-->*@
+<div>
+    <h1 class="text-danger">系統發生異常!</h1>
+    <input type="hidden" name="hip" value="@(s_hostIP)" />
+    <input type="hidden" name="rtime" value="@(s_time1)" />
+    @if (!string.IsNullOrEmpty(ViewBag.HostIP))
+    {
+        <p>主機IP: @ViewBag.HostIP</p>
+    }
+    <p>@(ViewBag.Time)</p>
+    <p>@(s_time1).@(s_hostIP)</p>
+    <p>@(s_errmsg1)</p>
+    @if (!String.IsNullOrEmpty(ViewBag.Message))
+    {
+        <div style="margin-top:20px">
+            <p>@(ViewBag.Message)</p>
+            @if (ViewBag.Exception != null)
+            {
+                Stack<string> trace = new Stack<string>();
+                Exception ex = (Exception)ViewBag.Exception;
+                trace.Push(ex.StackTrace);
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                    trace.Push(ex.StackTrace);
+                }
+                <pre>
+                @while (trace.Count > 0)
+                {
+                    string msg = trace.Pop();
+                    @Html.Raw( msg )       
+                    if (trace.Count > 0)
+                    {
+                        @("\n--- 內部例外狀況堆疊追蹤的結尾 ---\n")
+                    }
+                }
+                </pre>
+            }
+        </div>
+    }
+</div>
+@**@

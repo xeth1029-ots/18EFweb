@@ -1,0 +1,318 @@
+﻿@model WDAIIP.WEB.Models.ClassMatchViewModel
+@using WDAIIP.WEB.Models
+
+@{
+    ViewBag.Title = "會員專區--速配課程設定";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    bool fg_test = ConfigModel.CHK_IS_TEST_ENVC; //(fg_test || fg_use1)
+    bool fg_use1 = (DateTime.Now.Year >= 2025);
+    ViewBag.PT2NM = "分署自辦在職訓練";
+    ViewBag.PT1NM = "產業人才投資方案(三年七萬)";
+    if (fg_test || fg_use1) { ViewBag.PT1NM = "產業人才投資方案(三年十萬)"; }
+    ViewBag.PT5NM = "區域產業據點";
+
+    string matchPlanName = string.Empty;
+    switch (Model.Form.PlanType)
+    {
+        case "1":
+            matchPlanName = "產業人才投資方案(三年七萬)";
+            if (fg_test || fg_use1) { matchPlanName = "產業人才投資方案(三年十萬)"; }
+            break;
+        case "2":
+            matchPlanName = "分署自辦在職訓練";
+            break;
+        case "5":
+            matchPlanName = "區域產業據點";
+            break;
+    }
+}
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+    form .checkbox,
+    form .radio { float: left; width: 150px; margin-right: 20px; margin-top: 1px !important; margin-bottom: 5px !important; padding-top: 0px !important; }
+</style>
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / 速配課程設定</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-pink"><i class="fas fa-check-square space-right"></i>速配課程設定</h3>
+    <ul class="question-type">
+        @if ((Model.Form.PlanType).Equals("2"))
+        {
+            <li style="width:48%"><a href="javascript:doChangeCondition('2')" class="active" title="@(ViewBag.PT2NM)">@(ViewBag.PT2NM)</a></li>
+        }
+        else
+        {
+            <li style="width:48%"><a href="javascript:doChangeCondition('2')" title="@(ViewBag.PT2NM)">@(ViewBag.PT2NM)</a></li>
+        }
+
+        @if ((Model.Form.PlanType).Equals("1"))
+        {
+            <li style="width:48%"><a href="javascript:doChangeCondition('1')" class="active" title="@(ViewBag.PT1NM)">@(ViewBag.PT1NM)</a></li>
+        }
+        else
+        {
+            <li style="width:48%"><a href="javascript:doChangeCondition('1')" title="@(ViewBag.PT1NM)">@(ViewBag.PT1NM)</a></li>
+        }
+
+        @if ((Model.Form.PlanType).Equals("5"))
+        {
+            <li style="width:48%"><a href="javascript:doChangeCondition('5')" class="active" title="@(ViewBag.PT5NM)">@(ViewBag.PT5NM)</a></li>
+        }
+        else
+        {
+            <li style="width:48%"><a href="javascript:doChangeCondition('5')" title="@(ViewBag.PT5NM)">@(ViewBag.PT5NM)</a></li>
+        }
+    </ul>
+    <!-- search form start -->
+    <div class="unit-border">
+        @using (Html.BeginForm("Index", "ClassMatch", FormMethod.Post, new { id = "main_form", @class = "form-horizontal", onsubmit = "setChkSel()" }))
+        {
+            @Html.HiddenFor(m => m.Form.PlanType)
+            @Html.HiddenFor(m => m.Form.TMIDRESULT)
+            @Html.HiddenFor(m => m.Form.CJOBUNKEYRESULT)
+
+            <div class="submit-bar">
+                <button type="submit" class="btn-orange" title="送出">送出</button>
+            </div>
+            @*<div class="form-group-search">@Html.CustomLabelFor(m => m.Form.PlanType, new { @class = "form-label-search" })<div class="form-input form-inline">@Html.RadioGroupFor(m => m.Form.PlanType, Model.PlanType_list, new { @class = "group-width" })</div></div>*@
+            <!-- 條件 start -->
+            <div id="condition">
+                @Html.Partial("_Condition")
+            </div>
+            <!-- 條件 end -->
+
+            <div class="clearfix"></div>
+            <div class="submit-bar"></div>
+            <p></p>
+            <p></p>
+            <!-- search form end -->
+        }
+    </div>
+</div>
+@using (Html.BeginForm("PlanTypeChange", "ClassMatch", FormMethod.Post, htmlAttributes: new { id = "condition_form", @class = "form-horizontal" }))
+{
+    @Html.Hidden("planType");
+}
+
+<script type="text/javascript">
+    $(function () {
+        var idHead = "#Form_";
+
+        $("div.submit-bar").eq(1).html($("div.submit-bar").html());
+
+        //類型選取項目改變事件
+        $("input[type=radio][name*='Form.PlanType']").on("change", function () {
+            doChangeCondition($(this).val());
+        });
+
+        //縣市代碼改變事件
+        //$(idHead + "CTID").on("change", doZipCodeGet);
+
+        //2019-01-31 問題11 add 產投課程速配條件「課程地點所屬縣市別」加「全部」的選項（全選/全不選），且改為必填
+        $("div[data_role^='CTID_Items'] :checkbox").on("click", function () {
+            if ($(this).prop("checked")) { //勾選
+                if ($(this).val() == "000") {
+                    //當勾選「全部」時，一併將其它的縣市別選項改成勾選狀態
+                    $("div[data_role^='CTID_Items'] :checkbox").prop("checked", true);
+                }
+            } else { //取消勾選
+                if ($(this).val() == "000") {
+                    //取消「全部」的勾選就會一併將其它所有的選項取消勾選狀態
+                    $("div[data_role^='CTID_Items'] :checkbox").prop("checked", false);
+                } else {
+                    //取消其它縣市選項的勾選狀態時要一併取消「全部」的勾選狀態
+                    $("div[data_role^='CTID_Items'] :checkbox").eq(0).prop("checked", false);
+                }
+            }
+        });
+
+        //2019-01-31 問題11 add 在職課程速配條件「分署別」加「全部」的選項（全選/全不選），且改為必填
+        $("div[data_role^='DISTID_Items'] :checkbox").on("click", function () {
+            if ($(this).prop("checked")) {
+                if ($(this).val() == "000") {
+                    //當勾選「全部」時，一併將其它的分署別選項改成勾選狀態
+                    $("div[data_role^='DISTID_Items'] :checkbox").prop("checked", true);
+                }
+            } else {
+                if ($(this).val() == "000") {
+                    //取消「全部」的勾選就會一併將其它所有的選項取消勾選狀態
+                    $("div[data_role^='DISTID_Items'] :checkbox").prop("checked", false);
+                } else {
+                    //取消其它分署選項的勾選狀態時要一併取消「全部」的勾選狀態
+                    $("div[data_role^='DISTID_Items'] :checkbox").eq(0).prop("checked", false);
+                }
+            }
+        });
+
+
+        var cjobIdx = 0;
+        //第一層通俗職類全選/全不選
+        $("input[name='Form.CJOBTYPE']").each(function () {
+            $('.expand_' + cjobIdx).hide();
+            cjobIdx++;
+
+            $(this).on("click", function (e) {
+                var cjobType = $(this).attr("data-role");
+                if ($(this).prop("checked")) {
+                    $("input[type=checkbox][data-role='CJOBNOLv2SelValue_" + cjobType + "']").prop("checked", true);
+                    $("div[data_role^='CJOBNOLv3SelValue_" + cjobType + "'] :checkbox").prop("checked", true);
+                }
+                else {
+                    $("input[type=checkbox][data-role='CJOBNOLv2SelValue_" + cjobType + "']").prop("checked", false);
+                    $("div[data_role^='CJOBNOLv3SelValue_" + cjobType + "'] :checkbox").prop("checked", false);
+                }
+            });
+        });
+
+        //第二層通俗職類全選/全不選
+        $("input[name='Form.CJOBNO']").each(function () {
+            $(this).on("click", function (e) {
+                var cjobNo = $(this).val();
+                var cjobtype = $(this).attr("data-cjobtype");
+
+                if ($(this).prop("checked")) {
+                    $("div[data_role^='CJOBNOLv3SelValue_" + cjobtype + "_" + cjobNo + "'] :checkbox").prop("checked", true);
+                }
+                else {
+                    $("input[type='checkbox'][data-role='" + cjobtype + "']").prop("checked", false);
+                    $("div[data_role^='CJOBNOLv3SelValue_" + cjobtype + "_" + cjobNo + "'] :checkbox").prop("checked", false);
+                }
+            });
+        });
+
+        //訓練業別第一層全選/全不選
+        var tmidIdx = 0;
+        $("input[name='Form.JOBTMID']").each(function () {
+            $(this).on("click", function (e) {
+                var jobtmid = $(this).attr("data-role");
+
+                $("div[data_role^='TMIDLv2SelValue_" + jobtmid + "'] :checkbox").prop("checked", (($(this).prop("checked")) ? true : false));
+            });
+
+            //預設先全展開
+            $('.expand_' + tmidIdx).hide();
+            /*
+            //預設先全收合
+            $('.collapse_' + idx).hide();
+            $('.content_' + idx).hide();
+            */
+            tmidIdx++;
+        });
+
+        //取消產投【通俗職類】第三層的任一選項時同時取消所屬第一層及第二層的checkbox選取狀態
+        $("div[data_role^='CJOBNOLv3SelValue_'] :checkbox").on("click", function () {
+            if (!$(this).prop("checked")) {
+                var div = $(this).closest("div").parents("div")[0];
+                var cjobtype = $(div).attr("data_cjobtype"); //第一層選項代碼
+                var cjobno = $(div).attr("data_cjobno"); //第二層選項代碼
+
+                $("input[type=checkbox][data-cjobno=" + cjobno + "]").prop("checked", false);
+                $("input[type=checkbox][data-role=" + cjobtype + "]").prop("checked", false);
+            }
+        });
+
+        //取消在職【訓練業別】第二層的任一選項時同時取消上一層checkbox選取狀態
+        $("div[data_role^='TMIDLv2SelValue_'] :checkbox").on("click", function () {
+            if (!$(this).prop("checked")) {
+                var div = $(this).closest("div").parents("div")[0];
+                var jobtmid = $(div).attr("data_jobtmid");
+                $("input[type=checkbox][data-role=" + jobtmid + "]").prop("checked", false);
+            }
+        });
+    });
+
+    //切換設定條件頁面
+    function doChangeCondition(planType) {
+        $("#planType").val(planType);
+        $("form#condition_form").submit();
+    }
+
+    //點擊展開/收合對應第二層checkbox選項區
+    function doChkExpand(idx) {
+        $('.collapse_' + idx).toggle();
+        $('.expand_' + idx).toggle();
+        $('.subChkContent_' + idx).slideToggle();
+    }
+
+    //取得縣市代碼相對應的鄉鎮市區清單
+    function doZipCodeGet() {
+        var idHead = "#Form_";
+        var data = {
+            "url": "@Url.Action("GetZipCode", "Ajax")",
+            "arg": { "CTID": $(idHead + "CTID option:selected").val() },
+            "box": $(idHead + "ZIPCODE")
+        }
+
+        var blankHtml = "<option value=\"\">請選擇</option>";
+        if ($.trim(data.arg.CTID) == "") data.box.html(blankHtml);
+        else {
+            ajaxLoadMore(data.url, data.arg, function (resp) {
+                if (resp === undefined) data.box.html(blankHtml);
+                else {
+                    if (resp.data != "") {
+                        data.box.html(resp.data);
+                    }
+                    else {
+                        data.box.html(blankHtml);
+                    }
+                }
+            });
+        }
+    }
+
+    //擷取並設定已勾選項目
+    function setChkSel() {
+        var form = $("#main_form");
+        var planType = form.find("#Form_PlanType").val();
+
+        var tmidKeyAry = [];
+        var cjobUnkeyAry = [];
+        /*
+        $("input[name='Form.CJOBTYPE']").each(function () {
+            var cjobType = $(this).attr("data-role");
+            $("input[name='Form.CJOBNO']").each(function () {
+                var cjobNo = $(this).val();
+                $("div[data_role^='CJOBNOLv3SelValue_'] :checkbox :checked").each(function () {
+                    //if ($(this).prop("checked")) {
+                        cjobUnkeyAry.push($(this).val());
+                    //}
+                });
+            });
+        });
+        */
+
+        switch (planType) {
+            case "1": //產投
+                //擷取有勾選的(第二層)訓練業別代碼值
+                $("div[data_role^='TMIDLv2SelValue_'] input:checked").each(function () {
+                    tmidKeyAry.push($(this).val());
+                });
+
+                form.find("input[name='Form.TMIDRESULT']").val(tmidKeyAry.join(","));
+                break;
+
+            case "2": //在職
+                //擷取有勾選的(第三層)通俗職類代碼值
+                $("div[data_role^='CJOBNOLv3SelValue_'] input:checked").each(function () {
+                    cjobUnkeyAry.push($(this).val());
+                });
+
+                form.find("input[name='Form.CJOBUNKEYRESULT']").val(cjobUnkeyAry.join(","));
+                break;
+
+            case "5": //區域產業據點
+                //擷取有勾選的(第三層)通俗職類代碼值
+                $("div[data_role^='CJOBNOLv3SelValue_'] input:checked").each(function () {
+                    cjobUnkeyAry.push($(this).val());
+                });
+
+                form.find("input[name='Form.CJOBUNKEYRESULT']").val(cjobUnkeyAry.join(","));
+                break;
+        }
+    }
+</script>

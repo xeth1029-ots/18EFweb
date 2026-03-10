@@ -1,0 +1,125 @@
+﻿@model WDAIIP.WEB.Models.QAViewModel
+@{
+    ViewBag.Title = "Q&A--常見問題";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    string QATypeName = Model.TYPEID_TEXT;
+}
+<style type="text/css"> 
+    /*問題項當滑鼠游標圖示移到問題項上方時會有模擬超連結的效果*/
+    #qaContent div.question-title:hover {
+        /*text-decoration: underline;*/
+        cursor: pointer;
+    }
+</style>
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / Q&A / 常見問題</div>
+    @*@if ("99".Equals(Model.Form.TYPEID))
+    {
+        <div class="breadlink"><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="首頁">首頁</a> / <a href="#" title="Q&A">Q&A</a> / <a href="@Url.Content("~/QA")" title="常見問題">常見問題</a>  </div>
+    }
+    else
+    {
+        <div class="breadlink"><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="首頁">首頁</a> / <a href="#" title="Q&A">Q&A</a> / <a href="@Url.Content("~/QA")" title="常見問題">常見問題</a> / @QATypeName</div>
+    }*@
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-question-circle space-right"></i>常見問題</h3>    
+    <ul class="question-type">
+        @Html.Partial("_QATypeGridRows", Model)
+    </ul>
+    <div class="col-sm-4">
+        @Html.TextBoxFor(m => m.Form.KEYWORD_TEXT, new { @class = "form-control", id = "keyword", placeholder = "請輸入關鍵字" , title = "請輸入關鍵字" })
+    </div>
+    <div class="col-sm-8">
+        <button type="submit" name="ctl00$UC_FindJob$btn1" onclick="dokeyWordSch()" value="查詢" id="UC_FindJob_btn1" class="btn_set" title="查詢">查詢</button>
+        &nbsp; (多組關鍵字以一個空白鍵做區隔)
+    </div>
+    <div class="col-sm-12">
+        <br/>
+    </div>
+    <div class="clearfix"></div>
+    <h3 class="titlebar titlebarBg-green">@QATypeName</h3>
+    <!-- q&a -->
+    <div class="question-set" id="qaContent">
+        @if (Model.Grid != null)
+        {
+            <div id="rows">
+                @Html.Partial("_GridRows", Model)
+            </div>
+            @Html.Partial("_PagingLink", Model.Form)
+        }
+    </div>
+    <!-- pager end -->
+</div>
+
+@using (Html.BeginForm("Index", "QA", FormMethod.Post, new { id = "main_form" }))
+{
+    @Html.HiddenFor(m => m.Form.TYPEID)
+    @Html.HiddenFor(m => m.Form.KEYWORD)
+    @Html.HiddenFor(m => m.Form.KEYWORD_TEXT)
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        var isFirst = "@(Model.Form.IsFirst)";
+        var qaTypeID = "@(Model.Form.TYPEID)";
+
+        if (isFirst == "N") {
+            $("#aQATypeID_" + qaTypeID).focus();
+        }
+
+        //控制執行中的Q&A類別按鈕顏色(class="active")
+        $("ul.question-type a").click(function ($e) {
+            $e.preventDefault(); //點問題項的超連結後，畫面捲軸保持在原位不要跳回到最上面
+            $("a.active").removeClass("active");
+            $(this).addClass("active");
+        });
+
+        //初始化，問題項與答案項的收合效果
+        initQAMotion();
+    });
+
+    //初始化，問題項與答案項的收合效果
+    function initQAMotion() {
+        //滑出式問與答(Q&A)清單
+        //當點到標題時，若答案是隱藏時則顯示它，同時隱藏其它已經展開的項目；反之則隱藏
+        $('#qaContent div.question-title').click(function ($e) {
+            $e.preventDefault();//點問題項的超連結後，畫面捲軸保持在原位不要跳回到最上面
+
+            var qaAnswer = $(this).next('div.answer');
+            if (!qaAnswer.is(':visible')) {
+                //$('#qaContent div.answer:visible').slideUp();
+            }
+            qaAnswer.slideToggle();
+        }).siblings('div.answer').hide();
+        //展開第一個Question的Answer
+        $('#qaContent div.answer').show();
+    }
+
+    //問與答的查詢
+    function doQuery(typeID) {
+        var form = $("#main_form");
+        form.find("#Form_TYPEID").val(typeID);
+        form.find("#Form_KEYWORD").val("");
+        form.submit();
+    }
+
+    //關鍵字的查詢
+    function dokeyWordSch() {
+        var form = $("#main_form");
+        form.find("#Form_KEYWORD").val($("#keyword").val());
+        form.find("#Form_KEYWORD_TEXT").val($("#keyword").val());
+        form.submit();
+    }
+
+    //滑出式的問與答
+    function ajaxCallback(rasp) {
+        if (rasp) {
+            $("#rows").empty().html(rasp.Result);
+            //$('#qaContent div.answer:visible').slideUp();
+            //$('#qaContent div.answer:first').show();
+            //$('#qaContent div.answer').show();
+            initQAMotion();
+        }
+    }
+</script>

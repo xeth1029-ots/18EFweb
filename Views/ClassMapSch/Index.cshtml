@@ -1,0 +1,873 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.DataLayers
+@model ClassMapSchViewModel
+@{
+    //ViewBag.Title = "Index"; ~/ClassMapSch
+    ViewBag.Title = "課程查詢報名--地圖找課程";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+    if (Model == null) { return; }
+    int iG1 = (Model.Grid1 != null) ? Model.Grid1.Count : 0;
+    //int iG2 = (Model.Grid2 != null) ? Model.Grid2.Count : 0;
+    //int iG3 = (Model.Grid3 != null) ? Model.Grid3.Count : 0;
+    //int iGAll = (iG1 + iG2 + iG3);
+    string s_schClassCnt1 = string.Format("附近共有 {0} 筆課程", iG1);
+    int iRow = 0;
+    string s_liSDM = Model.Form.liSDM ?? "[]";
+    //string s_hidJobBounds = Model.Form.hidJobBounds ?? "[]";
+    string s_DISTID = Model.Form.DISTID;
+    string s_CTID_CHK = Model.Form.CTID_KEY;
+    string s_CLASSCATE = Model.Form.CLASSCATE;
+    string s_ORGKIND = Model.Form.ORGKIND;
+
+    //string MAP_AppID_test = "lTPdox5XfzyjNW8l+oaklUZjW9jljaV3Lx3DOnYJKF37byXdJlfOmg==";
+    //string MAP_APIKey_test = "cGEErDNy5yN/1fQ0vyTOZrghjE+jIU6uuyLUpFfm0OEY+iBNJnf9WvoCwTopOOUPMfdDpg/pihiPALA5s/gl4J/KJZyWVApuKKNoJiAu3QlYzSJuGpzz9e6C1+N6l+HGG05E0LkMpa1VOeiBrb/BJbShahGt6WGkVFErM/NJ+eg2tIbOdFZFz8rNPtZJ5mGUo2vgXchvQ1mVNurt/Qx9/dtq0F1x66xmG6KpaFP/XNA5WXLSSy6dsjNneF4notc6ttmVaJiyiRJXWejNYPv/7UJ3QwcVfgMTWQ+Me6AtKZlgTlL7gVrd0YiSY6IVhvwrNCQ5L9RJ2xRyd8BPcMcW1oaZRl8x/ejt/AJJ0LI/L9AfXWci2CP7SSpzDfQPotpreF997vUiqCb1VrSYv4HrFDCMTupMZphHoXCdp9mmJIpuTioW70IGWg==";
+    //string s_gosApi1 = string.Format("https://api.tgos.tw/TGOS_API/tgos?ver=2&AppID={0}&APIKey={1}", MAP_AppID_test, MAP_APIKey_test);
+    MyCommonUtil mcu = new MyCommonUtil();
+    string s_gosApi1 = mcu.Get_TGOS_API;
+
+    SessionModel Sesm = SessionModel.Get();
+    bool flag_login = (Sesm == null || string.IsNullOrEmpty(Sesm.RID) || string.IsNullOrEmpty(Sesm.SID) || string.IsNullOrEmpty(Sesm.ACID) || string.IsNullOrEmpty(Sesm.Birthday)) ? false : true;
+}
+
+<!-- BarrY Add Start -->
+<!-- iCon  -->
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/vendor/icon-reGui/style.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/vendor/icon-recruit/style.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/vendor/icon-turbotech/style.css")">
+<!-- leaflet  -->
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/leaflet.css")" />
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/MarkerCluster.css")" />
+<!-- Main  -->
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/animate.css")">
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/main.css")" />
+<!-- JS Implementing Plugins -->
+<script type="text/javascript" src="@Url.Content("~/js/jquery.maskedinput/src/jquery.maskedinput.js")"></script>
+<!-- JS Mask Input -->
+<script type="text/javascript" src="@Url.Content("~/js/masked-input.js")"></script>
+<!-- BarrY Add End -->
+<script type="text/javascript" src="@Url.Content("~/js/leaflet-src.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/js/leaflet.markercluster-src.js")"></script>
+<script type="text/javascript" src="@Url.Content("~/js/leaflet_api.js")" charset="utf-8"></script>
+@*<script type="text/javascript" src="@Html.Raw(s_gosApi1)" charset="utf-8"></script>*@
+<script type="text/javascript" src="@Url.Content("~/js/tgos_map.js")" charset="utf-8"></script>
+<script type="text/javascript" src="@Url.Content("~/js/jquery.touchSwipe.min.js")" charset="utf-8"></script>
+<script type="text/javascript" src="@Url.Content("~/js/map_list_rwd.js")" charset="utf-8"></script>
+<script type="text/javascript" src="@Url.Content("~/js/base64.js")"></script>
+@*<script type="text/javascript" src="@Url.Content("~/js/service_location_map.js")" charset="utf-8"></script>*@
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/all.css")" />
+<link rel="stylesheet" type="text/css" href="@Url.Content("~/css/job_search_list.css")" />
+
+<script type="text/javascript">
+    var liSDM = @Html.Raw(s_liSDM);
+    @*$("#hidJobBounds").val(@Html.Raw(s_hidJobBounds));*@
+
+    function togglePanlConditions() {
+        var w = $(window).width();
+        //if (w > 480) {
+        //    console.log("window.width=" + w + " > 480 open panlConditions.");
+        //    $('#panlConditions').addClass('in');
+        //    changeToogleMoreCondIcon(true, "panlConditions");
+        //}
+    }
+
+    $(window).resize(function () {
+        togglePanlConditions();
+        //resizeItem('list_zone');
+    });
+</script>
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+
+<!-- BarrY Add Start -->
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 地圖找課程</div>
+    <!-- bread end --->
+</div>
+
+@Html.Partial("_Condition", Model)
+
+@{
+    //取得目前(DB)系統時間
+    MyKeyMapDAO keyDao = new MyKeyMapDAO();
+    DateTime nowTime = keyDao.GetSysDateNow();
+    //「訓練班別」、「課程名稱」有期別則顯示期別
+    var v_OJT22090201 = keyDao.GetSystemConfig("OJT22090201");
+    bool flag_ShowClass2 = (!string.IsNullOrEmpty(v_OJT22090201) && v_OJT22090201 == "Y") ? true : false;
+}
+
+@using (Html.BeginForm("Index", "ClassMapSch", FormMethod.Post, htmlAttributes: new { id = "main_Form", @class = "form-horizontal" }))
+{
+    @Html.HiddenFor(m => m.Form.PlanType, new { @id = "hid_Form_PlanType" })
+    @Html.HiddenFor(m => m.Form.JOBTMID, new { @id = "hid_Form_JOBTMID" })
+    @Html.HiddenFor(m => m.Form.TMID, new { @id = "hid_Form_TMID" })
+    @Html.HiddenFor(m => m.Form.PARENT1, new { @id = "hid_Form_PARENT1" })
+    @Html.HiddenFor(m => m.Form.PARENT2, new { @id = "hid_Form_PARENT2" })
+    @Html.HiddenFor(m => m.Form.KEYWORDS, new { @id = "hid_Form_KEYWORDS" })
+    @Html.HiddenFor(m => m.Form.ContainsOverEnter, new { @id = "hid_Form_ContainsOverEnter" })
+
+    @Html.HiddenFor(m => m.Form.hidCoursesClosed, new { @id = "Form_hidCoursesClosed" })
+    @Html.HiddenFor(m => m.Form.hidQryConditionsd, new { @id = "Form_hidQryConditionsd" })
+    //分署別 DISTID_list
+    @Html.HiddenFor(m => m.Form.DISTID_SHOW, new { @id = "hid_Form_DISTID_SHOW" })
+    //上課地點 CTID_CHK_list
+    @Html.HiddenFor(m => m.Form.CTID_SHOW, new { @id = "hid_Form_CTID_SHOW" })
+    //依訓練職能別,六大職能別 CLASSCATE_list
+    @Html.HiddenFor(m => m.Form.CLASSCATE_SHOW, new { @id = "hid_Form_CLASSCATE_SHOW" })
+    //輔助計畫別 ORGKIND_list
+    @Html.HiddenFor(m => m.Form.ORGKIND_SHOW, new { @id = "hid_Form_ORGKIND_SHOW" })
+
+<div class="col-sm-12">
+    <article class="map-main-cnt">
+        <div class="lt-more-cnt">
+            <div class="icon-bk">
+                <h3 class="heading-v1">
+                    <span>其他查詢條件</span><i class="nre-add-square" id="lt_more"></i>
+                </h3>
+            </div>
+            <div class="lt-more-accordions">
+                @*<a href="javascript:void(0)"></a>*@
+                <!-- 分署別 -->
+                <h4 class="accordions">
+                    <span>分署別</span>
+                    <i class="re-g-db-next-ui"></i>
+                </h4>
+                <ul class="accordions-cnt">
+                    @foreach (var cbItem in Model.DISTID_list)
+                    {
+                        string s_Checked = MyCommonUtil.ChkStringValue(cbItem.Value, s_DISTID) ? "checked=\"checked\"" : null;
+                        string s_lab_val = string.Format("{0}", cbItem.Value);
+                        string s_lab_id = string.Format("cb_DISTID_list_{0}", cbItem.Value);
+                        string s_alt_txt = string.Format("[請勾選]{0}", cbItem.DisplayText);
+                        string s_span_txt = string.Format("{0}", cbItem.DisplayText);
+                        <li>
+                            <input class="chk-inp" name="cb_DISTID_list" id="@s_lab_id" type="checkbox" value="@s_lab_val" @Html.Raw(s_Checked) alt="@s_alt_txt" />
+                            <label class="chk-lab" for="@s_lab_id" aria-label="@s_span_txt"><i class="box" aria-hidden="true"></i><span>@s_span_txt</span></label>
+                        </li>
+                    }
+                    @*<li><input class="chk-inp" name="office" id="a1" type="checkbox"><label class="chk-lab" for="a1"><i class="box" aria-hidden="true"></i>
+                        <span>北基宜花金馬分署</span></label></li>*@
+                </ul>
+                <!-- 上課地點 -->
+                <h4 class="accordions">
+                    <span>上課地點</span>
+                    <i class="re-g-db-next-ui"></i>
+                </h4>
+                <ul class="accordions-cnt areas">
+                    @foreach (var cbItem in Model.CTID_CHK_list)
+                    {
+                        string s_Checked = MyCommonUtil.ChkStringValue(cbItem.Value, s_CTID_CHK) ? "checked=\"checked\"" : null;
+                        string s_lab_val = string.Format("{0}", cbItem.Value);
+                        string s_lab_id = string.Format("cb_CTID_CHK_list_{0}", cbItem.Value);
+                        string s_alt_txt = string.Format("[請勾選]{0}", cbItem.DisplayText);
+                        string s_span_txt = string.Format("{0}", cbItem.DisplayText);
+                        <li>
+                            <input class="chk-inp" name="cb_CTID_CHK_list" id="@s_lab_id" type="checkbox" value="@s_lab_val" @Html.Raw(s_Checked) alt="@s_alt_txt" />
+                            <label class="chk-lab" for="@s_lab_id" aria-label="@s_span_txt"><i class="box" aria-hidden="true"></i><span>@s_span_txt</span></label>
+                        </li>
+                    }
+
+                </ul>
+                <!-- 開訓日期區間 -->
+                <h4 class="accordions">
+                    <span>開訓日期區間</span>
+                    <i class="re-g-db-next-ui"></i>
+                </h4>
+                <ul class="accordions-cnt">
+                    @*<li><div class="date input-group datepicker-outline date-group">
+                        <input class="datepickerinput" id="dateStart" name="Ccdate" type="hidden" value="">
+                        <input type="text" autocomplete="off" class="" id="date1" name="Cdate" placeholder="YYY/MM/DD" data-mask="999/99/99">
+                        <div class="input-group-btn"><a class="open-datepicker btn btn--sky btn--square--md" role="button">
+                        <i class="nre-calendar-month" aria-hidden="true"></i><span class="sr-only">calendar</span></a></div></div></li><p>至</p><li>
+                        <div class="date input-group datepicker-outline date-group"><input class="datepickerinput" id="dateEnd" name="Ccdate" type="hidden" value="">
+                        <input type="text" autocomplete="off" class="" id="date2" name="Cdate" placeholder="YYY/MM/DD" data-mask="999/99/99">
+                        <div class="input-group-btn"><a class="open-datepicker btn btn--sky btn--square--md" role="button">
+                        <i class="nre-calendar-month" aria-hidden="true"></i><span class="sr-only">calendar</span></a></div></div></li>*@
+                    <li>
+                        <p>
+                            @Html.DropDownListFor(m => m.Form.STDATE_YEAR_SHOW, Model.YEAR0_list, "請選擇", new { title = "請選擇開訓日期區間_起日年份" })
+                            年
+                            @Html.DropDownListFor(m => m.Form.STDATE_MON, Model.MON_list, "請選擇", new { title = "請選擇開訓日期區間_起日月份" })
+                            月
+                        </p>
+                    </li>
+                    <li><p>至</p></li>
+                    <li>
+                        <p>
+                            @Html.DropDownListFor(m => m.Form.FTDATE_YEAR_SHOW, Model.YEAR1_list, "請選擇", new { title = "請選擇開訓日期區間_迄日年份" })
+                            年
+                            @Html.DropDownListFor(m => m.Form.FTDATE_MON, Model.MON_list, "請選擇", new { title = "請選擇開訓日期區間_迄日月份" })
+                            月
+                        </p>
+                    </li>
+                </ul>
+                <!-- 依訓練職能別,六大職能別 name="title_CLASSCATE_1" name="title_CLASSCATE_2"-->
+                <h4 class="accordions">
+                    <span>依訓練職能別</span>
+                    <i class="re-g-db-next-ui"></i>
+                </h4>
+                <ul class="accordions-cnt">
+                    <li>
+                        <input class="chk-inp" name="cb_CLASSCATE_list" id="cb_CLASSCATE_list_all" type="checkbox" onclick="check_all(this,'cb_CLASSCATE_list')">
+                        <label class="chk-lab" for="cb_CLASSCATE_list_all"> <i class="box" aria-hidden="true"></i>不拘</label>
+                    </li>
+                    @foreach (var sItem in Model.CLASSCATE_list)
+                    {
+                        string s_Checked = MyCommonUtil.ChkStringValue(sItem.Value, s_CLASSCATE) ? "checked=\"checked\"" : null;
+                        string s_lab_id = string.Format("cb_CLASSCATE_list_{0}", sItem.Value);
+                        string s_lab_val = string.Format("{0}", sItem.Value);
+                        string s_alt_txt = string.Format("[請勾選]{0}", sItem.Text);
+                        string s_span_txt = string.Format("{0}", sItem.Text);
+                        <li>
+                            <input class="chk-inp" name="cb_CLASSCATE_list" id="@s_lab_id" type="checkbox" value="@s_lab_val" @Html.Raw(s_Checked) alt="@s_alt_txt" />
+                            <label class="chk-lab" for="@s_lab_id" aria-label="@s_span_txt"><i class="box" aria-hidden="true"></i><span>@s_span_txt</span></label>
+                        </li>
+                    }
+                    @*<li><input class="chk-inp" name="competency" id="c1" type="checkbox" onclick="check_all(this,'competency')">
+                        <label class="chk-lab" for="c1"><i class="box" aria-hidden="true"></i><span>不拘</span></label></li>*@
+                </ul>
+                <!-- 輔助計畫別 name="title_ORGKIND_1" name="title_ORGKIND_2"-->
+                <h4 class="accordions">
+                    <span>輔助計畫別</span>
+                    <i class="re-g-db-next-ui"></i>
+                </h4>
+                <ul class="accordions-cnt">
+                    <li>
+                        <input class="chk-inp" name="cb_ORGKIND_list" id="cb_ORGKIND_list_all" type="checkbox" onclick="check_all(this,'cb_ORGKIND_list')">
+                        <label class="chk-lab" for="cb_ORGKIND_list_all"> <i class="box" aria-hidden="true"></i>不拘</label>
+                    </li>
+                    @foreach (var sItem in Model.ORGKIND_list)
+                    {
+                        string s_Checked = MyCommonUtil.ChkStringValue(sItem.Value, s_ORGKIND) ? "checked=\"checked\"" : null;
+                        string s_lab_id = string.Format("cb_ORGKIND_list_{0}", sItem.Value);
+                        string s_lab_val = string.Format("{0}", sItem.Value);
+                        string s_alt_txt = string.Format("[請勾選]{0}", sItem.Text);
+                        string s_span_txt = string.Format("{0}", sItem.Text);
+                        <li>
+                            <input class="chk-inp" name="cb_ORGKIND_list" id="@s_lab_id" type="checkbox" value="@s_lab_val" @Html.Raw(s_Checked) alt="@s_alt_txt" />
+                            <label class="chk-lab" for="@s_lab_id" aria-label="@s_span_txt"><i class="box" aria-hidden="true"></i><span>@s_span_txt</span></label>
+                        </li>
+                    }
+                    @*<li><input class="chk-inp" name="all" id="s1" type="checkbox" onclick="check_all(this,'support')" value="0">
+                        <label class="chk-lab" for="s1"><i class="box" aria-hidden="true"></i><span>不拘</span></label></li><li>
+                        <input class="chk-inp" name="support" id="s2" type="checkbox" value="1"><label class="chk-lab" for="s2">
+                        <i class="box" aria-hidden="true"></i><span>產業人才投資計畫</span></label></li><li>
+                        <input class="chk-inp" name="support" id="s3" type="checkbox" value="2"><label class="chk-lab" for="s3">
+                        <i class="box" aria-hidden="true"></i><span>提升勞工自主學習計畫</span></label></li>*@
+                </ul>
+                <div class="search-bt-bk">
+                    <button type="button" class="btn btn--dark btn--md btn--block" title="查詢其他條件" onclick="javascript:{btnSearchClick();}">查詢其他條件 <i class="re-g-search"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="ct-map-cnt">
+            <div id="map" class="job_search_map">
+                <div class="search_map_toolbar">
+                    <button type="button" id="btnBoundSearch" class="toolbar-btn" onclick="btnBoundSearchClick()">
+                        <i class="tu-map"></i>搜尋地圖區域
+                    </button>
+                    <button type="button" id="btnLocate" class="toolbar-btn" onclick="btnLocateClick()">
+                        <i class="tu-navigation"></i>定位您的地點
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="rt-result-cnt">
+            <h3 class="heading-v1">
+                <span id="search_map_list_title">@s_schClassCnt1</span>
+                @*<span>附近共有 <big>@s_schClassCnt1</big> 筆課程</span>*@
+            </h3>
+            <div class="rt-course-card-list list_zone" id="lv_jobQueryResult">
+                @foreach (var item1 in Model.Grid1)
+                {
+                    iRow += 1;
+                    string v_CLASSCNAME = flag_ShowClass2 ? item1.CLASSCNAME2 : item1.CLASSCNAME;
+                    string s_id_lab = string.Format("gdItem_{0}", iRow);
+                    string s_item1_id = string.Format("lv_jobQueryResult_ItemUL_{0}", item1.OCID);
+                    //string s_item1_ctname = string.Format("lv_jobQueryResult_ItemUL_{0}", item1.CTNAME);
+                    string s_SFENTERD = string.Format("{0} — {1}", MyHelperUtil.GetZHDate(item1.SENTERDATE), MyHelperUtil.GetZHDate(item1.FENTERDATE));
+                    string s_SFDATE = string.Format("{0} — {1}", MyHelperUtil.GetZHDate(item1.STDATE), MyHelperUtil.GetZHDate(item1.FTDATE));
+                    <ul id="@s_item1_id" data-id="@item1.OCID">
+                        <li class="meta" style="display:none;">
+                            <span id="HireId">@item1.OCID</span>
+                            <span id="TWD97_X">@item1.REAL_TWD97_X</span>
+                            <span id="TWD97_Y">@item1.REAL_TWD97_Y</span>
+                            <span id="JobName">@(v_CLASSCNAME)</span>
+                            <span id="CtName">@item1.CTNAME</span>
+                        </li>
+                        <li>
+                            <figure class="rt-course-card">
+                                <a href="javascript:showclassdetail(@item1.PLANTYPE,'N',@item1.OCID)" class="title" title="@(v_CLASSCNAME)">@(v_CLASSCNAME)</a>
+                                <div class="favbtn">
+                                    @*課程收藏 AddClassTrace*@
+                                    <input type="checkbox" id="@s_id_lab" value="@item1.OCID" onclick="javascript:{doAddClassTrace(this.checked,'@item1.OCID','@s_id_lab');}" />
+                                    <label for="@s_id_lab" class="fa fa-star" title="@(v_CLASSCNAME)"><span class="sr-only">@(v_CLASSCNAME)</span></label>
+                                </div>
+                                <figcaption>
+                                    <div class="agency">@item1.ORGNAME @*勞動力發展署桃竹苗分署*@</div>
+                                    <div class="address">@item1.TADDRESS @*326 桃園市 楊梅區 秀才路 851 號*@</div>
+                                </figcaption>
+                                <div class="date-row">
+                                    <dl>
+                                        <dt>報名期間</dt>
+                                        <dd>@s_SFENTERD </dd>@*110/01/10 — 110/05/02*@
+                                    </dl>
+                                    <dl>
+                                        <dt>開課期間</dt>
+                                        <dd>@s_SFDATE </dd>@*110/07/31 — 110/09/04*@
+                                    </dl>
+                                </div>
+                            </figure>
+                        </li>
+                    </ul>
+
+                }
+
+            </div>
+        </div>
+    </article>
+
+    @*<input id="hidJobBounds" type="hidden" /><input id="hidSearchBounds" type="hidden" />
+        <input id="hidSearchLoc" type="hidden" /><input id="hidOpenNotSearch" type="hidden" />*@
+
+    @Html.HiddenFor(m => m.Form.hidJobBounds, new { @id = "hidJobBounds" })
+    @Html.HiddenFor(m => m.Form.hidSearchBounds, new { @id = "hidSearchBounds" })
+    @Html.HiddenFor(m => m.Form.hidSearchLoc, new { @id = "hidSearchLoc" })
+    @Html.HiddenFor(m => m.Form.hidOpenNotSearch, new { @id = "hidOpenNotSearch" })
+    <!-- BarrY Add End -->
+</div>
+}
+
+<!--課程收藏 AddClassTrace-->
+@using (Html.BeginForm("AddClassTrace", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoClassTraceForm" }))
+{
+    @Html.Hidden("PlanType", Model.Form.PlanType)
+    @Html.Hidden("OCID", Model.Form.OCID)
+}
+
+<script>
+    // 上方搜尋框下拉選單 點擊變換顏色
+    $('#map_search select').on('change', function() {
+        var $this = $(this);
+        $this.css('color', $this.val() == '' ? '#838588' : '#212529');
+    });
+
+    $('.select').bind('keydown', function(event) {
+        var code = event.keyCode || event.which;
+        var _this = $(this);
+        if (code == 13) {
+            _this.click();
+        }
+    });
+    // 左側選單整塊開關
+    (function lt_mb_open() {
+
+        var header = $('h4.accordions');
+        var lab = $('.chk-inp');
+        header.attr('tabindex', '0');
+        lab.attr('tabindex', '0');
+
+        $('.icon-bk').on('click', function() {
+            var $this = $(this);
+            $this.find('#lt_more').toggleClass('nre-remove-square nre-add-square').parent().parent().next('div.lt-more-accordions').toggleClass('open');
+        });
+
+        // 查詢條件收合動態
+        header.on('click', function() {
+            var $this = $(this);
+            $this.toggleClass('show');
+            $this.next('ul.accordions-cnt').slideToggle(200);
+        });
+
+        $('.lt-more-accordions').find('.chk-inp , h4.accordions').bind('keydown', function(event) {
+            var code = event.keyCode || event.which;
+            var _this = $(this);
+            if (code == 13 || code == 32) {
+                _this.click();
+            }
+        });
+        // 左側選單展開事件
+        function accordionsOpen(Index) {
+            var side_item = $(".lt-more-cnt h4.accordions").eq(Index);
+            var sub_list = side_item.next(".accordions-cnt");
+            //side_item.addClass("show");
+            side_item.show().addClass("show");
+            sub_list.slideDown(200);
+        }
+        function accordionsClose(Index) {
+            let side_item = $(".lt-more-cnt h4.accordions").eq(Index);
+            let sub_list = side_item.next(".accordions-cnt");
+            side_item.hide().removeClass("show");
+            sub_list.slideUp(200);
+        }
+        // 執行時參數代入 index 值，展開左側選單
+        accordionsOpen(0);
+    }());
+
+    // 左側進階搜尋 監聽
+    $('.accordions-cnt input').each(function() {
+        var $this = $(this);
+        var name = $this.prop("name");
+        // CheckBox 值有改變的時候
+        $('input[name="' + name + '"]').change(function() {
+            var $this = $(this);
+            if ($this.attr('type') == 'checkbox') {
+
+                if ($this.is(':checked')) {
+
+                    $this.parent('li')
+                      .parent('ul')
+                      .prev('.accordions')
+                      .css('color', '#0B7285');
+
+                } else if ($this.prop("checked") == false) {
+
+                    $this.parent('li')
+                      .parent('ul')
+                      .prev('.accordions')
+                      .css('color', '#212529');
+
+                }
+            }
+
+        });
+
+        // 監聽 開訓期間日期
+        //$('.datepicker-outline input').blur(function() {
+        //    var $this = $(this);
+        //     尋找 InPut Hidden 並判斷裡面的值
+        //    if ($('#dateStart').val() !== '' && $('#dateEnd').val() !== '') {
+        //        $this.parent('div')
+        //        .parent('li')
+        //        .parent('ul')
+        //        .prev('.accordions')
+        //        .css('color', '#0B7285');
+        //    } else {
+        //        $this.parent('div')
+        //        .parent('li')
+        //        .parent('ul')
+        //        .prev('.accordions')
+        //        .css('color', '#212529');
+        //    }
+        //});
+
+    });
+
+    // CHeckBox All
+    function check_all(obj, cName) {
+        var checkboxs = document.getElementsByName(cName);
+        for (var i = 0; i < checkboxs.length; i++) {
+            checkboxs[i].checked = obj.checked;
+        }
+    }
+</script>
+
+<!-- 地圖相關 -->
+@*<script type="text/javascript">
+        // 建立 Leaflet 地圖
+        var map = L.map('map', {
+            closePopupOnClick: false,
+            zoom: 8,
+            maxZoom: 14,
+            minZoom: 8
+        }).on('click', function () {
+            /*this.closePopup();*/
+        });
+
+        var PositionX0 = 23.75;
+        var PositionY0 = 120.95;
+        // 設定經緯度座標
+        map.setView(new L.LatLng(PositionX0, PositionY0));
+
+        // 設定圖資來源
+        var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osm = new L.TileLayer(osmUrl, {
+            maxZoom: 14,
+            minZoom: 8
+        });
+        map.addLayer(osm);
+    </script>*@
+
+<script type="text/javascript">
+    var jobBounds = null;//undefined;
+    var searchLoc = null;//undefined;
+    var searchBounds = null;//undefined;
+    var isMarkerFocused = false;
+    // 通知 onMapBoundsChanged() 不要連動更新右側站台清單
+    var preventBoundsChangeRefreshList = false;
+    //var idHead = "#Form_";
+    var url_detail_ClassSearch = '@Url.Action("Detail", "ClassSearch")';
+
+    //$(document).ready(function () {
+    //    訓練業別下拉連動事件
+    //    $("#Form_JOBTMID").on("change",function(){ doTMIDGet();});
+    //});
+
+    $(document).ready(function () {
+        blockUI(); //unblockUI(); blockUI();
+
+        mapListRwd.init('.list_zone');
+
+        jobBounds = $.parseJSON($("input[id*=hidJobBounds]").val());
+        if ($("input[id*=hidSearchLoc]").val() != "") {
+            searchLoc = $.parseJSON($("input[id*=hidSearchLoc]").val());
+        }
+
+        var hidOpenNotSearch = $("input[id*=hidOpenNotSearch]").val();
+
+        // hidSearchBounds 格式是前次傳至後端的字串格式:  left/right/top/bottom
+        var bounds = $("input[id*=hidSearchBounds]").val().split('/');
+        if (bounds.length == 4) {
+            searchBounds = {
+                'left': bounds[0],
+                'right': bounds[1],
+                'top': bounds[2],
+                'bottom': bounds[3]
+            };
+        }
+
+        // binding Map event
+        mapEventHandler.zoomend = onMapBoundsChanged;
+        mapEventHandler.dragend = onMapBoundsChanged;
+
+        // 地圖起始參數
+        leafletApi.mapSetting.zoom = 8;  // 最大化顯示台灣地圖範圍
+
+        leafletApi.initMap("map", function () {
+            console.log("Map ready");
+
+            if ("Y" != hidOpenNotSearch) {
+
+                showJobMarkers();
+
+                var selCity = $("[id*=ddlCity] option:selected").val();
+                if (selCity) {
+                    // 查詢縣市, // 抓取 GeoJson 資料進行地理區域標示
+                    showGeoArea(selCity);
+                }
+
+            }
+
+            if (searchLoc && searchLoc != 'undefined' && searchLoc != null) {
+                //var mPoint = new TGOS.TGPoint(searchLoc.x, searchLoc.y);
+                //leafletApi.setSingleMarker([searchLoc.y, searchLoc.x], 40, $("input[id*=txt_AddrKeyword]").val());
+            }
+        });
+
+
+        // 避免 Enter 觸發 form POST
+        $('form input:not([type="submit"])').keydown(function (e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        unblockUI(); //unblockUI(); blockUI();
+    });
+
+    function onMapBoundsChanged(e) {
+        /* console.log("onMapBoundsChanged");console.log(e);      var geo = leafletApi.getMapBounds();console.log(geo);
+        if (!isMarkerFocused && !preventBoundsChangeRefreshList) {
+            // 更新右側職缺列表
+            setTimeout(function () {
+                refreshJobList(geo);
+            }, 100); }
+        // always reset 
+        // preventBoundsChangeRefreshList = false; 
+        */
+    }
+
+    //var g_ctname ="";
+    function showJobMarkers() {
+        // 標點顏色
+        let colors = ["#d64161", "#ff7b25", "#30ae30"];
+        // 準備標記點資料
+        let markerDatas = [];
+
+        // 找出所有職缺資訊
+        $(".list_zone").find("ul").each(function () {
+            let job = {};
+            let metaLi = $(this).find("li.meta");
+            job.HireId = metaLi.find("span#HireId").text();
+            job.JobName = metaLi.find("span#JobName").text();
+            job.CtName = metaLi.find("span#CtName").text();
+            job.MAP_X = metaLi.find("span#TWD97_X").text();
+            job.MAP_Y = metaLi.find("span#TWD97_Y").text();
+
+            //沒有座標點, 略過
+            let locX = parseFloat(job.MAP_X);
+            let locY = parseFloat(job.MAP_Y);
+            if (isNaN(locX) || isNaN(locY)) {
+                $(this).hide();
+                return;
+            }
+
+            // binding job list item event
+            $(this)
+                .on("click", function () { jobListItemClick($(this).data("id")); })
+                .mouseenter(function () { jobListItemHoverIn($(this).data("id")); })
+                .mouseleave(function () { jobListItemHoverOut($(this).data("id")); })
+
+            var markerData = {};
+            markerData.id = job.HireId;
+            markerData.name = job.JobName;
+            markerData.ctname = job.CtName;
+            //markerData.markerImgUrl = getImgUrl(1);
+            markerData.locX = locX;
+            markerData.locY = locY;
+            markerData.fillColor = colors[0];
+            markerData.textColor = "#FFF";
+            //markerData.onClick = jobMarkClick;
+            markerData.data = job;
+            markerDatas.push(markerData);
+        });
+
+        $("#search_map_list_title").html("共 <span>" + markerDatas.length + "</span> 筆課程地圖");
+
+        // 判斷是否為「地圖範圍」搜尋, 若是就不要根據點位自動縮放
+        let fitBounds = (searchBounds != undefined && searchBounds != null) ? false:true;
+        leafletApi.setMarkers(markerDatas, onMarkerClick, 0, '筆', fitBounds);
+
+        if (searchBounds && searchBounds != undefined && searchBounds != null) {
+            leafletApi.setMapBounds(searchBounds);
+        }
+    }
+
+    // 地圖 cluster 點位 click 事件處理
+    function onMarkerClick(m) {
+        //console.log("onMarkerClick"); //console.log(m);
+
+        isMarkerFocused = true;
+
+        // 更新右側站台清單
+        let locZone = $(".list_zone");
+        locZone.find("ul").hide();
+
+        // 重新過濾右側職缺清單, 只顯示點選 marker 包含的職缺
+        let jobCount = 0;
+        for (var k = 0; k < m.length; k++) {
+            locZone.find("ul[data-id=" + m[k].itemId + "]").show("slow");
+            jobCount++;
+        }
+
+        $("#search_map_list_title").html("該位置附近有 <span>" + jobCount + "</span> 筆課程地圖");
+
+        // 行動裝置環境中, 重設列表清單至第1個位置
+        mapListRwd.resetList();
+    }
+
+    // 點選右側列表Job
+    function jobListItemClick(hireId, JobName, locX, locY) {
+        setMarkerMapCenter(locX, locY, hireId, JobName);
+        // 右側清單點選項目置頂
+        //var d = {}; d.id = hireId;
+        //jobMarkClick(d);
+    }
+
+    // 右側清單, 最後 highlight 對應的點位 cluster marker
+    var curHighlightMarker;
+
+    function jobListItemHoverIn(jobId) {
+        //console.log("jobListtItemHoverIn: " + jobId);
+
+        if (curHighlightMarker != undefined && curHighlightMarker != null && curHighlightMarker.removeIconClass) {
+            curHighlightMarker.removeIconClass("custom-cluster-hint");
+            curHighlightMarker = undefined;
+        }
+
+        let marker = leafletApi.findMarkerByItemId(jobId);
+        if (marker != undefined && marker != null) {
+            // 找到點位, 同時在顯示範圍
+            curHighlightMarker = marker;
+            marker.addIconClass("custom-cluster-hint");
+        }
+    }
+
+    function jobListItemHoverOut(jobId) {
+        //console.log("jobListtItemHoverOut: " + jobId);
+
+        if (curHighlightMarker != undefined && curHighlightMarker.removeIconClass) {
+            curHighlightMarker.removeIconClass("custom-cluster-hint");
+            curHighlightMarker = undefined;
+        }
+        else {
+            let marker = leafletApi.findMarkerByItemId(jobId);
+            if (marker != undefined && marker != null) {
+                // 找到點位, 同時在顯示範圍
+                marker.removeIconClass("custom-cluster-hint");
+            }
+        }
+    }
+
+    // 點選右側列表
+    function jobListItemClick(jobId) {
+        let marker = leafletApi.findMarkerByItemId(jobId);
+        if (marker != undefined && marker != null) {
+            // 找到點位, 同時在顯示範圍
+
+            // 通知 onMapBoundsChanged() 不要連動更新右側站台清單
+            preventBoundsChangeRefreshList = true;
+
+            // 加上提示的CSS樣式
+            marker.addIconClass("custom-cluster-hint");
+
+            // 將點位移到地圖中央
+            leafletApi.setCenter(marker.getLatLng());
+        }
+    }
+
+    //showclassdetail
+    function showclassdetail(PlanType, ProvideLocation, OCID) {
+        let data = { "PlanType": PlanType, "ProvideLocation": 'N', "OCID": OCID };
+        let url = url_detail_ClassSearch;
+        goBackPage(url , data, 2, 'POST');
+    }
+
+    /* 搜尋地圖區域 */
+    function btnBoundSearchClick() {
+
+        // 在地圖加上 loading mask
+        //loadingMask("body");
+
+        // 清除縣市條件
+        //$("[id*=ddlCity]").val("");
+        //$("[id*=CascadingDropDown1_ClientState]").val("");
+
+        // 地圖顯示區域的 座標範圍
+        let env = leafletApi.getMapBounds();
+        // 組成能夠安全傳至後端的字串格式:  left/right/top/bottom
+        let bounds = "" + env.left + "/" + env.right + "/" + env.top + "/" + env.bottom;
+
+        $("input[id*=hidSearchBounds]").val(bounds);
+
+        doSearch();
+    }
+
+    /* 定位使用者位置 */
+    function btnLocateClick() {
+
+        // 使用者定位後, 地圖的縮放比例
+        let userZoom = 12;
+
+        // 地圖加上 loading mask
+        //loadingMask("body");
+
+        locateUserPoint(
+            function (p) {
+                leafletApi.setCenter(p, userZoom);
+                leafletApi.setSingleMarker(p, 40, "您所在的位置");
+                //removeLoadingMask();
+            },
+            function (msg) {
+                //removeLoadingMask();
+                alert("定位失敗: \n" + msg);
+            }
+        );
+    }
+
+    function btnSearchClick(){
+        // 送回後端查詢
+        saveQueryCondition();
+
+        let form = $("#main_Form");
+        form.submit();
+    }
+
+    /* 搜尋 */
+    function doSearch() {
+        // 清掉 hidJobBounds 及 hidSearchLoc JSON 字串, 不然會觸發資安 filter rule
+        //$("input[id*=hidJobBounds]").val("");
+        //var hidSearchLoc = $("input[id*=hidSearchLoc]");
+        //if (hidSearchLoc.val().indexOf("/") == -1) { hidSearchLoc.val(""); }
+
+        // 原本的動作
+
+        // 送回後端查詢
+        saveQueryCondition();
+
+        let form = $("#main_Form");
+        form.submit();
+    }
+
+    // 送回後端查詢
+    function saveQueryCondition(){
+        //$('#<%=queryConditionTemp.ClientID %>').val(base64.encode($('#includeConditionLt').val(), false).replace("==", "——"));
+        //$('#<%=queryConditionTemp.ClientID %>').val($('#<%=queryConditionTemp.ClientID %>').val().replace("=", ")"));
+        $("#hid_Form_PlanType").val($("#Form_PlanType").val());
+        $("#hid_Form_JOBTMID").val($("#Form_JOBTMID").val());
+        $("#hid_Form_TMID").val($("#Form_TMID").val());
+        $("#hid_Form_PARENT1").val($("#Form_PARENT1").val());
+        $("#hid_Form_PARENT2").val($("#Form_PARENT2").val());
+        $("#hid_Form_KEYWORDS").val($("#Form_KEYWORDS").val());
+
+        $("#Form_hidCoursesClosed").val($("#Form_ContainsOverEnter").prop("checked") ? "Y" : "N");
+        $("#hid_Form_ContainsOverEnter").val($("#Form_ContainsOverEnter").prop("checked") ? "true" : "false");
+
+        //cb_DISTID_list
+        let dtlist1 =  $("input[name='cb_DISTID_list']:checked").map(function () { return this.value; }).get();
+        $("#hid_Form_DISTID_SHOW").val(dtlist1);
+        let ctlist1 =  $("input[name='cb_CTID_CHK_list']:checked").map(function () { return this.value; }).get();
+        $("#hid_Form_CTID_SHOW").val(ctlist1);
+        let ctlist2 =  $("input[name='cb_CLASSCATE_list']:checked").map(function () { return this.value; }).get();
+        $("#hid_Form_CLASSCATE_SHOW").val(ctlist2);
+        let oklist1 =  $("input[name='cb_ORGKIND_list']:checked").map(function () { return this.value; }).get();
+        $("#hid_Form_ORGKIND_SHOW").val(oklist1);
+        //console.log(list1);
+        //debugger;
+    }
+
+    //課程收藏 AddClassTrace
+    @*function AddClassTrace(v_OCID){
+        $("#PlanType").val($("#Form_PlanType").val());
+        $("#OCID").val(v_OCID);
+        var actionName = '@Url.Action("AddClassTrace","ClassMapSch")';
+        $("form#GoClassTraceForm").attr("action", actionName).submit();
+    }*@
+
+    var url_addclasstrace="@Url.Action("AddClassTrace", "ClassMapSch")";
+    var s_flag_login='@flag_login'; //var chkLogin='@flag_login';
+
+    //課程收藏 AddClassTrace
+    function doAddClassTrace(v_chk,v_OCID,s_cblab) {
+        //console.log("chkLogin: "+chkLogin);
+        //console.log("v_chk: "+v_chk+" , v_OCID: "+v_OCID)
+
+        if(s_flag_login=='False'){
+            $("#"+s_cblab).prop('checked', false);
+            //alert('請先執行登入，再執行收藏最愛動作！');
+            blockAlert('請先執行登入，再執行收藏最愛動作！');
+            return;
+        }
+
+        let v_ADDCHK= (v_chk==true) ? "1":"0"; //ADDCHK: 0:取消收藏 1：增加收藏
+        let data = {
+            "url": url_addclasstrace,
+            "arg": { "PlanType": $("#Form_PlanType").val() ,"OCID": v_OCID ,"ADDCHK": v_ADDCHK },
+            "box": 'stopstop'
+        };
+        ajaxLoadMore(data.url, data.arg, function (resp) {
+            if (resp) {
+                if (resp.status) {
+                    if (resp.data != "") {
+                        blockAlert(resp.data,"提示訊息", function(){});
+                    }
+                    else{
+                        blockAlert("執行收藏動作?","訊息", function(){});
+                    }
+                } else {
+                    //收藏失敗
+                    if (resp.data != "") {
+                        blockAlert(resp.data, "注意訊息", function () {});
+                    }
+                }
+            }
+
+        });
+    }
+
+</script>

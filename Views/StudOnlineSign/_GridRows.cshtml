@@ -1,0 +1,37 @@
+﻿@model WDAIIP.WEB.Models.StudOnlineViewModel
+@using WDAIIP.WEB.DataLayers
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+
+@if (Model == null || Model.Grid == null || Model.Grid.Count == 0)
+{
+    <tr>
+        <td colspan="8" class="text-center text-danger">尚無參訓紀錄</td>
+    </tr>
+}
+else
+{
+    for (int i = 0; i < Model.Grid.Count; i++)
+    {
+        var item = Model.Grid[i];
+        var v_CLASSCNAME = item.CLASSCNAME2;
+        var v_SOCID = item.SOCID.ToString();
+        var v_OCID = item.OCID.ToString();
+        var v_SID = item.SID;
+        @*var v_SOCID = item.SOCID_enc; //var v_OCID = item.OCID_enc; //var v_SID = item.SID_enc;
+            轄區分署>年度">訓練計畫">訓練機構">班別名稱>受訓時數">受訓期間>訓練狀態 *@
+        <tr>
+            <td style="text-align:left">@item.DISTNAME</td>
+            <td style="text-align:center">@item.YEARS_ROC</td>
+            <td>@Html.Raw(item.PLANNAME)</td>
+            <td>@item.ORGNAME</td>
+            @*<td>@item.CLASSCNAME2</td>*@
+            <td>
+                <a title="@v_CLASSCNAME" href="javascript:doDetail('@(v_SOCID)','@(v_OCID)','@(v_SID)');">@v_CLASSCNAME</a>
+            </td>
+            <td style="text-align:center">@Html.Raw(item.THOURS)</td>
+            <td style="text-align:center">@Html.Raw(item.TROUND)</td>
+            <td style="text-align:center">@Html.Raw(@item.STUDSTATUS_N)</td>
+        </tr>
+    }
+}

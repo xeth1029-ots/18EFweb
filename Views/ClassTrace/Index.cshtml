@@ -1,0 +1,139 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model ClassTraceViewModel
+@{
+    ViewBag.Title = "會員專區--會員課程收藏清單";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    SessionModel sess = SessionModel.Get();
+}
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 /  會員課程收藏清單</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-pink"><i class="far fa-list-alt space-right"></i>會員課程收藏清單</h3>
+     
+    <div class="table-responsive">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-result">
+            <tr>
+                <td width="90%"><span class="text-primary" style="color:#007b8e"><p>&nbsp;</p></span></td>
+                <td width="10%" align="center" valign="middle">
+                    <button type="button" onclick="checkDeleteVaild()" class="btn btn-result btn-justified" title="批次刪除">批次刪除</button>
+                </td>
+                @*checkTraceVaild*@
+            </tr>
+        </table>
+    </div>
+
+    <!-- result table -->
+    @using (Html.BeginForm("MultiDelClassTrace", "ClassTrace", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+    {
+    <div class="table-responsive">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+            <thead>
+                <tr>
+                    @*style="width: 5%;"*@
+                    <th width="5%">
+                        <p>&nbsp;</p>
+                        <p>選取</p>
+                    </th>
+                    <th width="12%">訓練計畫</th>
+                    <th width="9%">報名開始日</th>
+                    <th width="9%">報名截止日</th>
+                    <th width="9%">開課日期</th>
+                    <th width="22%">訓練班別</th>
+                    <th width="21%">訓練單位</th>
+                    <th width="6%">上課地點</th>
+                    <th width="5%">刪除</th>
+                    @*<th width="5%">分享</th>*@
+                </tr>
+            </thead>
+            <tbody id="rows">
+                @Html.Partial("_GridRows")
+            </tbody>
+        </table>
+    </div>
+    }
+    <!--  pager start -->
+    @Html.Partial("_PagingLink", Model.Form)
+    <!-- pager end -->
+</div>
+@* 查看課程明細 *@
+@using (Html.BeginForm("Detail", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoDetailForm" }))
+{
+    @Html.Hidden("PlanType")
+    @Html.Hidden("ProvideLocation")
+    @Html.Hidden("OCID")
+    @Html.Hidden("ActionName", "Index")
+    @Html.Hidden("ControllerName", "ClassTrace")
+}
+
+@* 刪除收藏 *@
+@using (Html.BeginForm("Delete", "ClassTrace", FormMethod.Post, htmlAttributes: new { id = "GoDeleteForm" }))
+{
+    @Html.Hidden("TRCSN")
+}
+
+@* 分享課程 *@
+@using (Html.BeginForm("Share", "ClassTrace", FormMethod.Post, htmlAttributes: new { id = "GoShareForm" }))
+{
+    @Html.Hidden("Type")
+    @Html.Hidden("TRCSN2")
+    @Html.Hidden("OCID2")
+}
+
+<script type="text/javascript">
+    //瀏覽課程明細
+    function doDetail(plantype, ocid) {
+        $("#PlanType").val(plantype);
+        $("#ProvideLocation").val("N");//由課程收藏進入明細不計算距離
+        $("#OCID").val(ocid);
+
+        @*2019-02-01 問題10：keep 進入課程明細頁前的查詢結果歷史資訊 *@
+        if (window.history) {
+            var url = '@Url.Action("LastResult", "ClassTrace", new { rnd=DateTime.Now.Ticks })'; + '#reversession';
+            window.history.pushState(null, null, url);
+        }
+
+        $("form#GoDetailForm").attr("action", "@Url.Action("Detail","ClassSearch")").submit();
+    }
+
+    //刪除課程收藏
+    function removeTrace(trcsn) {
+        blockConfirm("確定要刪除此筆資料?", "請確認", function () {
+            $("#TRCSN").val(trcsn);
+            $("form#GoDeleteForm").submit();
+        });
+    }
+
+    //分享或取消分享
+    function shareTrace(type, trcsn, ocid) {
+        $("#Type").val(type);
+        $("#TRCSN2").val(trcsn);
+        $("#OCID2").val(ocid);
+        $("form#GoShareForm").submit();
+    }
+
+    //刪除-課程收藏 前檢核是否已勾選n筆資料
+    function checkDeleteVaild() {
+        var count = 0;
+        $("#rows input[type=checkbox]").each(function () {
+            if ($(this).prop("checked")) {
+                count += 1;
+            }
+        });
+
+        if (count == 0) {
+            blockAlert("請至少勾選一筆課程");
+        } else {
+            blockConfirm("確定要批次刪除資料?", "請確認", function () {
+                $("form#main_form").submit();
+            });
+        }
+    }
+
+</script>

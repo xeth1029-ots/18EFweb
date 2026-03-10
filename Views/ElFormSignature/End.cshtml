@@ -1,0 +1,53 @@
+﻿@using WDAIIP.WEB.Models
+
+@{
+    SessionModel sm = SessionModel.Get();
+
+    ViewBag.Title = "線上簽名";
+
+    Layout = null;
+}
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script>
+    var app = {
+        alertWindow: null,
+        alertWindowCallback: [], // function[]
+        confirmWindow: null,
+        confirmWindowCallback: [], // function[]
+    };
+</script>
+
+@Styles.Render("~/Content/jquery")
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/modernizr")
+@Scripts.Render("~/bundles/bootstrap")
+@*Scripts.Render("~/bundles/jqueryval")*@
+@Scripts.Render("~/bundles/globaljs")
+@Scripts.Render("~/bundles/jqueryui")
+@Scripts.Render("~/bundles/common")
+
+@Styles.Render("~/css/base")
+@Styles.Render("~/Content/bootstrap")
+@Styles.Render("~/css/flexslider")
+@Scripts.Render("~/bundles/flexslider")
+@Scripts.Render("~/bundles/popupDialog")
+@Styles.Render("~/Content/fontawesome")
+
+<style>
+    #divEnd { width: 100%; height: 380px; background-image: url('/images/Signature/End.png'); background-repeat: no-repeat; background-size: contain; }
+</style>
+
+<div class="col-sm-12">
+    <div id="divEnd"></div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var errMsg = '@sm.LastResultMessage';
+
+        if (errMsg != "") {
+            blockAlert(errMsg);
+        }
+    });
+</script>

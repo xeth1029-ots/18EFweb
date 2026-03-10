@@ -1,0 +1,104 @@
+﻿@using WDAIIP.WEB.Models
+@model OrgMapSchViewModel
+@{
+    //ViewBag.Title = "_Condition";
+    //此為查詢頁切換計畫類別，欲變換的查詢條件區塊
+    SessionModel sess = SessionModel.Get();
+
+}
+
+<div class="col-sm-12">
+    <!-- BarrY Add Start -->
+    <article class="map-search location" id="loacation_search">
+        <div class="map-search-select-box">
+            <div class="select-wrapper">
+                @Html.DropDownListFor(m => m.Form.CTID, Model.CTID_SEL_list, "選擇縣市", new { @id = "Form_CTID", @class = "CourseClass", title = "請選擇", onchange = "doCTIDGet();" })
+                @*<select class="" name="CourseClass" id="">
+                        <option selected="selected" value="0">請選擇縣市</option>
+                        <option value="1">分署自辦在職訓練</option>
+                        <option value="2">產業人才投資方案</option>
+                        <option value="4">區域產業據點</option>
+                    </select>*@
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+        <div class="map-search-select-box">
+            <div class="select-wrapper">
+                @Html.DropDownListFor(m => m.Form.ZIPCODE, Model.ZIPCODE_list, "請選擇", new { @id = "Form_ZIPCODE", @class = "category_1", title = "請選擇鄉鎮市區" })
+                @*<select class="" name="category_1" id="" disabled>
+                        <option selected="selected" value="0">請選擇區域</option>
+                        <option value="1">分署自辦在職訓練</option>
+                        <option value="2">產業人才投資方案</option>
+                        <option value="4">區域產業據點</option>
+                    </select>*@
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+        <div class="map-search-input-box">
+            <button type="button" class="btn btn--secondary btn--block" onclick="javascript: { doSearch(); }">
+                <i class="re-g-search" aria-hidden="true"></i>查詢服務據點
+            </button>
+        </div>
+    </article>
+</div>
+
+<div class="col-sm-12">
+    <ul class="filter-conditions">
+        <li>進階篩選：</li>
+        <li>
+            @Html.CheckBoxFor(m => m.Form.IsBranchOffice, new { @class = "filter-inp", @id = "Form_IsBranchOffice" })
+            @*<input class="filter-inp" name="Form.CTID_SHOW" id="Form_CTID_SHOW_1" type="checkbox" value="1">*@
+            <label class="filter-lab primary" for="Form_IsBranchOffice">
+                <i class="box" aria-hidden="true"></i>@Html.DisplayNameFor(m => m.Form.IsBranchOffice)
+                @*<span>分署</span>*@
+            </label>
+        </li>
+        <li>
+            @Html.CheckBoxFor(m => m.Form.IsTrainingOrg, new { @class = "filter-inp", @id = "Form_IsTrainingOrg" })
+            @*<input class="filter-inp" name="Form.CTID_SHOW" id="Form_CTID_SHOW_2" type="checkbox" value="1">*@
+            <label class="filter-lab secondary" for="Form_IsTrainingOrg">
+                <i class="box" aria-hidden="true"></i>@Html.DisplayNameFor(m => m.Form.IsTrainingOrg)
+                @*<span>訓練單位</span>*@
+            </label>
+        </li>
+        <li>※可調整地圖大小位置，再按「搜尋地圖區域」</li>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#Form_ZIPCODE").attr('disabled', true);
+        $("#Form_IsBranchOffice").prop('checked', true);
+        $("#Form_IsTrainingOrg").prop('checked', true);
+
+    });
+
+    //取得 選擇縣市 對應的「鄉鎮市區」清單資料
+    function doCTIDGet() {
+        //var idHead = "#Form_";
+        var data = {
+            "url": "@Url.Action("GetZipCode", "Ajax")",
+            "arg": { "CTID": $("#Form_CTID option:selected").val() },
+            "box": $("#Form_ZIPCODE")
+        };
+        var blankHtml = "<option value=\"\">請選擇</option>";
+        if ($.trim(data.arg.CTID) == "") {
+            data.box.html(blankHtml);
+            $("#Form_ZIPCODE").attr('disabled', true);
+        }
+        else {
+            ajaxLoadMore(data.url, data.arg, function (resp) {
+                if (resp === undefined) {
+                    //console.error("#doTMIDGet resp: undefined!");
+                    data.box.html(blankHtml);
+                    $("#Form_ZIPCODE").attr('disabled', true);
+                }
+                else {
+                    //console.log("#doTMIDGet resp: " + JSON.stringify(resp));
+                    data.box.html(resp.data != "" ? resp.data : blankHtml);
+                    $("#Form_ZIPCODE").removeAttr('disabled');
+                }
+            });
+        }
+    }
+</script>

@@ -1,0 +1,69 @@
+﻿@model WDAIIP.WEB.Models.ClassConfirm002ViewModel
+@{
+    ViewBag.Title = "課程錄訓名單--自辦在職進修";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+@using (Html.BeginForm("Detail", "Classconfirm002", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+{
+    <div class="col-sm-12">
+        <!-- bread start --->
+        <div class="breadlink">
+            <a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a>
+            <i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程錄訓名單 / 分署自辦在職訓練
+        </div>
+        <!-- bread end --->
+        <h3 class="main-title main-title-green"><i class="fab fa-readme space-right"></i>課程錄訓名單</h3>
+
+        <!-- note table-->
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table  table-result">
+                <tr>
+                    <th width="15%">訓練單位</th>
+                    <td width="30%">@Model.Detail.TRAINORG</td>
+                    <th width="15%">課程代碼</th>
+                    <td width="30%">@Model.Detail.OCID</td>
+                </tr>
+                <tr>
+                    <th>訓練班別</th>
+                    <td><a href="javascript:showclassdetail(2,'N',@Model.Detail.OCID)" title="@Model.Detail.TRAINCLASS">@Model.Detail.TRAINCLASS<b></b></a></td>
+                    <th>公告日期</th>
+                    <td>@Model.Detail.CONFIRDATE_TW<a href="javascript:showclassdetail(2,'N',@Model.Detail.OCID)" title="前往檢視課程明細">課程連結</a></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    <tr>
+                        <th width="25%">編號</th>
+                        <th width="25%">姓名</th>
+                        <th width="25%">身分證字號</th>
+                        <th width="25%">備註</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @Html.Partial("_UserGridRows", Model)
+                </tbody>
+            </table>
+        </div>
+
+        <div class="submit-bar">
+            <button type="button" class="btn-orange" onclick="goback()" title="回上一頁">回上一頁</button>
+        </div>
+        <p><p>
+    </div>
+}
+<script type="text/javascript">
+    //回上一頁
+    function goback(OCID_TEXT, CLASSCNAME, DISTIDITEM) {
+        var data = { "OCID_TEXT": OCID_TEXT, "CLASSCNAME": CLASSCNAME, "DISTIDITEM": DISTIDITEM };
+        var url = '@Url.Action("Index", "ClassConfirm002")';
+        goBackPage(url, data, 2, 'POST');
+    }
+    function showclassdetail(PlanType, ProvideLocation, OCID) {
+        var data = { "PlanType": 2, "ProvideLocation": 'N', "OCID": OCID };
+        var url = '@Url.Action("Detail", "ClassSearch")';
+        goBackPage(url, data, 2, 'POST');
+    }
+</script>

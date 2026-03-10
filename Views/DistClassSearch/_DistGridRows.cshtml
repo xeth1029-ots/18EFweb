@@ -1,0 +1,21 @@
+﻿@model WDAIIP.WEB.Models.DistClassSearchViewModel
+
+@if (Model == null || Model.DIST_list == null || Model.DIST_list.Count == 0)
+{
+    <div>查無分署資料</div>
+}
+else
+{
+    foreach (var item in Model.DIST_list)
+    {
+        if ((Model.Form.DISTID).Equals(item.Value))
+        {
+            <li class="dist-id"><a id="aDist_@item.Value" href="javascript:setDistID('@item.Value')" class="active" title="@item.Text">@item.Text</a></li>
+        }
+        else
+        {
+            <li class="dist-id"><a id="aDist_@item.Value" href="javascript:setDistID('@item.Value')" title="@item.Text">@item.Text</a></li>
+        }
+    }
+}
+

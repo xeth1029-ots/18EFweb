@@ -1,0 +1,679 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model ClassSearchViewModel
+@{
+    //for 產投
+    ViewBag.Title = "課程查詢報名--課程比一比";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    SessionModel sess = SessionModel.Get();
+
+}
+
+
+@functions{
+    /// <summary>取得該課程狀態</summary>
+    /// <returns></returns>
+    private string Get_ClassMsg(ClassSearchDetail1Model detail)
+    {
+        string result = "";
+        //取得目前(DB)系統時間
+        MyKeyMapDAO keyDao = new MyKeyMapDAO();
+        DateTime nowTime = keyDao.GetSysDateNow();
+
+        if (detail.SENTERDATE != null)
+        {
+            if (DateTime.Compare(nowTime, Convert.ToDateTime(detail.SENTERDATE)) < 0)
+            {
+                result = "目前尚未開始報名";
+            }
+            else
+            {
+                if (detail.FENTERDATE != null)
+                {
+                    result = (DateTime.Compare(nowTime, Convert.ToDateTime(detail.FENTERDATE)) > 0) ? "報名時間已結束" : ((detail.ISCLOSED == "Y") ? "此班已結訓" : "招生中");
+                }
+                else
+                {
+                    result = "報名結束時間尚未決定";
+                }
+            }
+        }
+        else
+        {
+            result = "報名時間尚未決定";
+        }
+        return result;
+    }
+
+    public string DistinctFormat(double? d)
+    {
+        return string.Format("{0: ###0.##}", d);
+    }
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 課程查詢 / 課程比一比</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fab fa-readme space-right"></i>課程比一比</h3>課程比一比</h3>
+    <!-- class result start -->
+    <div class="row">
+        @for (int i = 0; i < 2; i++)
+        {
+            if (i + 1 <= Model.Compare.Detail1.Count)
+            {
+                ClassSearchDetail1Model item = Model.Compare.Detail1[i];
+                //var strAddress = ""; //學科地址 //var strUrl = ""; //學科地址(google) //var strUrl2 = ""; //術科地址(google)
+                DateTime? icapdate = item.iCAPMARKDATE;
+                string s_icapdate = icapdate.HasValue ? icapdate.Value.ToString("yyyy/MM/dd") : ""; //iCAP標章有效期
+
+                var strAddress21 = item.ADDRESS21; //學科地址1
+                var strAddress22 = item.ADDRESS22; //學科地址2
+                var strAddress31 = item.ADDRESS31; //術科地址1
+                var strAddress32 = item.ADDRESS32; //術科地址2
+                var strUrl21 = item.HIDADDRESS21; //學科地址1(google)
+                var strUrl22 = item.HIDADDRESS22; //學科地址2(google)
+                var strUrl31 = item.HIDADDRESS31; //術科地址1(google)
+                var strUrl32 = item.HIDADDRESS32; //術科地址2(google)
+                var s_GoogleMapUrl = "https://maps.google.com.tw/maps?hl=zh-TW&t=m&z=16&q={0}";
+                var s_href21 = (!string.IsNullOrEmpty(strUrl21) && strUrl21.Length > 5) ? string.Format(s_GoogleMapUrl, HttpUtility.UrlEncode(strUrl21)) : null;
+                var s_href22 = (!string.IsNullOrEmpty(strUrl22) && strUrl22.Length > 5) ? string.Format(s_GoogleMapUrl, HttpUtility.UrlEncode(strUrl22)) : null;
+                var s_href31 = (!string.IsNullOrEmpty(strUrl31) && strUrl31.Length > 5) ? string.Format(s_GoogleMapUrl, HttpUtility.UrlEncode(strUrl31)) : null;
+                var s_href32 = (!string.IsNullOrEmpty(strUrl32) && strUrl32.Length > 5) ? string.Format(s_GoogleMapUrl, HttpUtility.UrlEncode(strUrl32)) : null;
+                var strAddressX = string.Empty;
+                var strUrlX = string.Empty;
+                var s_hrefX = string.Empty;
+                if (string.IsNullOrEmpty(s_href21) && string.IsNullOrEmpty(s_href22) && string.IsNullOrEmpty(s_href31) && string.IsNullOrEmpty(s_href32))
+                {
+                    strAddressX = string.Format("{0}{1}{2}{3}{4}", item.ZIP1, item.ZIP2, item.CTNAME1, item.ZIPNAME, item.ADDRESS);
+                    strUrlX = string.Format("{0}{1}{2}{3}", item.ZIP1, item.CTNAME1, item.ZIPNAME, item.ADDRESS);
+                    s_hrefX = (!string.IsNullOrEmpty(strUrlX) && strUrlX.Length > 5) ? string.Format(s_GoogleMapUrl, HttpUtility.UrlEncode(strUrlX)) : null;
+                }
+                string s_ENVZEROTRAIN = item.ENVZEROTRAIN ?? "";
+                string s_GOVAGENAME = item.GOVAGENAME ?? "";
+                string s_TGOVEXAMNAME = item.TGOVEXAMNAME ?? "";
+
+                <div class="col-sm-6">
+                    <h3 class="titlebar titlebarBg-green">訓練機構</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">訓練單位：</th>
+                                <td width="70%">@(item.ORGNAME)</td>
+                            </tr>
+                            <tr>
+                                <th>保險證號：<span class="text-primary"></span></th>
+                                <td>@(item.ACTNO)</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">學科場地地址：</th>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(s_href21) && !string.IsNullOrEmpty(strAddress21))
+                                    {
+                                        <span class="address3">@(strAddress21)</span>
+                                        <span class="text-primary no-print"> <a target="_blank" href="@Html.Raw(s_href21)" rel="noreferrer noopener" title="開啟Google地圖查看學科場地位置(另開視窗)">開啟Google地圖(另開新視窗) <i class="fa fa-map-pin" aria-hidden="true"></i></a></span>
+                                        if (sess.IsLogin && Model.Compare.ProvideLocation == "Y" && item.Distance1.HasValue)
+                                        {
+                                            @("，距離")<span class="text-success"> @(DistinctFormat(item.Distance1)) </span>@("公里")
+
+                                        }
+                                    }
+                                    else if (!string.IsNullOrEmpty(s_hrefX) && !string.IsNullOrEmpty(strAddressX))
+                                    {
+                                        <span class="address3">@(strAddressX)</span>
+                                        <span class="text-primary no-print"> <a target="_blank" href="@Html.Raw(s_hrefX)" rel="noreferrer noopener" title="開啟Google地圖查看學科場地位置(另開視窗)">開啟Google地圖(另開新視窗) <i class="fa fa-map-pin" aria-hidden="true"></i></a></span>
+                                        if (sess.IsLogin && Model.Compare.ProvideLocation == "Y" && item.Distance1.HasValue)
+                                        {
+                                            @("，距離")<span class="text-success"> @(DistinctFormat(item.Distance1)) </span>@("公里")
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                            @if (!string.IsNullOrEmpty(s_href22))
+                            {
+                                <tr>
+                                    <th scope="row">學科場地地址2：<span class="text-primary"></span></th>
+                                    <td>
+                                        <span class="address3">@(strAddress22)</span>
+                                        <span class="text-primary no-print"> <a target="_blank" href="@Html.Raw(s_href22)" rel="noreferrer noopener" title="開啟Google地圖查看術科場地位置(另開視窗)">開啟Google地圖(另開新視窗) <i class="fa fa-map-pin" aria-hidden="true"></i></a></span>
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <th scope="row">術科場地地址：<span class="text-primary"></span></th>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(s_href31))
+                                    {
+                                        <span class="address3">@(strAddress31)</span>
+                                        <span class="text-primary no-print"> <a target="_blank" href="@Html.Raw(s_href31)" rel="noreferrer noopener" title="開啟Google地圖查看術科場地位置(另開視窗)">開啟Google地圖(另開新視窗) <i class="fa fa-map-pin" aria-hidden="true"></i></a></span>
+                                        if (sess.IsLogin && Model.Compare.ProvideLocation == "Y" && item.Distance2.HasValue)
+                                        {
+                                            @("，距離")<span class="text-success"> @(DistinctFormat(item.Distance2)) </span>@("公里")
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                            @if (!string.IsNullOrEmpty(s_href32))
+                            {
+                                <tr>
+                                    <th scope="row">術科場地地址2：<span class="text-primary"></span></th>
+                                    <td>
+                                        <span class="address3">@(strAddress32)</span>
+                                        <span class="text-primary no-print"> <a target="_blank" href="@Html.Raw(s_href32)" rel="noreferrer noopener" title="開啟Google地圖查看術科場地位置(另開視窗)">開啟Google地圖(另開新視窗) <i class="fa fa-map-pin" aria-hidden="true"></i></a></span>
+                                    </td>
+                                </tr>
+                            }
+
+                            <tr>
+                                <th>聯絡人：</th>
+                                <td>@(string.IsNullOrEmpty(item.PCONTACTNAME) ? item.CONTACTNAME : item.PCONTACTNAME)</td>
+                            </tr>
+                            <tr>
+                                <th>電話：</th>
+                                <td>@(string.IsNullOrEmpty(item.CONTACTPHONE) ? item.PHONE : item.CONTACTPHONE)</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">課程內容</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">課程代碼：<br></th>
+                                <td width="70%">@(item.OCID)</td>
+                            </tr>
+                            <tr>
+                                <th>已報名人數：</th>
+                                <td>@(item.EnterCount + " 人") (已報名人數不等於錄訓人數，實際招生情形，請逕洽訓練單位)</td>
+                            </tr>
+                            <tr>
+                                <th>課程名稱：</th>
+                                <td><span class="text-classname">@(item.CLASSCNAME)</span></td>
+                            </tr>
+                            <tr>
+                                <th>學分數：</th>
+                                <td>
+                                    @if (item.POINTYN == "Y")
+                                    {
+                                        @(item.CREDPOINT)
+                                    }
+                                    else
+                                    {
+                                        @:非學分班
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>師資介紹：</th>
+                                <td>
+                                    @if (item.TeacherInfo != null)
+                                    {
+                                        for (int j = 0; j < item.TeacherInfo.Count; j++)
+                                        {
+                                            var row = item.TeacherInfo[j];
+                                            if (!string.IsNullOrEmpty(row.TEACHCNAME))
+                                            {
+                                                <span class="text-primary">@(row.TEACHCNAME)&nbsp;老師</span>
+                                            }
+                                            if (!string.IsNullOrEmpty(row.SCHOOLNAME))
+                                            {
+                                                @:<br />學歷：@(row.SCHOOLNAME)
+                                            }
+                                            if (!string.IsNullOrEmpty(row.DEPARTMENT))
+                                            {
+                                                @:&nbsp;&nbsp;@(row.DEPARTMENT)
+                                            }
+
+                                            string strPro = "";
+                                            if (!string.IsNullOrEmpty(row.SPECIALTY1))
+                                            {
+                                                strPro = row.SPECIALTY1;
+                                            }
+                                            if (!string.IsNullOrEmpty(row.SPECIALTY2))
+                                            {
+                                                strPro += (strPro.Length > 0 ? "," : "");
+                                                strPro += row.SPECIALTY2;
+                                            }
+                                            if (!string.IsNullOrEmpty(row.SPECIALTY3))
+                                            {
+                                                strPro += (strPro.Length > 0 ? "," : "");
+                                                strPro += row.SPECIALTY3;
+                                            }
+                                            if (!string.IsNullOrEmpty(row.SPECIALTY4))
+                                            {
+                                                strPro += (strPro.Length > 0 ? "," : "");
+                                                strPro += row.SPECIALTY4;
+                                            }
+                                            if (!string.IsNullOrEmpty(row.SPECIALTY5))
+                                            {
+                                                strPro += (strPro.Length > 0 ? "," : "");
+                                                strPro += row.SPECIALTY5;
+                                            }
+
+                                            if (strPro.Length > 0)
+                                            {
+                                                @:<br />專長：@(strPro);
+                                            }
+
+                                            if (item.TeacherInfo.Count != j + 1)
+                                            {
+                                                <br /><br />
+                                            }
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>縣 市 別：<br></th>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.CTNAME1))
+                                    {
+                                        @(item.CTNAME1)
+                                    }
+                                    else
+                                    {
+                                        if (item.CTNAME2 != item.CTNAME3)
+                                        {
+                                            if (!string.IsNullOrEmpty(item.CTNAME2))
+                                            {
+                                                @("(學科：" + item.CTNAME2 + ")") //學科 縣市別
+                                            }
+                                            if (!string.IsNullOrEmpty(item.CTNAME3))
+                                            {
+                                                @("(術科：" + item.CTNAME3 + ")") //術科 縣市別
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!string.IsNullOrEmpty(item.CTNAME2))
+                                            {
+                                                @(item.CTNAME2)
+                                            }
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>訓練計畫：</th>
+                                <td>@(item.PLANNAME)</td>
+                            </tr>
+                            <tr>
+                                <th>所屬計畫：</th>
+                                <td>@(item.ORGPLANNAME)</td>
+                            </tr>
+                            <tr>
+                                <th>訓練班別：</th>
+                                <td>@(item.CLASSCNAME + "(" + Get_ClassMsg(item) + ")")</td>
+                            </tr>
+                            <tr>
+                                <th>報名繳費方式：</th>
+                                <td>
+                                    @switch (item.ENTERSUPPLYSTYLE)
+                                    {
+                                        case 1:
+                                            @:1.報名時應先繳全額訓練費用
+                                            break;
+                                        case 2:
+                                            @:2.報名時應先繳50%訓練費用
+                                            break;
+                                        default:
+                                            @:(請依規定繳費)
+                                            break;
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>訓練費用：</th>
+                                <td>
+                                    <ul>
+                                        <li>學員負擔：<span class="text-primary"><b>@(item.DEFSTDCOST == null ? "0" : string.Format("{0:N0}", item.DEFSTDCOST))</b></span></li>
+                                        <li>政府負擔：<span class="text-primary"><b>@(item.DEFGOVCOST == null ? "0" : string.Format("{0:N0}", item.DEFGOVCOST))</b></span></li>
+                                        <li>每班人數 ：<span class="text-primary"><b>@((item.TNUM == null ? "0" : item.TNUM.ToString()) + " 人")</b></span></li>
+                                        <li>訓練時數 ： <span class="text-primary"><b>@((item.THOURS == null ? "0" : item.THOURS.ToString()) + " 小時")</b></span></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>訓練性質：</th>
+                                <td>@(item.TPROPERTY)</td>
+                            </tr>
+                            <tr>
+                                <th>報名日期 ：</th>
+                                <td>
+                                    @(item.SENTERDATE == null ? "" : (Convert.ToDateTime(item.SENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.SENTERDATE).ToString("/MM/dd HH:mm"))  ~
+                                    @(item.FENTERDATE == null ? "" : (Convert.ToDateTime(item.FENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FENTERDATE).ToString("/MM/dd HH:mm")) (若開放報名時間超過1個月以上，表示本班曾變更訓練期間)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>預定訓練起訖日期：</th>
+                                <td>@(item.STDATE == null ? "" : (Convert.ToDateTime(item.STDATE).Year - 1911).ToString() + Convert.ToDateTime(item.STDATE).ToString("/MM/dd"))  ~  @(item.FTDATE == null ? "" : (Convert.ToDateTime(item.FTDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FTDATE).ToString("/MM/dd"))  </td>
+                            </tr>
+                            <tr>
+                                <th>訓練期限 ：</th>
+                                <td>@(item.TRAINEXPNAME)</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class-blue">
+                            <tr>
+                                <th width="15%">上課日期</th>
+                                <th width="15%">授課時間</th>
+                                <th width="10%">時數<span class="text-primary"></span></th>
+                                <th width="60%">課程進度／內容</th>
+                            </tr>
+                            @if (item.TrainDesc == null || item.TrainDesc.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="4" align="center">尚無資料</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                for (int k = 0; k < item.TrainDesc.Count; k++)
+                                {
+                                    var item2 = item.TrainDesc[k];
+                                    <tr>
+                                        <td align="center">
+                                            @if (item2.STRAINDATE != null)
+                                            {
+                                                var tmpdt = Convert.ToDateTime(item2.STRAINDATE);
+                                                string dayofweek = "";
+                                                switch (Convert.ToString(tmpdt.DayOfWeek))
+                                                {
+                                                    case "Sunday": dayofweek = "星期日"; break;
+                                                    case "Monday": dayofweek = "星期一"; break;
+                                                    case "Tuesday": dayofweek = "星期二"; break;
+                                                    case "Wednesday": dayofweek = "星期三"; break;
+                                                    case "Thursday": dayofweek = "星期四"; break;
+                                                    case "Friday": dayofweek = "星期五"; break;
+                                                    case "Saturday": dayofweek = "星期六"; break;
+                                                }
+                                                @((tmpdt.Year - 1911).ToString() + tmpdt.ToString("/MM/dd") + "(" + dayofweek + ")")
+                                            }
+                                        </td>
+                                        <td align="center">@(item2.PNAME)</td>
+                                        <td align="center">@(item2.PHOUR)</td>
+                                        <td>@item2.PCONT</td>
+                                    </tr>
+                                }
+                            }
+                        </table>
+                        <div class="titlebar-note">本網頁課程資訊如與訓練單位公告事項不符時，仍以訓練單位公告資訊為準，恕不另行通知。</div>
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">訓練方式：</th>
+                                <td width="70%">
+                                    @(item.TRAINMODE)
+                                </td>
+                            </tr>
+                            <tr><th>招訓方式：</th><td>@(item.RECRUIT)</td></tr>
+                            <tr><th>遴選方式：</th><td>@(item.SELMETHOD)</td></tr>
+                            <tr>
+                                <th>是否為iCAP課程：</th>
+                                <td>
+                                    <div class="radio">
+                                        <label>
+                                            @Html.RadioButtonFor(m => Model.Compare.Detail1[i].ISiCAPCOUR, "Y", new { @id = "Detail1_ISiCAPCOUR_Y", @disabled = "disabled" })是，課程相關說明
+                                            @Html.TextBoxFor(m => Model.Compare.Detail1[i].iCAPCOURDESC, new { @class = "form-normal" }, true)
+                                        </label>
+                                    </div>
+                                    <div class="radio"><label>@Html.RadioButtonFor(m => Model.Compare.Detail1[i].ISiCAPCOUR, "N", new { @id = "Detail1_ISiCAPCOUR_N", @disabled = "disabled" })否</label></div>
+                                </td>
+                            </tr>
+                            <tr><th>iCAP標章證號：</th><td>@(item.iCAPNUM)</td></tr>
+                            <tr><th>iCAP標章有效期：</th><td>@(s_icapdate)</td></tr>
+                            <tr>
+                                <th>其他：</th>
+                                <td>
+                                    @if (item.TGOVEXAM == "G")
+                                    {
+                                        <label>本課程結訓後須參加環境部辦理之淨零綠領人才培育課程測驗；測驗成績達及格，即可申請本方案補助。</label>
+                                    }
+                                    @if (item.TGOVEXAM == "Y" && string.IsNullOrEmpty(s_GOVAGENAME))
+                                    {
+                                        <label>本課程結訓後學員可依個人需求參加「@(s_TGOVEXAMNAME)」相關證照考試或技能檢定。註：有關考試規定及報名費用等相關事宜，請逕洽政府機關。</label>
+                                    }
+                                    @if (item.TGOVEXAM == "Y" && !string.IsNullOrEmpty(s_GOVAGENAME))
+                                    {
+                                        <label>本課程結訓後學員可依個人需求參加「@(s_GOVAGENAME)」辦理之「@(s_TGOVEXAMNAME)」。註：有關考試規定及報名費用等相關事宜，請逕洽政府機關。</label>
+                                    }
+                                    @*是否輔導學員參加政府機關辦理相關證照考試或技能檢定：<br><div class="radio"><label>
+        @Html.RadioButtonFor(m => Model.Compare.Detail1[i].TGOVEXAM, "Y", new { @id = "Detail1[0]_TGOVEXAM_Y", @disabled = "disabled" })是，證照或檢定名稱
+        @Html.TextBoxFor(m => Model.Compare.Detail1[i].TGOVEXAMNAME, new { @class = "form-normal" }, true)</label></div>
+        <div class="radio"><label>@Html.RadioButtonFor(m => Model.Compare.Detail1[i].TGOVEXAM, "N", new { @id = "Detail1[1]_TGOVEXAM_N", @disabled = "disabled" })否</label></div>*@
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>備註：</th>
+                                <td>@(item.MEMO8)</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">參訓資格</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">學歷：</th>
+                                <td width="70%">@(item.NAME)</td>
+                            </tr>
+                            <tr>
+                                <th>年齡：</th>
+                                <td>
+                                    @if (item.CAPAGE1 != null && item.CAPAGE1.HasValue)
+                                    {
+                                        if (item.CAPAGE1 > 15)
+                                        {
+                                            @:應符合相關法規須年滿 @(item.CAPAGE1) 以上
+                                        }
+                                        else
+                                        {
+                                            @:年滿15歲以上
+                                        }
+                                    }
+                                    else
+                                    {
+                                        @:年滿15歲以上
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>資格條件：</th>
+                                <td>
+                                    <span class="text-danger">
+                                        @(item.CAPALL)
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-sm-6">
+                    <h3 class="titlebar titlebarBg-green">訓練機構</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">訓練單位：</th>
+                                <td width="70%"></td>
+                            </tr>
+                            <tr>
+                                <th>保險證號：<span class="text-primary"></span></th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>學科場地地址：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>術科場地地址：<span class="text-primary"></span></th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>聯絡人：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>電話：</th>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">課程內容</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">課程代碼：<br></th>
+                                <td width="70%"></td>
+                            </tr>
+                            <tr>
+                                <th>已報名人數：</th>
+                                <td>0 人 (已報名人數不等於錄訓人數，實際招生情形，請逕洽訓練單位)</td>
+                            </tr>
+                            <tr>
+                                <th>課程名稱：</th>
+                                <td><span class="text-classname"></span></td>
+                            </tr>
+                            <tr>
+                                <th>學分數：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>師資介紹：</th>
+                                <td>
+                                    <span class="text-primary"></span><br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>縣 市 別：<br></th>
+                                <td><br></td>
+                            </tr>
+                            <tr>
+                                <th>訓練計畫：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>所屬計畫：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>訓練班別：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>報名繳費方式：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>訓練費用：</th>
+                                <td>
+                                    <ul>
+                                        <li>學員負擔：<span class="text-primary"><b></b></span></li>
+                                        <li>政府負擔：<span class="text-primary"><b></b></span></li>
+                                        <li>每班人數 ：<span class="text-primary"><b></b></span></li>
+                                        <li>訓練時數 ： <span class="text-primary"><b></b></span></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>訓練性質：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>報名日期 ：</th>
+                                <td>(若開放報名時間超過1個月以上，表示本班曾變更訓練期間)</td>
+                            </tr>
+                            <tr>
+                                <th>預定訓練起訖日期：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>訓練期限 ：</th>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class-blue">
+                            <tr>
+                                <th width="15%">上課日期</th>
+                                <th width="15%">授課時間</th>
+                                <th width="10%">時數<span class="text-primary"></span></th>
+                                <th width="60%">課程進度／內容</th>
+                            </tr>
+                            <tr>
+                                <td align="center" colspan="4">尚無資料</td>
+                            </tr>
+                        </table>
+                        <div class="titlebar-note">本網頁課程資訊如與訓練單位公告事項不符時，仍以訓練單位公告資訊為準，恕不另行通知。</div>
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">訓練方式：</th>
+                                <td width="70%"></td>
+                            </tr>
+                            <tr>
+                                <th>招訓及遴選方式：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>其他：</th>
+                                <td>
+                                    是否輔導學員參加政府機關辦理相關證照考試或技能檢定：<br>
+                                    <div class="radio"><label><input type="radio" value="Y" disabled>是，證照或檢定名稱<input type="text" class="form-normal" name="search" id="search" disabled> </label></div>
+                                    <div class="radio"><label><input type="radio" value="N" disabled>否</label></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>備註：</th>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">參訓資格</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">學歷：</th>
+                                <td width="70%"></td>
+                            </tr>
+                            <tr>
+                                <th>年齡：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>資格條件：</th>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <div class="clearfix"></div>
+    <!-- btn -->
+    <div class="submit-bar-gray text-center">
+        <button type="button" data-role="GoBack" class="btn btn-orange " title="回上一頁">回上一頁</button>
+    </div>
+</div>
+<!--回上一頁-->
+@using (Html.BeginForm("Index", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoBackForm" }))
+{
+    @Html.Hidden("useCache", 1)
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        //GoBack
+        $("button[data-role=GoBack]").click(function () {
+            $("form#GoBackForm").submit();
+        });
+        $("a[data-role=GoBack]").click(function () {
+            $("form#GoBackForm").submit();
+        });
+    });
+
+</script>
+

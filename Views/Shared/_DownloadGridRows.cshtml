@@ -1,0 +1,59 @@
+﻿@model WDAIIP.WEB.Models.DownloadViewModel
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+
+@if (Model.Grid.Count == 0)
+{
+    <tr>
+        <td headers="a" align="center" colspan="2"><span color="#df0000">查無資料</span></td>
+    </tr>
+}
+else
+{
+    for (int i = 0; i < Model.Grid.Count; i++)
+    {
+        var item = Model.Grid[i];
+
+        <tr>
+            <td headers="a" width="5%">
+                <span color="#006c51">▶</span>
+            </td>
+            <td headers="b" width="95%">
+                @if (!string.IsNullOrEmpty(@item.PLAN_NAME))
+                {
+                    <span size="2" color="#0066FF">@item.PLAN_NAME</span>
+                    <br />
+                }
+
+                @item.DLTITLE
+                @Html.Raw(HttpUtility.HtmlDecode("&nbsp;"))
+
+                @if (!string.IsNullOrEmpty(@item.FILE1_NAME))
+                {
+                    @Html.Raw(HttpUtility.HtmlDecode("&nbsp;"))
+
+                    string myTitle1 = "[原視窗] 下載" + @item.DLTITLE + @item.FILE1_TYPE.ToString().ToLower();
+                    string myImg1 = @Url.Content("~/images/" + @item.FILE1_IMG);
+                    <a href="javascript:void(0)" title="@myTitle1" onclick="doDownloadFile(@item.DLID, 1)" target="_self"><img src="@myImg1" border="0" width="30" height="30" alt=""><span class="sr-only">@myTitle1</span></a>
+                    <span color="#666666">@item.FILE1_TYPE.ToString().ToLower().Replace(".", "")</span>
+                }
+
+                @if (!string.IsNullOrEmpty(@item.FILE2_NAME))
+                {
+                    @Html.Raw(HttpUtility.HtmlDecode("&nbsp;"))
+
+                    string myTitle2 = "[原視窗] 下載" + @item.DLTITLE + @item.FILE2_TYPE.ToString().ToLower();
+                    string myImg2 = @Url.Content("~/images/" + @item.FILE2_IMG);
+                    <a href="javascript:void(0)" title="@myTitle2" onclick="doDownloadFile(@item.DLID, 2)" target="_self"><img src="@myImg2" border="0" width="30" height="30" alt=""><span class="sr-only">@myTitle2</span></a>
+                    <span color="#666666">@item.FILE2_TYPE.ToString().ToLower().Replace(".", "")</span>
+                }
+
+                @if (!string.IsNullOrEmpty(@item.START_DATE_TW))
+                {
+                    @Html.Raw(HttpUtility.HtmlDecode("&nbsp;"))
+                    <span size="2" color="#d50072">(上架日期：@item.START_DATE_TW)</span>
+                }
+            </td>
+        </tr>
+    }
+}

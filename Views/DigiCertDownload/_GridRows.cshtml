@@ -1,0 +1,34 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model DigiCertViewModel
+
+@if (Model == null || Model.Grid2 == null || Model.Grid2.Count == 0)
+{
+    <tr valign="middle">
+        <td colspan="8" style="text-align:center;">尚無資料</td>
+    </tr>
+}
+else
+{
+    for (int i = 0; i < Model.Grid2.Count; i++)
+    {
+        var item = Model.Grid2[i];
+        string tit1 = "數位結訓證明下載(封面)";
+        string tit2 = "數位結訓證明下載";
+        string dcano = item.DCANO.ToString();
+        string dcaseno = item.DCASENO;
+        string emvcode = item.EMVCODE;
+        <tr>
+            <td style="text-align:center;">@(item.DCASENO)</td>
+            <td style="text-align:center;">@(item.APPLNDATE)</td>
+            <td style="text-align:center;">
+                @*btn btn-result btn-justified / btn-orange*@
+                <button type="button" data-role="Download1" class="btn btn-result2 btn-justified" title="@tit1" onclick="doDownload1('@dcano','@dcaseno','@emvcode');">@tit1</button>
+                <button type="button" data-role="Download2" class="btn btn-result2 btn-justified" title="@tit2" onclick="doDownload2('@dcano','@dcaseno','@emvcode');">@tit2</button>
+            </td>
+        </tr>
+    }
+}
+
+@*<script type="text/javascript"></script>*@
+

@@ -1,0 +1,219 @@
+﻿@model WDAIIP.WEB.Models.StudOnlineViewModel
+@using WDAIIP.WEB.DataLayers
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+
+@{
+    ViewBag.Title = "會員專區--學員線上表單";
+    ViewBag.Tit2 = "學員線上表單";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    bool CANVIEW = Model.Form.CANVIEW;
+}
+
+@using (Html.BeginForm("Index2", "StudOnlineSign", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+{
+    <div class="col-sm-12">
+        <!-- bread start --->
+        <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / @ViewBag.Tit2</div>
+        <!-- bread end --->
+        <h3 class="main-title main-title-pink"><i class="fas fa-history space-right"></i>@ViewBag.Tit2</h3>
+        <!-- search form start -->
+        <div class="unit-border">
+            <div class="unit-bg unit-bg-pink">
+                <p>
+                    <strong>本功能使用說明：</strong> <br />
+                </p>
+                <ol>
+                    <li>請先下載空白文件並詳閱相關說明。</li>
+                    <li>可選擇線上簽名或印出空白表單以紙本親簽。</li>
+                    <li>為使民眾報名時更為順暢，本功能於每日11:45至13:00不開放查詢，請避開本時段再做查詢，謝謝。</li>
+                </ol>
+            </div>
+            @if (Model.Grid2 != null && Model.Grid2.Count > 0)
+            {
+                var item = Model.Grid2[0];
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-vert">
+                    <tr>
+                        <th width="15%">轄區分署</th>
+                        <td width="35%">@item.DISTNAME</td>
+                        <th width="15%">訓練機構</th>
+                        <td width="35%">@item.ORGNAME</td>
+                    </tr>
+                    <tr>
+                        <th width="15%">班級名稱</th>
+                        <td width="35%">@item.CLASSCNAME2</td>
+                        @*<td width="35%"><a href="javascript:showDetail(@item.OCID,@item.PLANTYPE)" title="檢視課程明細"><b>@item.CLASSCNAME2</b></a></td>*@
+                        <th width="15%">受訓期間</th>
+                        <td width="35%"> @item.STDATE_TW ~ @item.FTDATE_TW </td>
+                    </tr>
+                    <tr>
+                        <th width="15%">訓練狀態</th>
+                        <td width="35%">@item.STUDSTATUS_N</td>
+                        <th width="15%"></th>
+                        <td width="35%"></td>
+                    </tr>
+                </table>
+            }
+            <div class="clearfix"></div>
+            @if (CANVIEW)
+            {
+                <div class="clearfix"></div>
+                <div class="table-responsive">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-responsive table-newsList">
+                        <thead>
+                            <tr>
+                                <th style="width:6%">項次</th>
+                                <th style="width:12%">表單名稱</th>
+                                <th style="width:13%">說明</th>
+                                <th style="width:10%">狀態</th>
+                                <th style="width:13%">功能</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rows">
+                            @Html.Partial("_GridRows2", Model)
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+                <div class="unit-bg unit-bg-gray">
+                </div>
+            }
+
+            <div class="clearfix"></div>
+            @*<div class="submit-bar"> <button type="button" data-role="ReturnLastPage" class="btn-orange" title="回上一頁">回上一頁</button> </div>*@
+            <!-- search form end -->
+        </div>
+    </div>
+}
+
+@*Detail(string dhELNO, string dhSOCID, string dhOCID, string dhSID)*@
+@using (Html.BeginForm("Detail", "StudOnlineSign", FormMethod.Post, htmlAttributes: new { id = "GoDetailForm", @class = "form-horizontal" }))
+{
+    @Html.Hidden("dhELNO")
+    @Html.Hidden("dhSOCID")
+    @Html.Hidden("dhOCID")
+    @Html.Hidden("dhSID")
+}
+
+@using (Html.BeginForm("submitGenerateQRCode", "StudOnlineSign", FormMethod.Post, htmlAttributes: new { id = "goGenerateQRCode", @class = "form-horizontal" }))
+{
+    @Html.Hidden("qELNO")
+    @Html.Hidden("qSOCID")
+    @Html.Hidden("qOCID")
+    @Html.Hidden("qSID")
+}
+
+@using (Html.BeginForm("submitShowSignatureImage", "StudOnlineSign", FormMethod.Post, htmlAttributes: new { id = "goShowSignatureImage", @class = "form-horizontal" }))
+{
+    @Html.Hidden("hELNO")
+    @Html.Hidden("hSOCID")
+    @Html.Hidden("hOCID")
+    @Html.Hidden("hSID")
+}
+
+<script type="text/javascript">
+@*$(document).ready(function () {var idHead = "#Form_";//回上一頁$("button[data-role=ReturnLastPage]").on("click", function () {    history.go(-1);});});*@
+      $(document).ready(function () {
+        $("a[data-role=GoPrtOjtInclassEC]").click(function () {
+            var rte = $(this).data("rte");
+            var socid = $(this).data("socid");
+            var ocid = $(this).data("ocid");
+            var sid = $(this).data("sid");
+            var elno = $(this).data("elno");
+            @* var elid = $(this).data("elid"); //alert(rte + ',' + tmd + ',' + socid + ',' + ocid + ',' + clsid + ',' + studstatus);
+            "下載空白文件"; //T "線上簽名"; //S "下載簽署文件"; //D *@
+            if (rte == "S") {
+                @*QRCODE 線上簽名 javascriptGenerateQRCode(elno, socid, ocid, sid);*@
+                javascriptGoDetailForm(elno, socid, ocid, sid);
+            }
+            else if (rte == "D") {
+                @*下載簽署文件 javascriptShowSignatureImage(elno, socid, ocid, sid);*@
+                doPrtOjtInclassEC("D", socid, ocid, sid, elno);
+            }
+            else if (rte == "T") {
+                @*下載空白文件*@
+                doPrtOjtInclassEC("T", socid, ocid, sid, elno);
+            }
+        });
+    })
+
+    @*進入文件檢視、填寫*@
+    function javascriptGoDetailForm(elno, socid, ocid, sid) {
+        $("#dhELNO").val(elno);
+        $("#dhSOCID").val(socid);
+        $("#dhOCID").val(ocid);
+        $("#dhSID").val(sid);
+        $("form#GoDetailForm").attr("action", "@Url.Action("Detail", "StudOnlineSign")").submit();
+    }
+
+    @*顯示QR Code條碼*@
+    function javascriptGenerateQRCode(elno, socid, ocid, sid) {
+        $("#qELNO").val(elno);
+        $("#qSOCID").val(socid);
+        $("#qOCID").val(ocid);
+        $("#qSID").val(sid);
+        $("form#goGenerateQRCode").attr("action", "@Url.Action("submitGenerateQRCode", "StudOnlineSign")").submit();
+    }
+
+    @*顯示簽名圖*@
+    function javascriptShowSignatureImage(elno, socid, ocid, sid) {
+        $("#hELNO").val(elno);
+        $("#hSOCID").val(socid);
+        $("#hOCID").val(ocid);
+        $("#hSID").val(sid);
+        $("form#goShowSignatureImage").attr("action", "@Url.Action("submitShowSignatureImage", "StudOnlineSign")").submit();
+    }
+
+    function doPrtOjtInclassEC(rte, socid, ocid, sid, elno) {
+        var rptUrl = "@ConfigModel.RptQuery_URL";
+          @*學員線上表單 - 測試機列印報表<add key="YTEST" value="Y1" />*@
+        var rYtest = "@ConfigModel.As_YTEST";
+        var url = "@Url.Action("GetSignReport1", "Ajax")";
+        var data = { rte: rte, socid: socid, ocid: ocid, sid: sid, elno: elno };
+
+        @*debugger;*@
+        ajaxLoadMore(url, data, function (resp) {
+            var fgTD = (rte == "T" || rte == "D"); //bool false:異常;
+            if (!fgTD || resp.data === undefined || resp.data == undefined) {
+                var vERRMSG1 = "下載  失敗，請洽系統管理者";
+                if (elno == "1") {
+                    vERRMSG1 = "下載 補助學員參訓契約書 失敗，請洽系統管理者";
+                }
+                else if (elno == "2") {
+                    vERRMSG1 = "下載 學員基本資料表 失敗，請洽系統管理者";
+                }
+                else if (elno == "3") {
+                    vERRMSG1 = "下載 學員補助申請書 失敗，請洽系統管理者";
+                }
+                blockAlert(vERRMSG1, "", function () { }); return;
+            }
+            else {
+                //console.log(resp.data);
+                var parms = "";
+                var w = window.open('', 'print1', 'toolbar=0,location=0,status=0,menubar=0,resizable=1');
+                var data1 = resp.data;
+                @* RTE:"下載空白文件:T "下載簽署文件: D ELNO:1:補助學員參訓契約書,2:學員基本資料表,3:補助經費申請書*@
+                var RPTN1 = data1.PRINTFILENAME1;
+                if (RPTN1 == "") {
+                    blockAlert("下載  失敗，請洽系統管理者!", "", function () { }); return;
+                }
+                parms = "RptID=" + RPTN1 + "&TPlanID=" + data1.TPLANID + "&RID=" + data1.RID + "&SOCID=" + data1.SOCID + "&OCID=" + data1.OCID + "&SID=" + data1.SID + "&Years=" + data1.YEARS_ROC;
+                @* 學員線上表單 - 測試機列印報表 < add key = "YTEST" value = "Y1" />*@
+                if (rYtest != "" && rYtest == "Y1") { parms += ("&YTEST=" + rYtest); }
+                w.location = rptUrl + parms;
+            }
+        });
+    }
+
+    @*瀏覽課程*@
+    function doDetail2(socid, ocid, sid, elno, elid) {
+        @* $("form#GoDetailForm").attr("action", "@Url.Action("Detail")").submit();*@
+        $("#SOCID").val(socid);
+        $("#OCID").val(ocid);
+        $("#SID").val(sid);
+        $("#ELNO").val(elno);
+        $("#ELID").val(elid);
+        $("form#GoDetailForm").submit();
+    }
+</script>

@@ -1,0 +1,37 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.Commons
+
+@model ContentViewModel
+@{
+    string s_libreofficestillUrl = ConfigModel.libreofficestillUrl;
+}
+
+@if (Model.Detail != null && Model.Detail.FILEGrid != null && Model.Detail.FILEGrid.Count > 0)
+{
+    <ul class="news-content-data">
+        <li class="fa fa-paperclip">相關檔案</li>
+    </ul>
+    <div>
+        @*2019-02-23 無障礙修正： EV2040300：確認文字（及影像文字）與文字後面的背景間，至少有4.5:1的對比值*@
+        <span color="#ce4812">
+            ※為提供使用者有文書軟體選擇的權利，本文件為ODF開放文件格式，
+            建議您安裝免費開源軟體 (<a href="@(s_libreofficestillUrl)" target="_blank" rel="noreferrer noopener" title="前往下載ODF閱讀軟體(另開新視窗)">@(s_libreofficestillUrl)</a>)<br />
+            或以您慣用的軟體開啟文件。<br />
+        </span>
+    </div>
+
+    foreach (var item in Model.Detail.FILEGrid)
+    {
+        @*2019-02-23 無障礙修正： EV1100202：提供下載檔案格式不可為需依賴特定文書商用軟體即能開啟之檔案*@
+        string myTitle = "[原視窗] 下載" + @item.FILE_ORINAME;
+        string myImg = @Url.Content("~/images/" + @item.FILE_IMG);
+        string it_fileID = item.FILEID.ToString();
+        string it_fileIDymd = string.Concat(item.FILEID, DateTime.Now.ToString("yyyyMMddHH"));
+        string eit_fileIDymd = MyCommonUtil.EncodeString(it_fileIDymd);
+        <div>
+            @*2019-02-23 無障礙修正： EV1010600 對於輔助科技應當要忽略的圖片，使用空字串作為替代文字，並且不可使用標題(title)屬性*@
+            @item.FILE_TITLE<a href="javascript:void(0)" onclick="doDownloadFile('@it_fileID','@eit_fileIDymd')" target="_self" title="@(myTitle)"> <img src="@myImg" border="0" width="30" height="30" alt=""><span class="sr-only">@(myTitle)</span></a>
+        </div>
+    }
+}
+

@@ -1,0 +1,63 @@
+﻿@using WDAIIP.WEB.Commons
+@model IList<WDAIIP.WEB.Models.NearYearTrainGridModel>
+@{
+    var tableColor = "";
+    var dataColor = "";
+}
+@if (Model != null)
+{
+    foreach (var item in Model)
+    {
+        tableColor = (item.DataType == "2" ? "table-class-blue" : "table-green");
+        dataColor = ("1".Equals(item.DOUBLE_DESC) ? "color:red" : "");
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-vert">
+                <tr>
+                    <th width="15%">報名日期</th>
+                    <td width="30%">@item.RELENTERDATE<a href="javascript:showclassdetail(1,'N',@item.OCID)" title="課程連結">課程連結</a></td>
+                    <th width="15%">訓練單位審核情形</th>
+                    <td width="30%"><span class="text-danger">@item.SIGNUPSTATUS_TEXT</span></td>
+                    @*<td width="10%" rowspan="6" valign="top"><div align="center"><button type="submit" class="btn btn-green2">取消報名</button></div></td>*@
+                </tr>
+                <tr>
+                    <th>訓練單位</th>
+                    <td>@item.ORGNAME</td>
+                    <th>備註(不通過原因)</th>
+                    <td><span class="text-danger">@Html.Raw(MyHelperUtil.ChangeBreakLine(item.SIGNUPMEMO))</span></td>
+                </tr>
+                <tr>
+                    <th>課程名稱</th>
+                    <td><a href="javascript:showclassdetail(1,'N',@item.OCID)" title="@item.CLASSCNAME"><b>@item.CLASSCNAME</b></a></td>
+                    <th>補助費申請狀態</th>
+                    <td>@item.SUBSIDYCOST_TEXT</td>
+                </tr>
+                <tr>
+                    <th>報名狀態</th>
+                    <td>@Html.Raw(MyHelperUtil.ChangeBreakLine(item.SIGNNO_TEXT)) @*序號：<span class="text-primary">30</span>*@</td>
+                    <th>課程費用</th>
+                    <td>@item.TOTALCOST</td>
+                </tr>
+                <tr>
+                    <th>訓練期間</th>
+                    <td>@item.DOUBLE_DESC_TEXT @item.STDATE_AD ~ @item.FTDATE_AD</td>
+                    <th>80%補助費</th>
+                    <td>@item.DEFGOVCOST</td>
+                </tr>
+                <tr>
+                    <th>上課期間</th>
+                    <td>@item.WEEKS2</td>
+                    <th>實際核撥補助費</th>
+                    <td>@item.SUMOFMONEY</td>
+                </tr>
+            </table>
+        </div>
+    }
+}
+
+<script type="text/javascript">    
+    function showclassdetail(PlanType, ProvideLocation, OCID) {
+    var data = { "PlanType": 1, "ProvideLocation": 'N', "OCID": OCID };
+    var url = '@Url.Action("Detail", "ClassSearch")';
+    goBackPage(url, data, 2, 'POST');
+    }
+</script>

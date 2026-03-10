@@ -1,0 +1,569 @@
+﻿@using WDAIIP.WEB.Models
+@*@model SignUpViewModel*@
+@{
+    ViewBag.Title = "會員專區--上傳銀行存摺";
+    ViewBag.TitleB = "上傳銀行存摺";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    string vQuery1_Url = "https://www.banking.gov.tw/ch/home.jsp?id=606&parentpath=0,590,604&mcustomize=FscSearch_BankMain_Search.jsp";
+    SessionModel sm = SessionModel.Get();
+    //string epi = WDAIIP.WEB.Controllers.EnterTypeController.TkEncrypt(sm.ACID); Upload70643D.cshtml
+    int cst_PostedFile_MAX_SIZE_10M = 10485760; //10*1024*1024=10,485,760  '2 * 1024 * 1024 = 2,097,152
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/EnterType")" title="首頁">首頁</a> / 會員專區 / @(ViewBag.TitleB) </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-edit space-right"></i>@(ViewBag.TitleB)</h3>
+    <div style="display: none">
+        @*@Html.HiddenFor(m => m.Detail.epi)*@
+        <input id="Detail_epi" type="hidden" /> <input id="Detail_epb" type="hidden" /> <input id="Detail_ept" type="hidden" />
+    </div>
+    <div class="unit-bg unit-bg-green">
+        @*<p>本功能使用說明：</p>*@
+        <p>請上傳本人銀行存摺有標示帳戶頁面：</p>
+        <ol>
+            <li>帳戶照片須清晰且資訊清楚，或可直接上傳數位存摺封面圖檔，上傳之圖檔請參考<a href="/images/sample1/Pasbok-temp-1.png" id="openImageLink">範本</a>樣式。</li>
+            <li>系統將自動加壓浮水印，請勿自行壓字以免影響後續審核撥款事宜。</li>
+            <li>課程開訓後倘撥款帳號有異動，請重新上傳及更新銀行帳戶資訊，並須通知訓練單位。</li>
+        </ol>
+    </div>
+    <div class="unit-border">
+        <h3 class="titlebar titlebarBg-green">銀行存摺封面</h3>
+        @*<div class="form-group-search"><label for="Detail_NAME" class="form-label-data">郵政/銀行帳號</label><div class="form-input-data
+            form-inline" title="(每次重新點選)"><label class="radio-inline"><input class="form-inline radioset" data-val="true"
+            data-val-number="欄位 郵政/銀行帳號 必須是數字。" id="rdo_ACCTMODE_0" name="Detail.ACCTMODE" title="請選擇郵政/銀行帳號類型(每次重新點選)" type="radio"
+            value="0"><label style="font-weight:normal; cursor:pointer" for="rdo_ACCTMODE_0">郵局帳號</label><br></label><label class="radio-inline">
+            <input class="form-inline radioset" id="rdo_ACCTMODE_1" name="Detail.ACCTMODE" title="請選擇郵政/銀行帳號類型(每次重新點選)" type="radio"
+            value="1"><label style="font-weight:normal; cursor:pointer" for="rdo_ACCTMODE_1">銀行帳號</label></label></div></div>*@
+        <div class="form-group-search">
+            <label for="" class="form-label-data">存摺封面圖像上傳</label>
+            <div class="form-input form-inline">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label class="radio-inline">
+                            <input type="radio" v-model="scanType" name="type" value="full" />
+                            <b>完整掃描</b>
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" v-model="scanType" name="type" value="precise" />
+                            <b>精準掃描</b>
+                        </label>
+                    </div>
+                    <div class="col-sm-12">
+                        @*id="mem_passportno" title="如欲修改個人基本資料，請至台灣就業通「會員中心」變更"*@
+                        <div class="group-width">
+                            <button type="button" class="btn btn-info" onclick="selectFile()">選擇檔案</button>
+                            <span id="spanFileName">請選擇要上傳的檔案</span>
+                            <input type="file" id="fileInput" class="hide" onchange="fileChange(event)" accept="image/*" />
+                            <div id="canvasContainer" style="display: none; margin-top: 5px">
+                                <canvas id="canvas"></canvas>
+                            </div>
+                            <button id="submitBtn" type="button" class="btn btn-danger">上傳</button><span id="txtBackImgFromScan1"></span>
+                            <div>
+                                <div id="ocrTextResult" style="width: 100%;">
+                                    <p>掃描到的文字:</p>
+                                    <textarea class="form-control"
+                                              id="fullPassbookInfo"
+                                              style="width: 90%; height: 200px; resize: none; box-sizing: border-box; max-width: none;"
+                                              readonly></textarea>
+                                </div>
+                            </div>
+                            <span style="color: red; display: block; margin-top: 10px; margin-left: 5px;">僅接受jpg.png圖檔格式</span>
+                            <div id="instructions" style="display:none;">
+                                <p>
+                                    <span style="color: red; font-weight: bold; margin-top: 10px; margin-left: 5px;">紅色選取框</span> :「匯入帳號」欄位 <br>
+                                    <span style="color: green; font-weight: bold; margin-top: 10px; margin-left: 5px;">綠色選取框</span> :「金融機構代碼/名稱」欄位 <br>
+                                    <span style="color: blue; font-weight: bold; margin-top: 10px; margin-left: 5px;">藍色選取框</span> :「分局或分行代碼/名稱」欄位
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<button id="uploadButton">上傳圖片</button><iframe id="uploadIframe" name="uploadIframe" style="display:none;"></iframe>*@
+        <div class="form-group-search">
+            <label for="selectBank" class="form-label-data"> <span class="text-danger">*</span>金融機構代碼/名稱</label>
+            <div class="form-input-dataHelf-3 form-inline">
+                <div class="group-width">
+                    <select id="selectBank" data-value="0" class="form-control" style="width: 80%"></select>
+                    &nbsp;<a style="text-align:center;" onclick="window.open('@vQuery1_Url','查詢機構代碼');" href="#">查詢機構代碼</a>
+                </div>@*<br />*@
+                <span id="txtBankNameFromScan"></span>
+            </div>
+        </div>
+        <div class="form-group-search">
+            <label for="selectBranch" class="form-label-data"> <span class="text-danger">*</span>分局(行)代碼/名稱</label>
+            <div class="form-input-dataHelf-3 form-inline">
+                <select id="selectBranch" data-value="0" class="form-control" style="width: 80%"></select>
+                <br />
+                <span id="txtBranchNameFromScan"></span>
+            </div>
+        </div>
+        <div class="form-group-search" style="vertical-align: middle; display: none;">
+            <label id="lbBankName" class="form-label-data" for="textBankName">金融機構名稱</label>
+            <div class="form-input-dataHelf form-inline">
+                <input type="text" class="form-control" id="textBankName" style="width: 95%" placeholder="請輸入「金融機構名稱」" autocomplete="on" maxlength="50" value="">
+            </div>
+        </div>
+        <div class="form-group-search" style="vertical-align: middle; display: none;">
+            <label id="lbBranchName" class="form-label-data" for="textBranchName">分局名稱/分行名稱</label>
+            <div class="form-input-dataHelf form-inline">
+                <input type="text" class="form-control" id="textBranchName" style="width: 95%" placeholder="請輸入「分局名稱/分行名稱」" maxlength="50" value="">
+            </div>
+        </div>
+        <div class="form-group-search">
+            <label for="textBankAccount" class="form-label-data"> <span class="text-danger">*</span>帳號</label>
+            <div class="form-input-dataHelf">
+                <input type="text" class="form-control" data-control="number" data-limit="number" id="textBankAccount" style="width: 95%" placeholder="請輸入「匯入帳號」" maxlength="14" value="">
+                <label style="color:#000088">最多14碼</label>
+                <br />
+                <span id="txtBankAccountFromScan"></span>
+            </div>
+        </div>
+        <div class="form-group-search"> </div>
+        <div class="unit-bg unit-bg-green unit-spaces">
+            <strong>
+                <label style="color:red;">請務必填入正確資料，倘因填寫錯誤，須自負其責。</label>
+            </strong>
+        </div>@*可聯繫到本人之電話或電子郵件或未填，致訓練單位無法通知錄訓繳費或甄試*@
+        <p></p>
+        <div class="clearfix"></div>
+    </div>
+    <div class="submit-bar">
+        <button type="button" data-role="SaveData" class="btn-orange" title="資料確定">確定</button>
+        <button type="button" data-role="GoBack" class="btn-refill" title="取消">取消</button>
+    </div>
+</div>
+
+<!--回查詢清單"CheckEdit", "EnterType-->
+@using (Html.BeginForm("Detail2", "EnterType", FormMethod.Post, htmlAttributes: new { id = "GoBackForm" }))
+{
+    @Html.Hidden("Epi")
+    @Html.Hidden("Epb")
+    @Html.Hidden("Ept")
+}
+
+@* 上傳銀行存摺 BankVM *@
+@using (Html.BeginForm("SaveUpload70643D", "EnterType", FormMethod.Post, htmlAttributes: new { id = "detail_form" }))
+{
+    @Html.Hidden("Epi")
+    @Html.Hidden("Epb")
+    @Html.Hidden("Ept")
+    @Html.Hidden("ACCTHEADNO")
+    @Html.Hidden("BANKNAME")
+    @Html.Hidden("ACCTEXNO")
+    @Html.Hidden("EXBANKNAME")
+    @Html.Hidden("ACCTNO")
+}
+
+@section scripts {
+    @*enterTypeControllers.js*@
+    @Scripts.Render("~/bundles/enterType")
+    <script>
+        $(document).ready(function () {
+            // 回個資確認頁 GoBack
+            $("button[data-role=GoBack]").click(function () {
+                var form = $("#GoBackForm");
+                //var Epi=$('#Detail_epi').val(); var Epb=$('#Detail_epb').val(); var Ept=$('#Detail_ept').val();
+                form.find("input[name='Epi']").val($('#Detail_epi').val());
+                form.find("input[name='Epb']").val($('#Detail_epb').val());
+                form.find("input[name='Ept']").val($('#Detail_ept').val());
+                $("form#GoBackForm").submit();
+            });
+        });
+
+        @* 報名資料維護 SaveData BankVM *@
+        $("button[data-role=SaveData]").on("click", function () {
+            //$('#Detail_ACTTYPE').prop('disabled', false); // 解鎖 Detail_ACTTYPE //var form = $("form#main_form");
+            var form = $("#detail_form");
+            form.find("input[name='Epi']").val($('#Detail_epi').val());
+            form.find("input[name='Epb']").val($('#Detail_epb').val());
+            form.find("input[name='Ept']").val($('#Detail_ept').val());
+            var $Bank=$.trim($('#selectBank').val());
+            var $BankName=$.trim($('#textBankName').val());
+            var $Branch=$.trim($('#selectBranch').val());
+            var $BranchName=$.trim($('#textBranchName').val());
+            var $BankAccount=$.trim($('#textBankAccount').val());
+            form.find("input[name='ACCTHEADNO']").val($Bank);//銀行代碼
+            form.find("input[name='BANKNAME']").val($BankName);//金融機構名稱
+            form.find("input[name='ACCTEXNO']").val($Branch);//分行代碼
+            form.find("input[name='EXBANKNAME']").val($BranchName);//分局名稱/分行名稱
+            form.find("input[name='ACCTNO']").val($BankAccount);//匯入帳號
+
+            var url = "@Url.Action("GetSysDate","Ajax")";
+            var data = {};
+
+            ajaxLoadMore(url, data, function (resp) {
+                var msg = (resp === undefined)? "資料確認無誤，確定送出？":("資料確認無誤，確定送出？<br>目前系統時間為(" + resp.data + ")");
+                blockConfirm(msg, "提示訊息", function () {
+                    form.submit();
+                });
+            });
+        });
+
+        $(function () {
+            //window.document.body.onbeforeunload = function () {
+            //    return '您尚未將編輯過的表單資料送出，請問您確定要離開網頁嗎？';
+            //}
+            var enterTypeController = EnterTypeController(new Class);
+            enterTypeController.fn.init({
+                //共用元件
+                commonController: CommonController(new Class),
+                editData: @Html.Raw(Json.Encode(@ViewBag.EditData)),
+            });
+        });
+    </script>
+    <script>
+        const fileInput = document.getElementById("fileInput");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        let img = new Image();
+        let imgProps = { x: 0, y: 0, naturalWidth: 0, naturalHeight: 0, scale: 1.0, isDragging: false, positionWhenMouseDown: { x: 0, y: 0 } };
+        let mouseDownPosition = { x: 0, y: 0 };
+        let boxes = [
+            {
+                x: 200, y: 170, width: 210, height: 30, color: 'red',
+                isDragging: false, isResizingT: false, isResizingB: false, isResizingL: false, isResizingR: false,
+                positionWhenMouseDown: { x: 200, y: 170 }, sizeWhenMouseDown: { width: 210, height: 30 }
+            },
+            {
+                x: 200, y: 100, width: 70, height: 30, color: 'green',
+                isDragging: false, isResizingT: false, isResizingB: false, isResizingL: false, isResizingR: false,
+                positionWhenMouseDown: { x: 200, y: 100 }, sizeWhenMouseDown: { width: 70, height: 30 }
+            },
+            {
+                x: 290, y: 100, width: 120, height: 30, color: 'blue',
+                isDragging: false, isResizingT: false, isResizingB: false, isResizingL: false, isResizingR: false,
+                positionWhenMouseDown: { x: 290, y: 100 }, sizeWhenMouseDown: { width: 120, height: 30 }
+            }
+        ];
+
+        // 設定 Canvas 尺寸
+        canvas.width = 600;
+        canvas.height = 400;
+
+        // 預設顯示「請選擇要上傳的檔案」
+        document.getElementById("spanFileName").textContent = "請選擇要上傳的檔案";
+
+        // 選擇檔案按鈕
+        function selectFile() {
+            fileInput.click();
+        }
+
+        function checkFile1(file) {
+            //sizeLimit單位:byte
+            let sizeLimit=(@(cst_PostedFile_MAX_SIZE_10M));
+            let spanFileNameNM="spanFileName";
+            let fileInputNM="fileInput";
+            //let inputfilehtmldefault1='<input type="file" id="fileInput" class="hide" onchange="fileChange(event)" accept="image/*">';
+            //const fileInput = document.querySelector('input[type="file"]'); //const file = fileInput.files[0];
+            let fileType = file.type;
+            let fileType2 = file.type.split('/')[1];
+            //console.log('fileType : ' + fileType); console.log('fileType2 : ' + fileType2);
+            // alert('只允許上傳 jpg.png 檔！'); return false; // alert('只允許上傳 jpg.png 檔！'); return false;
+            let jpgNG1=false;  let pngNG1=false;
+            if (fileType !== 'image/jpeg' || fileType2 !== 'jpeg') { jpgNG1=true; }
+            if (fileType !== 'image/png' || fileType2 !== 'png') { pngNG1=true; }
+            if(jpgNG1 && pngNG1){
+                alert('只允許上傳 jpg.png 檔！');
+                document.getElementById(spanFileNameNM).textContent = "請選擇要上傳的檔案";
+                //document.getElementById(fileInputNM).outerHTML = inputfilehtmldefault1;
+                //document.getElementById("canvas").outerHTML = '<canvas id="canvas" width="600" height="400" style="cursor: default;"></canvas>';
+                return false;
+            }
+
+            let fileSizek = Math.round(file.size / 1024);
+            let fileSize = Math.round(file.size / 1024 / 1024);
+            let fileSizeLimit = Math.round(sizeLimit / 1024 / 1024);
+            //console.log('fileSize : ' + fileSize);
+            //console.log('fileSizeLimit : ' + fileSizeLimit);
+            if (fileSize > fileSizeLimit) {
+                alert('您所選擇的檔案大小為 ' + fileSize + 'MB，超過了上傳上限! (檔案大小限制' + fileSizeLimit + 'MB以下)，不允許上傳！');
+                document.getElementById(spanFileNameNM).textContent = "請選擇要上傳的檔案";
+                //document.getElementById(fileInputNM).outerHTML = inputfilehtmldefault1;
+                //document.getElementById("canvas").outerHTML = '<canvas id="canvas" width="600" height="400" style="cursor: default;"></canvas>';
+                return false;
+            }
+            if (fileSizek <= 1) {
+                alert('您所選擇的檔案大小為 小於1KB，不允許上傳！');
+                document.getElementById(spanFileNameNM).textContent = "請選擇要上傳的檔案";
+                //document.getElementById(fileInputNM).outerHTML = inputfilehtmldefault1;
+                //document.getElementById("canvas").outerHTML = '<canvas id="canvas" width="600" height="400" style="cursor: default;"></canvas>';
+                return false;
+            }
+            return true;
+        }
+
+        // 檔案選擇後觸發
+        function fileChange(event) {
+            const file = event.target.files[0];
+            const fileNameSpan = document.getElementById("spanFileName");
+            const canvasContainer = document.getElementById("canvasContainer");
+            const instructions = document.getElementById("instructions"); // 如果有使用它
+            // 每次檔案選擇時，先重置顯示狀態，避免舊的狀態影響新的選擇
+            fileNameSpan.textContent = "請選擇要上傳的檔案"; // 預設文字
+            canvasContainer.style.display = "none"; // 預設隱藏
+            $("#txtBackImgFromScan1").text('');
+            // 如果沒有選擇檔案 (例如，使用者打開檔案選擇器後又取消)
+            if (!file) { return; }
+
+            if (!checkFile1(file)){return;}
+
+            fileNameSpan.textContent = file.name;
+            canvasContainer.style.display = "block";
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                img.onload = function () {
+                    imgProps.naturalWidth = img.naturalWidth;
+                    imgProps.naturalHeight = img.naturalHeight;
+                    // 確保 drawImage 函數已定義
+                    if (typeof drawImage === 'function') {
+                        drawImage();
+                    }
+                    else {
+                        console.error("錯誤：drawImage() 函數未定義，無法繪製圖片。");
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 繪製圖片
+        function drawImage() {
+            // 確保圖片已經載入完成後再清除畫布
+            img.onload = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);  // 清除畫布
+                // 計算圖片縮放比例
+                imgProps.scale = Math.min(canvas.width / imgProps.naturalWidth, canvas.height / imgProps.naturalHeight);
+                const drawWidth = imgProps.naturalWidth * imgProps.scale;
+                const drawHeight = imgProps.naturalHeight * imgProps.scale;
+
+                // 繪製圖片到畫布
+                ctx.drawImage(img, imgProps.x, imgProps.y, drawWidth, drawHeight);
+
+                // 畫框
+                if (state.scanType === 'precise') {
+                    boxes.forEach(box => {
+                        ctx.strokeStyle = box.color;
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(box.x, box.y, box.width, box.height);
+                    });
+                }
+
+            };
+            img.src = img.src;
+        }
+
+        // 允許拖曳圖片
+        function setBoxesState(isMouseDown, mouseX, mouseY) {
+            let cursorStyle = "default"; // 預設樣式
+            boxes.forEach(box => {
+                const edgeBuffer = ctx.lineWidth / 2; // 根據 lineWidth 計算邊緣範圍
+                // 檢查滑鼠是否在方框內部
+                if (mouseX >= box.x - edgeBuffer && mouseX <= box.x + box.width + edgeBuffer && mouseY >= box.y - edgeBuffer && mouseY <= box.y + box.height + edgeBuffer) {
+                    let isAtTopEdge = false;
+                    let isAtBottomEdge = false;
+                    let isAtLeftEdge = false;
+                    let isAtRightEdge = false;
+                    if (Math.abs(mouseY - box.y) <= edgeBuffer) {
+                        isAtTopEdge = true;
+                        if (isMouseDown) {
+                            box.isResizingT = true;
+                        }
+                    }
+                    if (Math.abs(mouseY - (box.y + box.height)) <= edgeBuffer) {
+                        isAtBottomEdge = true;
+                        if (isMouseDown) {
+                            box.isResizingB = true;
+                        }
+                    }
+                    if (Math.abs(mouseX - (box.x)) <= edgeBuffer) {
+                        isAtLeftEdge = true;
+                        if (isMouseDown) {
+                            box.isResizingL = true;
+                        }
+                    }
+                    if (Math.abs(mouseX - (box.x + box.width)) <= edgeBuffer) {
+                        isAtRightEdge = true;
+                        if (isMouseDown) {
+                            box.isResizingR = true;
+                        }
+                    }
+                    if ((isAtTopEdge && isAtLeftEdge) || (isAtBottomEdge && isAtRightEdge)) {
+                        cursorStyle = "nwse-resize";
+                    }
+                    else if ((isAtTopEdge && isAtRightEdge) || (isAtBottomEdge && isAtLeftEdge)) {
+                        cursorStyle = "nesw-resize";
+                    }
+                    else if (isAtTopEdge || isAtBottomEdge) {
+                        cursorStyle = "ns-resize";
+                    }
+                    else if (isAtLeftEdge || isAtRightEdge) {
+                        cursorStyle = "ew-resize";
+                    }
+                    else {
+                        cursorStyle = "move";
+                        if (isMouseDown) {
+                            box.isDragging = true;
+                        }
+                    }
+                }
+            });
+
+            // 更新游標樣式
+            canvas.style.cursor = cursorStyle;
+            return cursorStyle !== "default";
+        }
+
+        function setBoxesPositionAndSize(mouseX, mouseY) {
+            boxes.forEach(box => {
+                let dx = mouseX - mouseDownPosition.x;
+                let dy = mouseY - mouseDownPosition.y;
+                if (box.isDragging) {
+                    box.x = dx + box.positionWhenMouseDown.x;
+                    box.y = dy + box.positionWhenMouseDown.y;
+                }
+                else {
+                    if (box.isResizingT) {
+                        box.y = box.positionWhenMouseDown.y + dy;
+                        box.height = box.sizeWhenMouseDown.height - dy;
+                    }
+                    if (box.isResizingB) {
+                        box.height = box.sizeWhenMouseDown.height + dy;
+                    }
+                    if (box.isResizingL) {
+                        box.x = box.positionWhenMouseDown.x + dx;
+                        box.width = box.sizeWhenMouseDown.width - dx;
+                    }
+                    if (box.isResizingR) {
+                        box.width = box.sizeWhenMouseDown.width + dx;
+                    }
+                }
+            });
+        }
+
+        function clearBoxesState() {
+            boxes.forEach((box) => {
+                box.isDragging = false;
+                box.isResizingT = false;
+                box.isResizingB = false;
+                box.isResizingL = false;
+                box.isResizingR = false;
+                box.positionWhenMouseDown.x = box.x;
+                box.positionWhenMouseDown.y = box.y;
+                box.sizeWhenMouseDown.width = box.width;
+                box.sizeWhenMouseDown.height = box.height;
+            });
+        }
+
+        canvas.addEventListener("mousedown", (event) => {
+            mouseDownPosition.x = event.offsetX;
+            mouseDownPosition.y = event.offsetY;
+            let isMouseInBoxes = setBoxesState(true, event.offsetX, event.offsetY);
+            boxes.forEach((box) => {
+                box.positionWhenMouseDown.x = box.x;
+                box.positionWhenMouseDown.y = box.y;
+                box.sizeWhenMouseDown.width = box.width;
+                box.sizeWhenMouseDown.height = box.height;
+            });
+
+            // 如果都沒點到框，則為圖片拖曳模式
+            if (!isMouseInBoxes) {
+                imgProps.isDragging = false; // 禁用圖片拖曳
+            }
+        });
+
+        canvas.addEventListener("mousemove", (event) => {
+            if (state.scanType === "precise") {
+                setBoxesState(false, event.offsetX, event.offsetY);
+            }
+            if (imgProps.isDragging) {
+                let dx = event.offsetX - mouseDownPosition.x;
+                let dy = event.offsetY - mouseDownPosition.y;
+                imgProps.x += dx;
+                imgProps.y += dy;
+                mouseDownPosition.x = event.offsetX;
+                mouseDownPosition.y = event.offsetY;
+                drawImage();
+            } else {
+                setBoxesPositionAndSize(event.offsetX, event.offsetY);
+                drawImage();
+            }
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            imgProps.isDragging = false;
+            clearBoxesState();
+        });
+
+        const state = new Proxy({
+            scanType: 'full'
+        }, {
+            set(target, key, value) {
+                if (target[key] !== value) {
+                    target[key] = value;
+                    drawImage();
+                }
+                return true;
+            }
+        });
+
+        function changeScanType(newType) {
+            state.scanType = newType;
+        }
+
+        //切換掃描模式
+        document.addEventListener("DOMContentLoaded", function () {
+            const scanTypeRadios = document.querySelectorAll("input[name='type']");
+            scanTypeRadios.forEach(radio => {
+                radio.addEventListener("change", function () {
+                    let instructions = document.getElementById("instructions");
+                    let ocrTextResult = document.getElementById("ocrTextResult");
+                    if (this.value === "full") {
+                        instructions.style.display = "none";
+                        ocrTextResult.style.display = "block";
+
+                    } else {
+                        instructions.style.display = "block";
+                        ocrTextResult.style.display = "none";
+                    }
+                    drawImage();
+                });
+            });
+        });
+
+        document.querySelectorAll('input[name="type"]').forEach(radio => {
+            radio.addEventListener("change", function () {
+                state.scanType = this.value;
+            });
+        });
+
+        $(document).ready(function() {
+            $('#openImageLink').on('click', function(event) {
+                event.preventDefault(); // Prevent the default link behavior
+                var imageUrl = $(this).attr('href'); // Get the href (image URL)
+                window.open(imageUrl, '_blank'); // Open in a new tab/window
+            });
+        });
+
+        $(document).ready(function () {
+            setTimeout(() => {
+                //document.querySelector('input[type="radio"][value="precise"]').checked = true;
+                changeScanType("precise");
+                let instructions = document.getElementById("instructions");
+                let ocrTextResult = document.getElementById("ocrTextResult");
+                instructions.style.display = "block";
+                ocrTextResult.style.display = "none";
+                if ($('input[type="radio"][value="precise"]').length > 0) { $('input[type="radio"][value="precise"]').prop('checked', true); }
+                imgProps.isDragging = false;
+                clearBoxesState(); //drawImage();
+                //if ($('input[type="radio"][value="precise"]').length == 0){return;}
+                if ($('input[type="radio"][value="full"]').length > 0) { $('input[type="radio"][value="full"]').parent('label').hide(); }
+            }, 333); // 3000 milliseconds = 3 seconds
+        });
+    </script>
+}

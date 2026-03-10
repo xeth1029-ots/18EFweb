@@ -1,0 +1,22 @@
+﻿@model WDAIIP.WEB.Models.GovClassSearchViewModel
+@using WDAIIP.WEB.Commons
+
+@{ 
+    DateTime SDate = Convert.ToDateTime(Model.Form.STDATE);
+    DateTime EDate = Convert.ToDateTime(Model.Form.FTDATE);
+    string strDate = "";
+
+    if (!string.IsNullOrEmpty(Model.Form.STDATE) && !string.IsNullOrEmpty(Model.Form.FTDATE))
+    {
+        strDate = MyHelperUtil.DateTimeToTwString(SDate) + "~" + MyHelperUtil.DateTimeToTwString(EDate);
+    }
+}
+<tr>
+    <td rowspan="2" width="10%" style="color:#2d699e"><h3>查詢條件</h3></td>
+    <td width="45%">課程關鍵字：<span class="text-primary" style="color:#2d699e">@Model.Form.CLASSCNAME</span></td>
+    <td width="45%">訓練單位：<span class="text-primary" style="color:#2d699e">@Model.Form.ORGIDITEM_TEXT</span></td>
+</tr>
+<tr>
+    <td colspan="2">訓練期間：<span class="text-primary" style="color:#2d699e">@(strDate)</span></td>
+</tr>
+

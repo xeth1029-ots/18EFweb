@@ -1,0 +1,56 @@
+﻿@model WDAIIP.WEB.Models.ClassConfirm005ViewModel
+@{
+    ViewBag.Title = "課程錄訓名單--區域產業據點";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink">
+        <a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a>
+        <i class="fa fa-home space-right" aria-hidden="true">
+        </i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程錄訓名單 / 區域產業據點
+    </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fab fa-readme space-right"></i>課程錄訓名單</h3>
+    <!-- result table -->
+    <div class=" table-responsive">
+        <table width="100" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+            <thead>
+                <tr>
+                    <th width="11%">訓練班別</th>
+                    <th width="11%">訓練單位</th>
+                    <th width="11%">上課地點</th>
+                    <th width="11%">通俗類職</th>
+                    <th width="12%">報名起迄日</th>
+                    <th width="12%">訓練起迄日</th>
+                    <th width="11%">訓練時段</th>
+                    <th width="11%">訓練性質</th>
+                    <th width="10%">功能</th>
+                </tr>
+            </thead>
+            <tbody id="rows">
+                @Html.Partial("_GridRows", Model)
+            </tbody>
+        </table>
+    </div>
+    @Html.Partial("_PagingLink", Model.Form)
+</div>
+<div class="submit-bar">
+    <button type="button" class=" btn-orange " onclick="goback()" title="回上一頁">回上一頁</button>
+</div>
+
+
+<script type="text/javascript">
+    //回上一頁
+    function goback() {
+        var url = '@Url.Action("Index", "ClassConfirm005")';
+        goBackPage(url, {}, 2, 'GET');
+    }
+
+    function showDetail(OCID, CFGUID, CFSEQNO) {
+        var data = { "OCID": OCID, "CFGUID": CFGUID, "CFSEQNO": CFSEQNO };
+        var url = '@Url.Action("Detail", "ClassConfirm005")';
+        goBackPage(url, data, 2, 'POST');
+    }
+</script>

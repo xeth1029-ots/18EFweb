@@ -1,0 +1,88 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassConfirm001ViewModel
+@{
+    ViewBag.Title = "課程錄訓名單--產業人才投資方案";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+@using (Html.BeginForm("Detail", "Classconfirm001", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+{
+    Int32? i_OCID = (int)Model.Detail.OCID;
+
+    <div class="col-sm-12">
+        <!-- bread start --->
+        <div class="breadlink">
+            <a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a>
+            <i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程錄訓名單 / 產業人才投資方案
+        </div>
+        <!-- bread end --->
+        <h3 class="main-title main-title-green"><i class="fab fa-readme space-right"></i>課程錄訓名單</h3>
+
+        <!-- note table-->
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table  table-result">
+                <tr>
+                    <th width="15%">發布單位</th>
+                    <td width="35%">@Model.Detail.CFORGNAME</td>
+                    <th width="15%">課程代碼</th>
+                    <td width="35%">@i_OCID</td>
+                </tr>
+                <tr>
+                    <th>訓練單位</th>
+                    <td>@Model.Detail.ORGNAME</td>
+                    <th>公告日期</th>
+                    <td>@Model.Detail.CONFIRDATE_TW<a href="javascript:showclassdetail(1,'N',@Model.Detail.OCID)" title="前往檢視課程資訊">課程連結</a></td>
+                </tr>
+                <tr>
+                    <th>訓練班別</th>
+                    <td><a href="javascript:showclassdetail(1,'N',@Model.Detail.OCID)" title="@Model.Detail.CLASSCNAME">@Model.Detail.CLASSCNAME<b></b></a></td>
+                    <th>公告期間</th>
+                    <td>@Model.Detail.CONFIRDATERANGE</td>
+                </tr>
+                <tr>
+                    <th>文號</th>
+                    <td colspan="3">@Model.Detail.ODNUMBER</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    <tr>
+                        <th width="25%">編號</th>
+                        <th width="25%">姓名</th>
+                        <th width="25%">身分證字號</th>
+                        <th width="25%">備註</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @Html.Partial("_UserGridRows", Model)
+                </tbody>
+            </table>
+            <p>※序號欄位為瀏覽排序使用，非課程報名順序。</p>
+            <p>※依訴願法第14條規定，訴願之提起，應自公告期滿之次日起30日內，繕具訴願書、參訓學員名單公告資料與相關證明文件遞送勞動部勞動力發展署(新北市新莊區中平路439號南棟4樓)，訴願書應載明訴願人之姓名、出生年月日、住居所、身分證明文件字號、原行政處分機關名稱、訴願請求事項、訴願之事實及理由等。</p>
+        </div>
+        <div class="submit-bar">
+            <button type="button" class="btn-orange" onclick="goback('@Model.Form.OCID_TEXT','@Model.Form.ORGNAME','@Model.Form.CLASSCNAME')" title="回上一頁">回上一頁</button>
+        </div>
+
+        <p></p>
+    </div>
+}
+
+<script type="text/javascript">
+    //回上一頁
+    function goback(OCID_TEXT, ORGNAME, CLASSCNAME) {
+        var data = { "OCID_TEXT": OCID_TEXT, "ORGNAME": ORGNAME, "CLASSCNAME": CLASSCNAME };
+        var url = '@Url.Action("Index", "ClassConfirm001")';
+        goBackPage(url, data, 2, 'POST');
+    }
+    function showclassdetail(PlanType, ProvideLocation, OCID) {
+        var data = { "PlanType": 1, "ProvideLocation": 'N', "OCID": OCID };
+        var url = '@Url.Action("Detail", "ClassSearch")';
+        goBackPage(url, data, 2, 'POST');
+    }
+</script>
+
+

@@ -1,0 +1,24 @@
+﻿@model WDAIIP.WEB.Models.QAViewModel
+@using WDAIIP.WEB.Commons
+
+@if (Model.Grid != null && Model.Grid.Count > 0)
+{
+    
+    for (int i = 0; i < Model.Grid.Count; i++)
+    {
+        var item = Model.Grid[i];
+
+        <div class="question-title" >
+            <span class="question-mark">Q</span><span class="q-type1">@item.TYPEID_TEXT</span>
+            <a href="#" title="@CommonUtil.GetPageRowIndex(Model.Form, i).@item.QUESTION">@CommonUtil.GetPageRowIndex(Model.Form, i).@item.QUESTION</a>
+        </div>
+        <div class="answer">
+            <span class="answer-mark">A</span>
+            答：@Html.Raw(MyHelperUtil.ChangeBreakLine(item.ANSWER))
+        </div>
+    }
+}
+else
+{
+    <div>查無資料</div>
+}

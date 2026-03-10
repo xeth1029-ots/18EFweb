@@ -1,0 +1,719 @@
+﻿@using WDAIIP.WEB.Models
+@*@model SignUpViewModel*@
+@{
+    ViewBag.Title = "會員專區--上傳身分證件驗證";
+    ViewBag.TitleB = "上傳身分證件驗證";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    SessionModel sm = SessionModel.Get();
+    int cst_PostedFile_MAX_SIZE_10M = 10485760; //10*1024*1024=10,485,760  '2 * 1024 * 1024 = 2,097,152
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/EnterType")" title="首頁">首頁</a> / 會員專區 / @(ViewBag.TitleB) </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-edit space-right"></i>@(ViewBag.TitleB)</h3>
+    <div style="display: none">
+        @*@Html.HiddenFor(m => m.Detail.epi)*@
+        <input id="Detail_epi" type="hidden" /> <input id="Detail_epb" type="hidden" /> <input id="Detail_ept" type="hidden" />
+    </div>
+    <!-- search form start -->
+    <div class="unit-border">
+        <div class="unit-bg unit-bg-green">
+            @*<p>本功能使用說明：</p>*@
+            <p>請依下方欄位上傳彩色且清晰身分證正、反面正本圖檔：</p>
+            <ol>
+                @*<img src="~/images/sample1/Id-card-temp-1.png" />*@
+                <li>影像不可裁切，證件照片與資訊需清楚，避免反光、遮蔽影響辨識，上傳之圖檔請比照上傳<a href="/images/sample1/Id-card-temp-1.png" id="openImageLink">範本</a>樣式。</li>
+                <li>正反面證件請分開上傳，勿存放同一圖檔。</li>
+                <li>若須重新上傳，可按選擇檔案後再按上傳，即可覆蓋原上傳之圖檔。</li>
+                <li>系統將自動加壓浮水印，上傳證件時請勿自行壓字以免影響後續審核。</li>
+            </ol>
+        </div>
+        <div class="unit-border">
+            <h3 class="titlebar titlebarBg-green">身分證正面</h3>
+            <div class="form-group-search">
+                <label for="" class="form-label-data">身分證正面圖像上傳</label>
+                <div class="form-input form-inline">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label class="radio-inline">
+                                <input type="radio" v-model="scanType" name="type" value="full" />
+                                <b>完整掃描</b>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" v-model="scanType" name="type" value="precise" />
+                                <b>精準掃描</b>
+                            </label>
+                        </div>
+                        <div class="col-sm-12">
+                            <button type="button" class="btn btn-info" onclick="selectFile()" title="上傳身分證正面">選擇檔案</button>
+                            <span id="spanFileName">請選擇要上傳的檔案</span>
+                            <input type="file" id="fileInput" class="hide" onchange="fileChange(event)" accept="image/*" />
+                            <div id="canvasContainer" style="display: none; margin-top: 5px">
+                                <canvas id="canvas"></canvas>
+                            </div>
+                            <button id="submitBtn" type="button" class="btn btn-danger">上傳</button><span id="txtBackImgFromScan1"></span>
+                            <div>
+                                <div id="ocrTextResult" style="width: 100%;display: none;">
+                                    <p>掃描到的文字:</p>
+                                    <textarea class="form-control"
+                                              id="fullPassbookInfo"
+                                              style="width: 90%; height: 200px; resize: none; box-sizing: border-box; max-width: none;"
+                                              readonly></textarea>
+                                </div>
+                            </div>
+                            <span style="color: red; display: block; margin-top: 10px; margin-left: 5px;">僅接受jpg.png圖檔格式</span>
+                            <div id="instructions" style="display:none;">
+                                <p>
+                                    <span style="color: red; font-weight: bold; margin-top: 10px; margin-left: 5px;">紅色選取框</span> :「身分證字號」欄位,
+                                    <span style="color: green; font-weight: bold; margin-top: 10px; margin-left: 5px;">綠色選取框</span> :「出生年月日」欄位 <br>
+                                    <span style="color: blue; font-weight: bold; margin-top: 10px; margin-left: 5px;">藍色選取框</span> :「發證日期」欄位,
+                                    <span style="color: orange; font-weight: bold; margin-top: 10px; margin-left: 5px;">橘色選取框</span> :「發證地」欄位
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Detail_IDNO" class="form-label-data"> <span class="text-danger">*</span> 身分證字號</label>
+                <div class="form-input-dataHelf">
+                    <input maxlength="11" class="form-control" id="Detail_IDNO" placeholder="身分證字號" title="如欲修改個人基本資料，請至台灣就業通「會員中心」變更" type="text" value="">
+                </div>
+                <label for="" class="form-label-data"><span class="text-danger">*</span>出生日期</label>
+                <div class="form-input-dataHelf form-inline">
+                    <label for="">民國</label>
+                    <input maxlength="3" size="4" class="form-control" id="Detail_BIRTH_Y" placeholder="年" title="如欲修改個人基本資料，請至台灣就業通「會員中心」變更" type="text" value="">
+                    <label for="Detail_BIRTH_Y">年</label>
+                    <input maxlength="2" size="3" class="form-control" id="Detail_BIRTH_M" placeholder="月" title="如欲修改個人基本資料，請至台灣就業通「會員中心」變更" type="text" value="">
+                    <label for="Detail_BIRTH_M">月</label>
+                    <input maxlength="2" size="3" class="form-control" id="Detail_BIRTH_D" placeholder="日" title="如欲修改個人基本資料，請至台灣就業通「會員中心」變更" type="text" value="">
+                    <label for="Detail_BIRTH_D">日</label>
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="" class="form-label-data"> <span class="text-danger">*</span>發證日期</label>
+                <div class="form-input-dataHelf form-inline">
+                    <label for="">民國</label>
+                    <input maxlength="3" size="4" class="form-control" id="Detail_ISSUE_Y" placeholder="年" type="text" value="">
+                    <label for="Detail_ISSUE_Y">年</label>
+                    <input maxlength="2" size="3" class="form-control" id="Detail_ISSUE_M" placeholder="月" type="text" value="">
+                    <label for="Detail_ISSUE_M">月</label>
+                    <input maxlength="2" size="3" class="form-control" id="Detail_ISSUE_D" placeholder="日" type="text" value="">
+                    <label for="Detail_ISSUE_D">日</label>
+                </div>
+                <label for="Detail_ISSUINGPLACE" class="form-label-data"><span class="text-danger">*</span> 發證地</label>
+                <div class="form-input-dataHelf form-inline">
+                    <input maxlength="15" class="form-control" id="Detail_ISSUINGPLACE" placeholder="發證地" title="" type="text" value="">
+                </div>
+            </div>
+            <div class="form-group-search"> </div>
+        </div>
+        <div class="unit-border">
+            <h3 class="titlebar titlebarBg-green">身分證反面</h3>
+            <div class="form-group-search">
+                <label for="" class="form-label-data">身分證反面圖像上傳</label>
+                <div class="form-input form-inline">
+                    <div class="row">
+                        <div class="group-width">
+                            <button type="button" class="btn btn-info" onclick="selectFile2()" title="上傳身分證反面">選擇檔案</button>
+                            <span id="spanFileName2">請選擇要上傳的檔案</span>
+                            <input type="file" id="fileInput2" class="hide" onchange="fileChange2(event)" accept="image/*" />
+                            <div id="canvasContainer2" style="display: none; margin-top: 5px">
+                                <canvas id="canvas2"></canvas>
+                            </div>
+                            <button id="submitBtn2" type="button" class="btn btn-danger">上傳</button><span id="txtBackImgFromScan2"></span>
+                            <span style="color: red; display: block; margin-top: 10px; margin-left: 5px;">僅接受jpg.png圖檔格式</span>
+                            <div style="display: none">
+                                <div style="width: 100%;display: none">
+                                    <p>掃描到的文字:</p>
+                                    <textarea class="form-control"
+                                              id="fullPassbookInfo2"
+                                              style="width: 90%; height: 200px; resize: none; box-sizing: border-box; max-width: none;"
+                                              readonly></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group-search"> </div>
+            <div class="unit-bg unit-bg-green unit-spaces">
+                <strong>
+                    @*<label style="color:red;">請務必填入可聯繫到本人之電話或電子郵件，倘因填寫錯誤或未填，致訓練單位無法通知錄訓繳費或甄試，須自負其責。</label>*@
+                    <label style="color:red;">所提供之身分證資料與登入會員資料需相符，請以正確的帳號登入!若會員資料有誤，請至台灣就業通網站進行修正。</label>
+                </strong>
+            </div>
+            <p></p>
+            <div class="clearfix"></div>
+        </div>
+        <div class="submit-bar">
+            <button type="button" data-role="SaveData" class="btn-orange" title="資料確定">確定</button>
+            <button type="button" data-role="GoBack" class="btn-refill" title="取消">取消</button>
+        </div>
+    </div>
+</div>
+
+<!--回查詢清單 "Detail", "CheckEdit", "EnterType"-->
+@using (Html.BeginForm("Detail2", "EnterType", FormMethod.Post, htmlAttributes: new { id = "GoBackForm" }))
+{
+    @Html.Hidden("Epi")
+    @Html.Hidden("Epb")
+    @Html.Hidden("Ept")
+}
+
+@using (Html.BeginForm("SaveUploadDBBC", "EnterType", FormMethod.Post, htmlAttributes: new { id = "detail_form" }))
+{
+    @Html.Hidden("Epi")
+    @Html.Hidden("Epb")
+    @Html.Hidden("Ept")
+    @Html.Hidden("ACID")
+    @Html.Hidden("TwBIRTH")
+    @Html.Hidden("TwISSUEDATE")
+    @Html.Hidden("ISSUEPLACE")
+}
+
+@section scripts {
+    @*enterTypeControllers.js*@
+    @Scripts.Render("~/bundles/enterTypeD")
+    <script>
+        $(document).ready(function () {
+            // 回個資確認頁 GoBack
+            $("button[data-role=GoBack]").click(function () {
+                var form = $("#GoBackForm");
+                //var Epi=$('#Detail_epi').val(); var Epb=$('#Detail_epb').val(); var Ept=$('#Detail_ept').val();
+                form.find("input[name='Epi']").val($('#Detail_epi').val());
+                form.find("input[name='Epb']").val($('#Detail_epb').val());
+                form.find("input[name='Ept']").val($('#Detail_ept').val());
+                $("form#GoBackForm").submit();
+            });
+        });
+
+        // 使用 replace 搭配正規表達式來尋找單一數字的月份和日期
+        function formatMyDate(dateString) {
+            // \b(\d{1})\b 匹配獨立的單一數字 (例如 8 或 9) // '0$1' 表示在匹配到的數字前加上 '0'
+            return dateString.replace(/\b(\d{1})\b/g, '0$1');
+        }
+
+        // 報名資料維護 SaveData SaveUploadDBBC
+        $("button[data-role=SaveData]").on("click", function () {
+            //一律轉成：RocY/MM/dd;
+            var TwBIRTH=formatMyDate($('#Detail_BIRTH_Y').val()+'/'+$('#Detail_BIRTH_M').val()+'/'+$('#Detail_BIRTH_D').val());
+            var TwISSUEDATE=formatMyDate($('#Detail_ISSUE_Y').val()+'/'+$('#Detail_ISSUE_M').val()+'/'+$('#Detail_ISSUE_D').val());
+            var form = $("#detail_form");
+            TwBIRTH=$.trim(TwBIRTH);
+            TwISSUEDATE=$.trim(TwISSUEDATE);
+            var $DetailIDNO=$.trim($('#Detail_IDNO').val());
+            var $DetailISSUINGPLACE=$.trim($('#Detail_ISSUINGPLACE').val());
+            var Epi=$('#Detail_epi').val();
+            var Epb=$('#Detail_epb').val();
+            var Ept=$('#Detail_ept').val();
+            form.find("input[name='Epi']").val($('#Detail_epi').val());
+            form.find("input[name='Epb']").val($('#Detail_epb').val());
+            form.find("input[name='Ept']").val($('#Detail_ept').val());
+            form.find("input[name='ACID']").val($DetailIDNO);
+            form.find("input[name='TwBIRTH']").val(TwBIRTH);
+            form.find("input[name='TwISSUEDATE']").val(TwISSUEDATE);
+            form.find("input[name='ISSUEPLACE']").val($DetailISSUINGPLACE);
+            var url = "@Url.Action("GetSysDate2", "EnterType")";
+            var data = { ACID:$DetailIDNO, TwBIRTH:TwBIRTH, TwISSUEDATE:TwISSUEDATE, ISSUEPLACE:$DetailISSUINGPLACE, Epi:Epi, Epb:Epb, Ept:Ept };
+            ajaxLoadMore(url, data, function (resp) {
+                var msg = (resp === undefined) ? "資料確認無誤，確定送出？": ("資料確認無誤，確定送出？<br>目前系統時間為(" + resp.data + ")");
+                if(resp != undefined && !resp.status) {
+                    var msg2=resp.data;
+                    if(resp.data==undefined || resp.data==""){ msg2="(儲存上傳有誤,請重新操作)!"; }
+                    blockAlert(msg2);
+                    return;
+                }
+                else {
+                    blockConfirm(msg, "提示訊息", function () {
+                        form.submit();
+                    });
+                }
+            });
+        });
+
+        $(function () {
+            var enterTypeController = EnterTypeController(new Class);
+            enterTypeController.fn.init({
+                //共用元件
+                commonController: CommonController(new Class),
+                editData: @Html.Raw(Json.Encode(@ViewBag.EditData)),
+            });
+        });
+    </script>
+    <script>
+        const fileInput2 = document.getElementById("fileInput2");
+        const canvas2 = document.getElementById("canvas2");
+        const ctx2 = canvas2.getContext("2d");
+        let img2 = new Image();
+        let imgProps2 = { x: 0, y: 0, naturalWidth: 0, naturalHeight: 0, scale: 1.0, isDragging: false, positionWhenMouseDown: { x: 0, y: 0 } };
+        // 設定 Canvas 尺寸
+        canvas2.width = 600;
+        canvas2.height = 400;
+
+        const fileInput = document.getElementById("fileInput");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        let img = new Image();
+        let imgProps = { x: 0, y: 0, naturalWidth: 0, naturalHeight: 0, scale: 1.0, isDragging: false, positionWhenMouseDown: { x: 0, y: 0 } };
+        // 設定 Canvas 尺寸
+        canvas.width = 600;
+        canvas.height = 400;
+        let mouseDownPosition = { x: 0, y: 0 };
+        let boxes = [
+            {
+                x: 400, y: 293, width: 170, height: 40, color: 'red',
+                isDragging: false, isResizingT: false, isResizingB: false, isResizingL: false, isResizingR: false,
+                positionWhenMouseDown: { x: 400, y: 293 }, sizeWhenMouseDown: { width: 170, height: 40 }
+            },
+            {
+                x: 110, y: 233, width: 240, height: 40, color: 'green',
+                isDragging: false, isResizingT: false, isResizingB: false, isResizingL: false, isResizingR: false,
+                positionWhenMouseDown: { x: 110, y: 233 }, sizeWhenMouseDown: { width: 240, height: 40 }
+            },
+            {
+                x: 105, y: 292, width: 116, height: 30, color: 'blue',
+                isDragging: false, isResizingT: false, isResizingB: false, isResizingL: false, isResizingR: false,
+                positionWhenMouseDown: { x: 105, y: 292 }, sizeWhenMouseDown: { width: 116, height: 30 }
+            },
+            {
+                x: 230, y: 295, width: 116, height: 30, color: 'orange',
+                isDragging: false, isResizingT: false, isResizingB: false, isResizingL: false, isResizingR: false,
+                positionWhenMouseDown: { x: 230, y: 295 }, sizeWhenMouseDown: { width: 116, height: 30 }
+            }
+        ];
+
+        // 預設顯示「請選擇要上傳的檔案」
+        document.getElementById("spanFileName").textContent = "請選擇要上傳的檔案";
+
+        // 選擇檔案按鈕
+        function selectFile() {
+            fileInput.click();
+        }
+
+        function checkFile2(file) {
+            //sizeLimit單位:byte
+            let sizeLimit=(@(cst_PostedFile_MAX_SIZE_10M));
+            let spanFileNameNM="spanFileName2";
+            let fileInputNM="fileInput2";
+            //let inputfilehtmldefault2='<input type="file" id="fileInput2" class="hide" onchange="fileChange2(event)" accept="image/*">';
+            //const fileInput = document.querySelector('input[type="file"]'); //const file = fileInput.files[0];
+            let fileType = file.type;
+            let fileType2 = file.type.split('/')[1];
+            //console.log('fileType : ' + fileType); console.log('fileType2 : ' + fileType2);
+            // alert('只允許上傳 jpg.png 檔！'); return false; // alert('只允許上傳 jpg.png 檔！'); return false;
+            let jpgNG1=false;  let pngNG1=false;
+            if (fileType !== 'image/jpeg' || fileType2 !== 'jpeg') { jpgNG1=true; }
+            if (fileType !== 'image/png' || fileType2 !== 'png') { pngNG1=true; }
+            if(jpgNG1 && pngNG1){
+                alert('只允許上傳 jpg.png 檔！');
+                document.getElementById(spanFileNameNM).textContent = "請選擇要上傳的檔案";
+                //document.getElementById(fileInputNM).outerHTML = inputfilehtmldefault2;
+                //document.getElementById("canvas").outerHTML = '<canvas id="canvas" width="600" height="400" style="cursor: default;"></canvas>';
+                return false;
+            }
+
+            let fileSizek = Math.round(file.size / 1024);
+            let fileSize = Math.round(file.size / 1024 / 1024);
+            let fileSizeLimit = Math.round(sizeLimit / 1024 / 1024);
+            //console.log('fileSize : ' + fileSize);
+            //console.log('fileSizeLimit : ' + fileSizeLimit);
+            if (fileSize > fileSizeLimit) {
+                alert('您所選擇的檔案大小為 ' + fileSize + 'MB，超過了上傳上限! (檔案大小限制' + fileSizeLimit + 'MB以下)，不允許上傳！');
+                document.getElementById(spanFileNameNM).textContent = "請選擇要上傳的檔案";
+                //document.getElementById(fileInputNM).outerHTML = inputfilehtmldefault2;
+                //document.getElementById("canvas").outerHTML = '<canvas id="canvas" width="600" height="400" style="cursor: default;"></canvas>';
+                return false;
+            }
+            if (fileSizek <= 1) {
+                alert('您所選擇的檔案大小為 小於1KB，不允許上傳！');
+                document.getElementById(spanFileNameNM).textContent = "請選擇要上傳的檔案";
+                //document.getElementById(fileInputNM).outerHTML = inputfilehtmldefault2;
+                //document.getElementById("canvas").outerHTML = '<canvas id="canvas" width="600" height="400" style="cursor: default;"></canvas>';
+                return false;
+            }
+            return true;
+        }
+
+        function checkFile1(file) {
+            //sizeLimit單位:byte
+            let sizeLimit=(@(cst_PostedFile_MAX_SIZE_10M));
+            let spanFileNameNM="spanFileName";
+            let fileInputNM="fileInput";
+            //let inputfilehtmldefault1='<input type="file" id="fileInput" class="hide" onchange="fileChange(event)" accept="image/*">';
+            //const fileInput = document.querySelector('input[type="file"]'); //const file = fileInput.files[0];
+            let fileType = file.type;
+            let fileType2 = file.type.split('/')[1];
+            //console.log('fileType : ' + fileType); console.log('fileType2 : ' + fileType2);
+            // alert('只允許上傳 jpg.png 檔！'); return false; // alert('只允許上傳 jpg.png 檔！'); return false;
+            let jpgNG1=false;  let pngNG1=false;
+            if (fileType !== 'image/jpeg' || fileType2 !== 'jpeg') { jpgNG1=true; }
+            if (fileType !== 'image/png' || fileType2 !== 'png') { pngNG1=true; }
+            if(jpgNG1 && pngNG1){
+                alert('只允許上傳 jpg.png 檔！');
+                document.getElementById(spanFileNameNM).textContent = "請選擇要上傳的檔案";
+                //document.getElementById(fileInputNM).outerHTML = inputfilehtmldefault1;
+                //document.getElementById("canvas").outerHTML = '<canvas id="canvas" width="600" height="400" style="cursor: default;"></canvas>';
+                return false;
+            }
+
+            let fileSizek = Math.round(file.size / 1024);
+            let fileSize = Math.round(file.size / 1024 / 1024);
+            let fileSizeLimit = Math.round(sizeLimit / 1024 / 1024);
+            //console.log('fileSize : ' + fileSize);
+            //console.log('fileSizeLimit : ' + fileSizeLimit);
+            if (fileSize > fileSizeLimit) {
+                alert('您所選擇的檔案大小為 ' + fileSize + 'MB，超過了上傳上限! (檔案大小限制' + fileSizeLimit + 'MB以下)，不允許上傳！');
+                document.getElementById(spanFileNameNM).textContent = "請選擇要上傳的檔案";
+                //document.getElementById(fileInputNM).outerHTML = inputfilehtmldefault1;
+                //document.getElementById("canvas").outerHTML = '<canvas id="canvas" width="600" height="400" style="cursor: default;"></canvas>';
+                return false;
+            }
+            if (fileSizek <= 1) {
+                alert('您所選擇的檔案大小為 小於1KB，不允許上傳！');
+                document.getElementById(spanFileNameNM).textContent = "請選擇要上傳的檔案";
+                //document.getElementById(fileInputNM).outerHTML = inputfilehtmldefault1;
+                //document.getElementById("canvas").outerHTML = '<canvas id="canvas" width="600" height="400" style="cursor: default;"></canvas>';
+                return false;
+            }
+            return true;
+        }
+
+        // 檔案選擇後觸發
+        function fileChange(event) {
+            const file = event.target.files[0];
+            const fileNameSpan = document.getElementById("spanFileName");
+            const canvasContainer = document.getElementById("canvasContainer");
+            const instructions = document.getElementById("instructions");
+            // 每次檔案選擇時，先重置顯示狀態，避免舊的狀態影響新的選擇
+            fileNameSpan.textContent = "請選擇要上傳的檔案"; // 預設文字
+            canvasContainer.style.display = "none"; // 預設隱藏
+            $("#txtBackImgFromScan1").text('');
+
+            // 如果沒有選擇檔案 (例如，使用者打開檔案選擇器後又取消)
+            if (!file) { return; }
+
+            if (!checkFile1(file)){return;}
+
+            fileNameSpan.textContent = file.name;
+            canvasContainer.style.display = "block";
+
+            const reader = new FileReader(); //FileReader()javascript
+            reader.onload = function (e) {
+                img.onload = function () {
+                    imgProps.naturalWidth = img.naturalWidth;
+                    imgProps.naturalHeight = img.naturalHeight;
+                    // 確保 drawImage 函數已定義
+                    if (typeof drawImage === 'function') {
+                        drawImage();
+                    }
+                    else {
+                        console.error("錯誤：drawImage() 函數未定義，無法繪製圖片。");
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 繪製圖片
+        function drawImage() {
+            // 確保圖片已經載入完成後再清除畫布
+            img.onload = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);  // 清除畫布
+                // 計算圖片縮放比例
+                imgProps.scale = Math.min(canvas.width / imgProps.naturalWidth, canvas.height / imgProps.naturalHeight);
+                const drawWidth = imgProps.naturalWidth * imgProps.scale;
+                const drawHeight = imgProps.naturalHeight * imgProps.scale;
+                // 繪製圖片到畫布
+                ctx.drawImage(img, imgProps.x, imgProps.y, drawWidth, drawHeight);
+                // 畫框
+                if (state.scanType === 'precise') {
+                    boxes.forEach(box => {
+                        ctx.strokeStyle = box.color;
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(box.x, box.y, box.width, box.height);
+                    });
+                }
+
+            };
+            img.src = img.src;
+        }
+
+        // 允許拖曳圖片
+        function setBoxesState(isMouseDown, mouseX, mouseY) {
+            let cursorStyle = "default"; // 預設樣式
+            boxes.forEach(box => {
+                const edgeBuffer = ctx.lineWidth / 2; // 根據 lineWidth 計算邊緣範圍
+                // 檢查滑鼠是否在方框內部
+                if (mouseX >= box.x - edgeBuffer && mouseX <= box.x + box.width + edgeBuffer && mouseY >= box.y - edgeBuffer && mouseY <= box.y + box.height + edgeBuffer) {
+                    let isAtTopEdge = false;
+                    let isAtBottomEdge = false;
+                    let isAtLeftEdge = false;
+                    let isAtRightEdge = false;
+                    if (Math.abs(mouseY - box.y) <= edgeBuffer) {
+                        isAtTopEdge = true;
+                        if (isMouseDown) {
+                            box.isResizingT = true;
+                        }
+                    }
+                    if (Math.abs(mouseY - (box.y + box.height)) <= edgeBuffer) {
+                        isAtBottomEdge = true;
+                        if (isMouseDown) {
+                            box.isResizingB = true;
+                        }
+                    }
+                    if (Math.abs(mouseX - (box.x)) <= edgeBuffer) {
+                        isAtLeftEdge = true;
+                        if (isMouseDown) {
+                            box.isResizingL = true;
+                        }
+                    }
+                    if (Math.abs(mouseX - (box.x + box.width)) <= edgeBuffer) {
+                        isAtRightEdge = true;
+                        if (isMouseDown) {
+                            box.isResizingR = true;
+                        }
+                    }
+                    if ((isAtTopEdge && isAtLeftEdge) || (isAtBottomEdge && isAtRightEdge)) {
+                        cursorStyle = "nwse-resize";
+                    }
+                    else if ((isAtTopEdge && isAtRightEdge) || (isAtBottomEdge && isAtLeftEdge)) {
+                        cursorStyle = "nesw-resize";
+                    }
+                    else if (isAtTopEdge || isAtBottomEdge) {
+                        cursorStyle = "ns-resize";
+                    }
+                    else if (isAtLeftEdge || isAtRightEdge) {
+                        cursorStyle = "ew-resize";
+                    }
+                    else {
+                        cursorStyle = "move";
+                        if (isMouseDown) {
+                            box.isDragging = true;
+                        }
+                    }
+                }
+            });
+
+            // 更新游標樣式
+            canvas.style.cursor = cursorStyle;
+            return cursorStyle !== "default";
+        }
+
+        function setBoxesPositionAndSize(mouseX, mouseY) {
+            boxes.forEach(box => {
+                let dx = mouseX - mouseDownPosition.x;
+                let dy = mouseY - mouseDownPosition.y;
+                if (box.isDragging) {
+                    box.x = dx + box.positionWhenMouseDown.x;
+                    box.y = dy + box.positionWhenMouseDown.y;
+                }
+                else {
+                    if (box.isResizingT) {
+                        box.y = box.positionWhenMouseDown.y + dy;
+                        box.height = box.sizeWhenMouseDown.height - dy;
+                    }
+                    if (box.isResizingB) {
+                        box.height = box.sizeWhenMouseDown.height + dy;
+                    }
+                    if (box.isResizingL) {
+                        box.x = box.positionWhenMouseDown.x + dx;
+                        box.width = box.sizeWhenMouseDown.width - dx;
+                    }
+                    if (box.isResizingR) {
+                        box.width = box.sizeWhenMouseDown.width + dx;
+                    }
+                }
+            });
+        }
+
+        function clearBoxesState() {
+            boxes.forEach((box) => {
+                box.isDragging = false;
+                box.isResizingT = false;
+                box.isResizingB = false;
+                box.isResizingL = false;
+                box.isResizingR = false;
+                box.positionWhenMouseDown.x = box.x;
+                box.positionWhenMouseDown.y = box.y;
+                box.sizeWhenMouseDown.width = box.width;
+                box.sizeWhenMouseDown.height = box.height;
+            });
+        }
+
+        canvas.addEventListener("mousedown", (event) => {
+            mouseDownPosition.x = event.offsetX;
+            mouseDownPosition.y = event.offsetY;
+            let isMouseInBoxes = setBoxesState(true, event.offsetX, event.offsetY);
+            boxes.forEach((box) => {
+                box.positionWhenMouseDown.x = box.x;
+                box.positionWhenMouseDown.y = box.y;
+                box.sizeWhenMouseDown.width = box.width;
+                box.sizeWhenMouseDown.height = box.height;
+            });
+
+            // 如果都沒點到框，則為圖片拖曳模式
+            if (!isMouseInBoxes) {
+                imgProps.isDragging = false; // 禁用圖片拖曳
+            }
+        });
+
+        canvas.addEventListener("mousemove", (event) => {
+            if (state.scanType === "precise") {
+                setBoxesState(false, event.offsetX, event.offsetY);
+            }
+            if (imgProps.isDragging) {
+                let dx = event.offsetX - mouseDownPosition.x;
+                let dy = event.offsetY - mouseDownPosition.y;
+                imgProps.x += dx;
+                imgProps.y += dy;
+                mouseDownPosition.x = event.offsetX;
+                mouseDownPosition.y = event.offsetY;
+                drawImage();
+            } else {
+                setBoxesPositionAndSize(event.offsetX, event.offsetY);
+                drawImage();
+            }
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            imgProps.isDragging = false;
+            clearBoxesState();
+        });
+
+        const state = new Proxy({
+            scanType: 'full'
+        }, {
+            set(target, key, value) {
+                if (target[key] !== value) {
+                    target[key] = value;
+                    drawImage();
+                }
+                return true;
+            }
+        });
+
+        function changeScanType(newType) {
+            state.scanType = newType;
+        }
+
+        //切換掃描模式
+        document.addEventListener("DOMContentLoaded", function () {
+            const scanTypeRadios = document.querySelectorAll("input[name='type']");
+            scanTypeRadios.forEach(radio => {
+                radio.addEventListener("change", function () {
+                    let instructions = document.getElementById("instructions");
+                    let ocrTextResult = document.getElementById("ocrTextResult");
+                    if (this.value === "full") {
+                        instructions.style.display = "none";
+                        ocrTextResult.style.display = "block";
+
+                    } else {
+                        instructions.style.display = "block";
+                        ocrTextResult.style.display = "none";
+                    }
+                    drawImage();
+                });
+            });
+        });
+
+        document.querySelectorAll('input[name="type"]').forEach(radio => {
+            radio.addEventListener("change", function () {
+                state.scanType = this.value;
+            });
+        });
+
+        // 選擇檔案按鈕2
+        function selectFile2() {
+            fileInput2.click();
+        }
+
+        // 檔案選擇後觸發
+        function fileChange2(event) {
+            const file2 = event.target.files[0]; //event.target.files[0];
+            const fileNameSpan2 = document.getElementById("spanFileName2");
+            const canvasContainer2 = document.getElementById("canvasContainer2");
+            const instructions2 = document.getElementById("instructions2");
+            // 每次檔案選擇時，先重置顯示狀態，避免舊的狀態影響新的選擇
+            fileNameSpan2.textContent = "請選擇要上傳的檔案"; // 預設文字
+            canvasContainer2.style.display = "none"; // 預設隱藏
+            $("#txtBackImgFromScan2").text('');
+            // 如果沒有選擇檔案 (例如，使用者打開檔案選擇器後又取消)
+            if (!file2) { return; }
+
+            if (!checkFile2(file2)){return;}
+
+            fileNameSpan2.textContent = file2.name;
+            canvasContainer2.style.display = "block";
+
+            const reader2 = new FileReader(); //FileReader()javascript
+            reader2.onload = function (e) {
+                img2.onload = function () {
+                    imgProps2.naturalWidth = img2.naturalWidth;
+                    imgProps2.naturalHeight = img2.naturalHeight;
+                    // 確保 drawImage 函數已定義
+                    if (typeof drawImage2 === 'function') {
+                        drawImage2();
+                    }
+                    else {
+                        console.error("錯誤：drawImage() 函數未定義，無法繪製圖片。");
+                    }
+                };
+                img2.src = e.target.result;
+            };
+            reader2.readAsDataURL(file2);
+            fileNameSpan2.textContent = "請再按「上傳」,最後按「確定」";
+            alert("請再按「上傳」,最後按「確定」");
+        }
+
+        // 繪製圖片
+        function drawImage2() {
+            // 確保圖片已經載入完成後再清除畫布
+            img2.onload = function () {
+                ctx2.clearRect(0, 0, canvas2.width, canvas2.height);  // 清除畫布
+                // 計算圖片縮放比例
+                imgProps2.scale = Math.min(canvas2.width / imgProps2.naturalWidth, canvas2.height / imgProps2.naturalHeight);
+                const drawWidth2 = imgProps2.naturalWidth * imgProps2.scale;
+                const drawHeight2 = imgProps2.naturalHeight * imgProps2.scale;
+                // 繪製圖片到畫布
+                ctx2.drawImage(img2, imgProps2.x, imgProps2.y, drawWidth2, drawHeight2);
+                // 畫框
+                //if (state.scanType === 'precise') {
+                //    boxes.forEach(box => {
+                //        ctx.strokeStyle = box.color;
+                //        ctx.lineWidth = 2;
+                //        ctx.strokeRect(box.x, box.y, box.width, box.height);
+                //    });
+                //}
+            };
+            img2.src = img2.src;
+        }
+
+        $(document).ready(function() {
+            $('#openImageLink').on('click', function(event) {
+                event.preventDefault(); // Prevent the default link behavior
+                var imageUrl = $(this).attr('href'); // Get the href (image URL)
+                window.open(imageUrl, '_blank'); // Open in a new tab/window
+            });
+        });
+
+        $(document).ready(function () {
+            setTimeout(() => {
+                //document.querySelector('input[type="radio"][value="precise"]').checked = true;
+                changeScanType("precise");
+                let instructions = document.getElementById("instructions");
+                let ocrTextResult = document.getElementById("ocrTextResult");
+                instructions.style.display = "block";
+                ocrTextResult.style.display = "none";
+                if ($('input[type="radio"][value="precise"]').length > 0) { $('input[type="radio"][value="precise"]').prop('checked', true); }
+                imgProps.isDragging = false;
+                clearBoxesState(); //drawImage();
+                //if ($('input[type="radio"][value="precise"]').length == 0){return;}
+                if ($('input[type="radio"][value="full"]').length > 0) { $('input[type="radio"][value="full"]').parent('label').hide(); }
+            }, 333); // 3000 milliseconds = 3 seconds
+        });
+    </script>
+}

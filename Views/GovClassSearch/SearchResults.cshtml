@@ -1,0 +1,110 @@
+﻿@model WDAIIP.WEB.Models.GovClassSearchViewModel
+
+@{
+    ViewBag.Title = "其他政府單位職訓課程清單";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 其他政府單位職訓課程</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fab fa-readme space-right"></i>課程查詢結果</h3>
+
+    <form class = "form-horizontal">
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-result">
+                @Html.Partial("_ConditionList")
+            </table>
+        </div>
+        <!-- result table -->
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    <tr>
+                        <th width="20%">訓練班別</th>
+                        <th width="20%">訓練單位</th>
+                        <th width="15%">上課地點</th>
+                        <th width="15%">報名起迄日
+                        @if (Model.Grid.Count > 0)
+                        {
+                            <a href="javascript:doSort('SEnterDate','')" title="報名期間起日遞增排序">
+                                <i class="fa fa-caret-up" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:doSort('SEnterDate','desc')" title="報名期間起日遞減排序">
+                                <i class="fa fa-caret-down" aria-hidden="true"></i>
+                            </a>
+                        }
+                        </th>
+                        <th width="15%">訓練起迄日
+                        @if (Model.Grid.Count > 0)
+                        {
+                            <a href="javascript:doSort('STDate','')" title="訓練期間起日遞增排序">
+                                <i class="fa fa-caret-up" aria-hidden="true"></i>
+                            </a>
+                            <a href="javascript:doSort('STDate','desc')" title="訓練期間起日遞減排序">
+                                <i class="fa fa-caret-down" aria-hidden="true"></i>
+                            </a>
+                        }
+                        </th>
+                        <th width="15%">訓練時段</th>
+                    </tr>
+                </thead>
+                <tbody id="rows">
+                    @Html.Partial("_GridRows")
+                </tbody>
+            </table>
+        </div>
+    </form>
+
+    <!--  pager start -->
+    @Html.Partial("_PagingLink", Model.Form)
+    <!--  pager end -->
+
+</div>
+
+@using (Html.BeginForm("Index", "GovClassSearch", FormMethod.Post, new { id = "main_form" }))
+{
+    @Html.HiddenFor(m => m.Form.CLASSCNAME)
+    @Html.HiddenFor(m => m.Form.ORGIDITEM)
+    @Html.HiddenFor(m => m.Form.STDATE)
+    @Html.HiddenFor(m => m.Form.FTDATE)
+    @Html.HiddenFor(m => m.Form.STDATE_YEAR)
+    @Html.HiddenFor(m => m.Form.STDATE_MON)
+    @Html.HiddenFor(m => m.Form.FTDATE_YEAR)
+    @Html.HiddenFor(m => m.Form.FTDATE_MON)
+    @Html.HiddenFor(m => m.Form.FTDATE)
+    @Html.HiddenFor(m => m.Form.SORTFIELD)
+    @Html.HiddenFor(m => m.Form.SORTDESC)
+
+}
+
+@using (Html.BeginForm("Detail", "GovClassSearch", FormMethod.Post, new { id = "detail_form" }))
+{
+    @Html.Hidden("CPID")
+}
+
+<script type="text/javascript">
+    //明細頁
+    function showDetail(cpid)
+    {
+        var form = $("#detail_form");
+        form.find("input[name='CPID']").val(cpid);
+        form.submit();
+    }
+
+    //重新排序
+    function doSort(sortField, sortDesc)
+    {
+        form = $("#main_form");
+        form.find('input[name="Form.SORTFIELD"]').val(sortField);
+
+        if (sortDesc == "") {
+            form.find('input[name="Form.SORTDESC"]').val("");
+        } else {
+            form.find('input[name="Form.SORTDESC"]').val(sortDesc);
+        }
+
+        form.submit();
+    }
+</script>

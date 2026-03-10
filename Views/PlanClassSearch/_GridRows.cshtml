@@ -1,0 +1,341 @@
+﻿@model WDAIIP.WEB.Models.PlanClassSearchViewModel
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+
+@if (Model.Grid1 != null && Model.Grid1.Count > 0)
+{
+    //取得目前(DB)系統時間
+    MyKeyMapDAO keyDao = new MyKeyMapDAO();
+    DateTime nowTime = keyDao.GetSysDateNow();
+    //「訓練班別」、「課程名稱」有期別則顯示期別
+    var v_OJT22090201 = keyDao.GetSystemConfig("OJT22090201");
+    bool flag_ShowClass2 = (!string.IsNullOrEmpty(v_OJT22090201) && v_OJT22090201 == "Y") ? true : false;
+
+    for (int i = 0; i < Model.Grid1.Count; i++)
+    {
+        var item = Model.Grid1[i];
+        string v_CLASSCNAME = flag_ShowClass2 ? item.CLASSCNAME2 : item.CLASSCNAME;
+        string strStatus = "招生中";
+        string strColor = "black";
+        if (item.SENTERDATE != null && item.FENTERDATE != null)
+        {
+            if (string.IsNullOrEmpty(Convert.ToString(item.TNUM))) { item.TNUM = 0; }
+            int intCnt = (new MyKeyMapDAO()).GetEnterCount(item.OCID); // 取得報名人數 (扣除e網審核失敗)
+
+            if (DateTime.Compare(nowTime, Convert.ToDateTime(item.SENTERDATE)) < 0)
+            {
+                strStatus = "尚未開始招生";
+            }
+            else if (DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) > 0)
+            {
+                strStatus = "已招生結束";
+            }
+            else if (Convert.ToString(item.ISCLOSED) == "Y")
+            {
+                strStatus = "此班已結訓";
+            }
+            /*
+             else if (Convert.ToString(item.ISCLOSED) == "N" && DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) > 0 && (intCnt > item.TNUM))
+             */
+            else if (Convert.ToString(item.ISCLOSED) == "N" && DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) < 0 && (intCnt >= item.TNUM))
+            {
+                strStatus = "接受以備取身份報名";
+
+                //未結訓班級
+                //小於報名截止日
+                //報名人數大於等於訓練人數
+
+                if (!string.IsNullOrEmpty(Convert.ToString(item.ADMISSIONS)))
+                {
+                    switch (Convert.ToString(item.ADMISSIONS))
+                    {
+                        case "1": strStatus = "招生中"; strColor = "red"; break;
+                        case "2": strStatus = "接受以備取身份報名"; break;
+                        case "3": strStatus = "報名額滿"; strColor = "red"; break;
+                    }
+                }
+            }
+        }
+        <tr valign="middle">
+            <td><a title="@(v_CLASSCNAME)" href="javascript:showclassdetail(1,'N',@(item.OCID));">@(v_CLASSCNAME)</a></td>
+            <td align="center">@(item.OCID) @Html.HiddenFor(m => m.Grid1[i].OCID)</td>
+            <td align="center">@(item.TNUM)</td>
+            <td align="center">@(item.THOURS)</td>
+            <td align="center">@(item.DEFSTDCOST)</td>
+            <td align="center">@(item.DEFGOVCOST)</td>
+            <td align="center">@(item.CTNAME1)</td>
+            <td align="center">@(item.CTNAME2)</td>
+            @*@if (Model.Form.ProvideLocation == "Y")//TODO:顯示距離
+                {
+                    <td align="center">@(item.Distance)</td>
+                }*@
+            <td align="center">
+                @if (item.SENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.SENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.SENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+                <br />|<br />
+                @if (item.FENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+            </td>
+            <td style="color:@strColor;">@strStatus</td>
+            <td align="center">
+                @if (item.STDATE != null)
+                {
+                    @((Convert.ToDateTime(item.STDATE).Year - 1911).ToString() + Convert.ToDateTime(item.STDATE).ToString("/MM/dd"))
+                }
+                <br />|<br />
+                @if (item.FTDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FTDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FTDATE).ToString("/MM/dd"))
+                }
+            </td>
+            <td>@item.ENTERSUPPLYSTYLE</td>
+        </tr>
+    }
+}
+else if (Model.Grid2 != null && Model.Grid2.Count > 0)
+{
+    for (int i = 0; i < Model.Grid2.Count; i++)
+    {
+        var item = Model.Grid2[i];
+        <tr valign="middle">
+            <td><a title="@(item.TRAINCLASS)" href="javascript:showclassdetail(2,'N',@(item.OCID));">@(item.TRAINCLASS)</a></td>
+            <td>@(item.TRAINORG)</td>
+            <td align="center">@(item.TRAINPLACE)</td>
+            @*@if (Model.Form.ProvideLocation == "Y")//TODO:顯示距離
+                {
+                    <td align="center">@(item.Distance)</td>
+                }*@
+            <td>@(item.CJOBNAME)</td>
+            <td align="center">
+                @if (item.SENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.SENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.SENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+                <br />|<br />
+                @if (item.FENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+            </td>
+            <td align="center">
+                @if (item.STDATE != null)
+                {
+                    @((Convert.ToDateTime(item.STDATE).Year - 1911).ToString() + Convert.ToDateTime(item.STDATE).ToString("/MM/dd"))
+                }
+                <br />|<br />
+                @if (item.FTDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FTDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FTDATE).ToString("/MM/dd"))
+                }
+            </td>
+            <td align="center">
+                @*@Html.Raw(item.TPERIODNAME)*@
+                @Html.Raw(MyHelperUtil.ChangeBreakLine(item.NOTE3))
+            </td>
+            <td align="center">@(item.TRAINEDGE)</td>
+        </tr>
+    }
+}
+else if (Model.Grid3 != null && Model.Grid3.Count > 0)
+{
+    for (int i = 0; i < Model.Grid3.Count; i++)
+    {
+        var item = Model.Grid3[i];
+        <tr valign="middle">
+            <td><a title="@(item.TRAINCLASS)" href="javascript:showclassdetail(4,'N',@(item.OCID));">@(item.TRAINCLASS)</a></td>
+            <td>@(item.TRAINORG)</td>
+            <td align="center">@(item.TRAINPLACE)</td>
+            @*@if (Model.Form.ProvideLocation == "Y")//TODO:顯示距離
+                {
+                    <td align="center">@(item.Distance)</td>
+                }*@
+            <td>@(item.CJOBNAME)</td>
+            <td align="center">
+                @if (item.SENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.SENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.SENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+                <br />|<br />
+                @if (item.FENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+            </td>
+            <td align="center">
+                @if (item.STDATE != null)
+                {
+                    @((Convert.ToDateTime(item.STDATE).Year - 1911).ToString() + Convert.ToDateTime(item.STDATE).ToString("/MM/dd"))
+                }
+                <br />|<br />
+                @if (item.FTDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FTDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FTDATE).ToString("/MM/dd"))
+                }
+            </td>
+            <td align="center">@Html.Raw(item.TPERIODNAME)</td>
+            <td align="center">@(item.TRAINEDGE)</td>
+        </tr>
+    }
+}
+else if (Model.Grid4 != null && Model.Grid4.Count > 0)
+{
+    //取得目前(DB)系統時間
+    MyKeyMapDAO keyDao = new MyKeyMapDAO();
+    DateTime nowTime = keyDao.GetSysDateNow();
+    //「訓練班別」、「課程名稱」有期別則顯示期別
+    var v_OJT22090201 = keyDao.GetSystemConfig("OJT22090201");
+    bool flag_ShowClass2 = (!string.IsNullOrEmpty(v_OJT22090201) && v_OJT22090201 == "Y") ? true : false;
+
+    for (int i = 0; i < Model.Grid4.Count; i++)
+    {
+        var item = Model.Grid4[i];
+        string v_CLASSCNAME = flag_ShowClass2 ? item.CLASSCNAME2 : item.CLASSCNAME;
+        string strStatus = "招生中";
+        string strColor = "black";
+        if (item.SENTERDATE != null && item.FENTERDATE != null)
+        {
+            if (string.IsNullOrEmpty(Convert.ToString(item.TNUM))) { item.TNUM = 0; }
+            int intCnt = (new MyKeyMapDAO()).GetEnterCount(item.OCID); // 取得報名人數 (扣除e網審核失敗)
+
+            if (DateTime.Compare(nowTime, Convert.ToDateTime(item.SENTERDATE)) < 0)
+            {
+                strStatus = "尚未開始招生";
+            }
+            else if (DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) > 0)
+            {
+                strStatus = "已招生結束";
+            }
+            else if (Convert.ToString(item.ISCLOSED) == "Y")
+            {
+                strStatus = "此班已結訓";
+            }
+            /*else if (Convert.ToString(item.ISCLOSED) == "N" && DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) > 0 && (intCnt > item.TNUM))*/
+            else if (Convert.ToString(item.ISCLOSED) == "N" && DateTime.Compare(nowTime, Convert.ToDateTime(item.FENTERDATE)) < 0 && (intCnt >= item.TNUM))
+            {
+                strStatus = "接受以備取身份報名";
+                //未結訓班級
+                //小於報名截止日
+                //報名人數大於等於訓練人數
+
+                if (!string.IsNullOrEmpty(Convert.ToString(item.ADMISSIONS)))
+                {
+                    switch (Convert.ToString(item.ADMISSIONS))
+                    {
+                        case "1": strStatus = "招生中"; strColor = "red"; break;
+                        case "2": strStatus = "接受以備取身份報名"; break;
+                        case "3": strStatus = "報名額滿"; strColor = "red"; break;
+                    }
+                }
+            }
+        }
+        <tr valign="middle">
+            <td><a title="@(v_CLASSCNAME)" href="javascript:showclassdetail(3,'N',@(item.OCID));">@(v_CLASSCNAME)</a></td>
+            <td align="center">@(item.OCID) @Html.HiddenFor(m => m.Grid4[i].OCID)</td>
+            <td align="center">@(item.TNUM)</td>
+            <td align="center">@(item.THOURS)</td>
+            <td align="center">@(item.DEFSTDCOST)</td>
+            <td align="center">@(item.DEFGOVCOST)</td>
+            <td align="center">@(item.CTNAME1)</td>
+            <td align="center">@(item.CTNAME2)</td>
+            @*@if (Model.Form.ProvideLocation == "Y")//TODO:顯示距離
+                {
+                    <td align="center">@(item.Distance)</td>
+                }*@
+            <td align="center">
+                @if (item.SENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.SENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.SENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+                <br />|<br />
+                @if (item.FENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+            </td>
+            <td style="color:@strColor;">@strStatus</td>
+            <td align="center">
+                @if (item.STDATE != null)
+                {
+                    @((Convert.ToDateTime(item.STDATE).Year - 1911).ToString() + Convert.ToDateTime(item.STDATE).ToString("/MM/dd"))
+                }
+                <br />|<br />
+                @if (item.FTDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FTDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FTDATE).ToString("/MM/dd"))
+                }
+            </td>
+            <td>@item.ENTERSUPPLYSTYLE</td>
+        </tr>
+    }
+}
+else if (Model.Grid5 != null && Model.Grid5.Count > 0)
+{
+    for (int i = 0; i < Model.Grid5.Count; i++)
+    {
+        var item = Model.Grid5[i];
+        <tr valign="middle">
+            <td><a title="@(item.TRAINCLASS)" href="javascript:showclassdetail(5,'N',@(item.OCID));">@(item.TRAINCLASS)</a></td>
+            <td>@(item.TRAINORG)</td>
+            <td align="center">@(item.TRAINPLACE)</td>
+            @*@if (Model.Form.ProvideLocation == "Y")//TODO:顯示距離
+                {
+                    <td align="center">@(item.Distance)</td>
+                }*@
+            <td>@(item.CJOBNAME)</td>
+            <td align="center">
+                @if (item.SENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.SENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.SENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+                <br />|<br />
+                @if (item.FENTERDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FENTERDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FENTERDATE).ToString("/MM/dd HH:mm:ss"))
+                }
+            </td>
+            <td align="center">
+                @if (item.STDATE != null)
+                {
+                    @((Convert.ToDateTime(item.STDATE).Year - 1911).ToString() + Convert.ToDateTime(item.STDATE).ToString("/MM/dd"))
+                }
+                <br />|<br />
+                @if (item.FTDATE != null)
+                {
+                    @((Convert.ToDateTime(item.FTDATE).Year - 1911).ToString() + Convert.ToDateTime(item.FTDATE).ToString("/MM/dd"))
+                }
+            </td>
+            <td align="center">
+                @*@Html.Raw(item.TPERIODNAME)*@
+                @Html.Raw(MyHelperUtil.ChangeBreakLine(item.NOTE3))
+            </td>
+            <td align="center">@(item.TRAINEDGE)</td>
+        </tr>
+    }
+}
+else
+{
+    if (Model.Grid1 != null)
+    {<tr><td colspan="12"><center> 查無資料</center></td></tr>}
+    if (Model.Grid2 != null)
+    {<tr><td colspan="8"><center>查無資料</center></td></tr>}
+    if (Model.Grid3 != null)
+    {<tr><td colspan="8"><center> 查無資料</center></td></tr>}
+    if (Model.Grid4 != null)
+    {<tr><td colspan="12"><center>查無資料</center></td></tr>}
+    if (Model.Grid5 != null)
+    {<tr><td colspan="8"><center>查無資料</center></td></tr>}
+}
+
+<script type="text/javascript">
+    //課程清單查詢
+    function showclassdetail(PlanType, ProvideLocation, OCID) {
+        var data = { "PlanType": PlanType, "ProvideLocation": 'N', "OCID": OCID };
+        var url = '@Url.Action("Detail", "ClassSearch")';
+        goBackPage(url, data, 2, 'POST');
+    }
+</script>

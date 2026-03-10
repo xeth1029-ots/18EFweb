@@ -1,0 +1,79 @@
+﻿@{ 
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=EDGE" charset="utf-8" />
+    <title>HiLocalSignServer IC卡功能檢測</title>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <script src="~/Scripts/jquery-confirm.min.js"></script>
+    <script src="~/Scripts/jquery.blockUI.js"></script>
+    <script src="~/Scripts/global.js"></script>
+    <script src="~/Views/Login/HiPKIErrorcode.js"></script>
+    <script src="~/Views/Login/HiPKICerts.js"></script>
+    
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            resetCertData();
+            $("div#certLogin").show();
+        });
+        function resetCertData() {
+            $("#certb64").val("");
+            $("#last4").val("");
+            $("#name").val("");
+            $("#serial").val("");
+        }
+
+        function doCertValidation() {
+            var pin = $("input#PIN").val();
+            CertValidation(pin, CertCallback);
+        }
+        function CertCallback(certData, rtnCode, msg) {
+            resetCertData();
+
+            if (rtnCode != 0) {
+                alert("憑證驗證失敗: " + msg);
+                return;
+            }
+            if (!certData) {
+                alert("CertValidation()失敗: 沒有回傳憑證資料!");
+                return;
+            }
+
+            $("#certb64").val(certData.certB64);
+            $("#last4").val(certData.subjectID);
+            var dnPairs = certData.subjectDN.split(",");
+            for (var i = 0; i < dnPairs.length; i++) {
+                var tokens = dnPairs[i].split("=");
+                if (tokens.length == 2) {
+                    if (tokens[0] == "CN") {
+                        $("#name").val(tokens[1]);
+                    }
+                    else if (tokens[0] == "serialNumber") {
+                        $("#serial").val(tokens[1]);
+                    }
+                }
+            }
+        }
+
+    </script>
+
+</head>
+<body>
+    <noscript>
+        <p>您所使用的瀏覽器不支援 JavaScript，或是您已將 JavaScript 功能關閉。</p>
+        <p>要使用本系統，您必須使用 支援 JavaScript 的瀏覽器。</p>
+    </noscript>
+    <div id="certLogin" style="display:none">
+        PIN碼：<input type="password" name="PIN" id="PIN" />
+        <INPUT type="button" name="button1" value="登入驗證" onclick="javascript:doCertValidation()"> 
+        <br /><br />
+        姓名：<input type="text" name="name" id="name" /><br />
+        Serial：<input type="text" name="serial" id="serial" /><br />
+        末四碼：<input type="text" name="last4" id="last4" /><br />
+        憑證資料：<TEXTAREA name="certb64" id="certb64" rows="8" cols="65"></TEXTAREA><br />
+    </div>
+</body>
+</html>

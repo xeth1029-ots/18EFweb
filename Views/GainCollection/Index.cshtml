@@ -1,0 +1,25 @@
+﻿@model WDAIIP.WEB.Models.ContentViewModel
+
+@{
+    ViewBag.Title = "最新消息--成果集錦";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    return;
+}
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 最新消息 / 成果集錦</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fa fa-newspaper space-right"></i>成果集錦</h3>
+    <!-- news form start -->
+    @Html.Partial("_NewsIndex", Model)
+
+    <!-- news form end -->
+</div>
+<script type="text/javascript">
+    // 檢視明細
+    function showContent(seqno) {
+        var data = { "seqno": seqno };
+        var url = '@Url.Action("Detail")';
+        goForwardPage(url, data, 2, "POST");
+    }
+</script>

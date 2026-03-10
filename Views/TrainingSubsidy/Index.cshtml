@@ -1,0 +1,114 @@
+﻿@using WDAIIP.WEB.Models
+@model WDAIIP.WEB.Models.TrainingSubsidyViewModel
+
+@{
+    ViewBag.Title = "會員專區--補助額度使用情形";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    string s_Txt3YSC = ConfigModel.Txt3YSubCost;
+    string cst_Subsidy_txt = "補助總額：";
+    string cst_ReviewPass_txt = "經費審核通過總額：";
+    //剩餘可用額度
+    string cst_Remaining_txt = @"剩餘可用<b style=""color:red;"">參考</b>額度：";
+    string str_Remaining = "";
+    if (Model != null && Model.NearYearDetail != null)
+    {
+        str_Remaining = string.Concat("(", cst_Subsidy_txt, Model.NearYearDetail.MoneyTotal, ")-(", cst_ReviewPass_txt, 0, ") = (", cst_Remaining_txt, Model.NearYearDetail.MoneyTotal, ")");
+        if (Model.NearYearDetail.Grid != null && Model.NearYearDetail.Grid.Count > 0)
+        {
+            str_Remaining = string.Concat("(", cst_Subsidy_txt, Model.NearYearDetail.MoneyTotal, ")-(", cst_ReviewPass_txt, Model.NearYearDetail.DEFSTDCOST, ") = (", cst_Remaining_txt, Model.NearYearDetail.RemainSub, ")");
+        }
+    }
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / 補助額度使用情形</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-pink"><i class="fas fa-clipboard-list space-right"></i>補助額度使用情形</h3>
+    <div class="unit-border">
+        <!-- note info -->
+        <div class="unit-bg unit-bg-green">
+            <p>
+                本功能使用說明：
+            </p>
+            <ol>
+                @*2019-01-29 修正問題單400（四）：將說明第1點及第4點刪除*@
+                @*<li>請依需求點選相關功能，於台灣就業通網站登入會員後，再繼續使用下列功能。</li>*@
+                <li>為使民眾報名時更為順暢，本功能於每日11:45至13:00不開放查詢，請避開本時段再做查詢，謝謝。</li>
+                <li>有關訓練費用補助情形，請參考「補助額度使用情形」。若申請狀態顯示「已撥款」，表示已由各分署撥出訓練補助費，款項將於近期內撥付至您的帳戶，或由訓練單位轉撥給您，敬請耐心等候。</li>
+                @*<li>請於完成線上報名後隔日上午，再至「參訓歷程紀錄」確認是否有報名參訓時段重疊的訓練課程。</li>*@
+                <li>有關@(s_Txt3YSC)計算方式，請參酌本網上方<a href="@Url.Content("~/QA")" title="前往Q&A">Q&amp;A</a>說明。</li>
+            </ol>
+        </div>
+        <div class="clearfix"></div>
+        <ul class="plan-nav-min2">
+            <li><a href="@Url.Content("~/TrainingSubsidy")" class="active" title="補助額度使用情形">補助額度使用情形</a>
+            <li><a href="@Url.Content("~/TrainingHistory")" title="參訓歷程紀錄">參訓歷程紀錄</a>
+        </ul>
+        @if (Model.Form.CANVIEW)
+        {
+            <div class="clearfix"></div>
+            <!-- note B-->
+            <div class="unit-bg unit-bg-gray">
+                <p>
+                    @*<span class="text-danger">＊預估補助費用是以該課程費用80%作為估算，如為全額補助對象，請自行以課程費用估算。</span><br>
+                        <span class="text-danger">＊若您的報名狀態進入「訓練單位審核情形」，如欲取消報名請洽訓練單位辦理，謝謝！</span><br>*@
+                    @*實際核撥補助費用 0 元，參訓中課程預估補助費用 0 元，報名中課程預估補助費用 0 元*@
+                    @*@if (Model.NearYearDetail != null) { <div>@Model.NearYearDetail.MoneyShow1</div> <div>@Model.NearYearDetail.MoneyShow2</div> } else { <div>實際核撥補助費用 0 元，參訓中課程預估補助費用 0 元，報名中課程預估補助費用 0 元</div> }*@
+                    <div>@Html.Raw(str_Remaining)</div>
+                    @*<div>@str_Remaining</div>*@
+                    @*2019-03-04 改為比照「學員動態管理>>教務管理>>學員補助金歷史查詢」功能顯示補助資料，讓前後台補助金額顯示一致*@
+                    <div class="clearfix"></div>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-responsive table-newsList">
+                            <thead>
+                                <tr>
+                                    <th style="width:10%">年度</th>
+                                    <th style="width:15%">訓練計畫</th>
+                                    <th style="width:15%">訓練機構</th>
+                                    <th style="width:15%">班別名稱</th>
+                                    <th style="width:21%">受訓期間</th>
+                                    <th style="width:8%">審核狀態</th>
+                                    <th style="width:8%">撥款狀態</th>
+                                    <th style="width:8%">補助金額</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rows">
+                                @Html.Partial("_GridRows", Model)
+                            </tbody>
+                        </table>
+                    </div>
+
+                </p>
+            </div>
+        }
+        <!-- note table-->
+        @*@if(Model.NearYearDetail != null) { @Html.Partial("_NearYearTrain", Model) }*@
+        <!-- note C-->
+        <div class="unit-bg unit-bg-gray">
+            <p>備註：</p>
+            <ol>
+                @*<li>訓練單位審核情形欄顯示內容為：審核中、不通過、正/備取、未錄取。</li><li>補助申請狀態欄顯示內容為：未申請、審核中、審核通過、已撥款、未通過。</li> *@
+                <li>審核狀態欄顯示內容為：審核中、審核通過、審核不通過、退件修正。</li>
+                <li>撥款狀態欄顯示內容為：待撥款、已撥款、不撥款、未撥款、不予補助。</li>
+                <li>因訓練費用收取準不同，此「已撥款」僅表示已由各分署撥出訓練補助費，款項將於近期內撥付至您帳戶；或由訓練單位轉撥補助費給您。</li>
+                <li>剩餘可用參考額度為僅供參考，實際剩餘可用額度尚須視個人參訓狀況及經費撥付情形進行調整。</li>
+                @*<li>備取資格將於參訓名單確認後顯示為未錄取。 </li> ＊第1、2點內容將依您 目前實際情形予以顯示。*@
+            </ol>
+        </div>
+        <div class="submit-bar">
+            <button type="submit" data-role="ReturnLastPage" class="btn-orange" title="回上一頁">回上一頁</button>
+        </div>
+        <p><p>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //回上一頁
+        $("button[data-role=ReturnLastPage]").on("click", function () {
+            history.go(-1);
+        });
+    });
+</script>

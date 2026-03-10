@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="Commons"
+xmlns="http://ibatis.apache.org/mapping"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+  <resultMaps>
+  </resultMaps>
+
+  <cacheModel id="ROW-cache" implementation="MEMORY" >
+    <flushInterval hours="1"/>
+    <property name="Type" value="WEAK"/>
+  </cacheModel>
+
+  <!-- 
+  這個檔案專門用來配合 DBAction: getRow(), Insert(), Update(), Delete() 等 api,
+  其他 sql statement 不要放到這個檔案中
+  -->
+  <statements>
+
+    <sql id="whereCond">
+      <iterate property="WHERE_LIST" prepend="AND" conjunction="AND">
+        <![CDATA[ $WHERE_LIST[].COLUMN_NAME$ $WHERE_LIST[].OPERATOR$ #WHERE_LIST[].VALUE# ]]>
+      </iterate>
+      <iterate property="RAW_WHERE_LIST" prepend="AND" conjunction="AND">
+        <![CDATA[ $RAW_WHERE_LIST[].COLUMN_NAME$  $RAW_WHERE_LIST[].OPERATOR$  $RAW_WHERE_LIST[].VALUE$ ]]>
+      </iterate>
+    </sql>
+
+    <select id="getRow"
+            parameterClass="Turbo.DataLayer.DBReadModel"
+            resultClass="Hashtable"
+            cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[ SELECT * FROM $TABLE_NAME$ ]]>
+      <iterate property="WHERE_LIST" prepend="WHERE" conjunction="AND">
+        <![CDATA[ $WHERE_LIST[].COLUMN_NAME$=#WHERE_LIST[].VALUE# ]]>
+      </iterate>
+    </select>
+
+    <update id="updateRecord" parameterClass="Turbo.DataLayer.DBUpdateModel">
+      <![CDATA[ UPDATE $TABLE_NAME$ ]]>
+      <iterate property="FIELD_LIST" prepend="SET" conjunction=",">
+        <![CDATA[ $FIELD_LIST[].COLUMN_NAME$=#FIELD_LIST[].VALUE# ]]>
+      </iterate>
+      <iterate property="WHERE_LIST" prepend="WHERE" conjunction="AND ">
+        <![CDATA[ $WHERE_LIST[].COLUMN_NAME$=#WHERE_LIST[].VALUE# ]]>
+      </iterate>
+    </update>
+
+    <insert id="insertRecord" parameterClass="Turbo.DataLayer.DBInsertModel" resultClass="int" >
+      <!-- selectKey 自動編號(不能包在 dynamic 裡面) -->
+      <selectKey resultClass="int" type="pre" property="SEQUENCE_FIELD_VALUE" >
+        <dynamic prepend="">
+          <!-- Oracle Sequence 判斷及取值-->
+          <isNotEmpty prepend="" property="SEQUENCE_FIELD">
+            <![CDATA[ SELECT $SEQUENCE_NAME$.NEXTVAL AS VALUE FROM DUAL ]]>
+          </isNotEmpty>
+          <!--
+          <isEmpty prepend="" property="SEQUENCE_FIELD">
+            SELECT TO_NUMBER(0) AS VALUE FROM DUAL
+          </isEmpty>
+          -->
+        </dynamic>
+      </selectKey>
+
+      <![CDATA[ INSERT INTO $TABLE_NAME$ ]]>
+      (
+      <!-- Oracle Sequence 自動編號欄位判斷-->
+      <isNotEmpty prepend="" property="SEQUENCE_FIELD">
+        <![CDATA[ $SEQUENCE_FIELD$, ]]>
+      </isNotEmpty>
+      <dynamic prepend="">
+        <iterate property="NAME_LIST" open="" close="" conjunction=",">
+          <![CDATA[ $NAME_LIST[]$ ]]>
+        </iterate>
+      </dynamic>
+      )
+      <![CDATA[ VALUES ]]>
+      (
+      <dynamic prepend="">
+        <isNotEmpty prepend="" property="SEQUENCE_FIELD">
+          <![CDATA[ #SEQUENCE_FIELD_VALUE#, ]]>
+        </isNotEmpty>
+        <iterate property="VALUE_LIST" open="" close="" conjunction=",">
+          <![CDATA[ #VALUE_LIST[]# ]]>
+        </iterate>
+      </dynamic>
+      )
+    </insert>
+
+    <delete id="deleteRecord"
+      parameterClass="Turbo.DataLayer.DBDeleteModel"
+      resultClass="int" >
+      <![CDATA[ DELETE FROM $TABLE_NAME$ WHERE ]]>
+      <dynamic prepend="">
+        <iterate property="WHERE_LIST" prepend="" conjunction="AND ">
+          <![CDATA[ $WHERE_LIST[].COLUMN_NAME$=#WHERE_LIST[].VALUE# ]]>
+        </iterate>
+      </dynamic>
+    </delete>
+
+    <select id="getRowEx"
+            parameterClass="Turbo.DataLayer.DBReadModelEx"
+            resultClass="Hashtable"
+            cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[ SELECT * FROM $TABLE_NAME$ WHERE 1=1 ]]>
+      <include refid="whereCond" />
+      <iterate property="ORDER_LIST" prepend="ORDER BY" conjunction=",">
+        <![CDATA[ $ORDER_LIST[].COLUMN_NAME$ $ORDER_LIST[].VALUE$ ]]>
+      </iterate>
+    </select>
+
+    <select id="getRowCountEx"
+        parameterClass="Turbo.DataLayer.DBReadModelEx"
+        resultClass="Hashtable"
+        cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[ SELECT COUNT(1) AS CNT
+        FROM (SELECT * FROM $TABLE_NAME$ WHERE 1=1 ]]>
+      <include refid="whereCond" />
+      <iterate property="ORDER_LIST" prepend="ORDER BY" conjunction=",">
+        <![CDATA[ $ORDER_LIST[].COLUMN_NAME$ $ORDER_LIST[].VALUE$ ]]>
+      </iterate>
+      <![CDATA[ ) a ]]>
+    </select>
+
+    <select id="getAggregateEx"
+            parameterClass="Turbo.DataLayer.DBReadModelEx"
+            resultClass="Hashtable"
+            cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[ SELECT ]]>
+      <iterate property="AGGREGATE_LIST" prepend="" conjunction=",">
+        <![CDATA[ $AGGREGATE_LIST[].OPERATOR$($AGGREGATE_LIST[].COLUMN_NAME$) as $AGGREGATE_LIST[].VALUE$ ]]>
+      </iterate>
+      <![CDATA[ FROM $TABLE_NAME$ WHERE 1=1 ]]>
+      <include refid="whereCond" />
+    </select>
+
+    <update id="updateRecordEx" parameterClass="Turbo.DataLayer.DBUpdateModelEx">
+      <![CDATA[ UPDATE $TABLE_NAME$ ]]>
+      <iterate property="SET_LIST" prepend="SET" conjunction=",">
+        <![CDATA[ $SET_LIST[].COLUMN_NAME$=#SET_LIST[].VALUE# ]]>
+      </iterate>
+      <![CDATA[ WHERE 1=1 ]]>
+      <include refid="whereCond"/>
+    </update>
+
+    <delete id="deleteRecordEx"
+      parameterClass="Turbo.DataLayer.DBReadModelEx"
+      resultClass="int" >
+      <![CDATA[ DELETE FROM $TABLE_NAME$ WHERE 1=1 ]]>
+      <dynamic prepend="">
+        <include refid="whereCond" />
+      </dynamic>
+    </delete>
+
+  </statements>
+</sqlMap>

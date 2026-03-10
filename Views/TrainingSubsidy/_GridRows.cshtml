@@ -1,0 +1,40 @@
+﻿@model WDAIIP.WEB.Models.TrainingSubsidyViewModel
+
+@if (Model == null || Model.NearYearDetail == null || Model.NearYearDetail.Grid == null || Model.NearYearDetail.Grid.Count == 0)
+{
+    <tr>
+        <td colspan="8" class="text-center text-danger">尚無紀錄</td>
+    </tr>
+}
+else
+{
+    string str_Remaining = @"已使用補助費<b style=""color:red;"">(未包含在訓中及已結訓尚未撥款之課程)</b>合計";
+    for (int i = 0; i < Model.NearYearDetail.Grid.Count; i++)
+    {
+        var item = Model.NearYearDetail.Grid[i];
+
+        if (i != Model.NearYearDetail.Grid.Count - 1)
+        {
+            <tr>
+                <td>@item.PLANYEAR_TW</td>
+                <td>@item.PLANNAME</td>
+                <td>@item.ORGNAME</td>
+                <td>@item.CLASSCNAME</td>
+                <td>@item.TDATERANGE</td>
+                <td align="center">@item.APPLIEDSTATUSM_TEXT</td>
+                <td align="center">@item.APPLIEDSTATUS_TEXT</td>
+                <td align="right">@item.SUMOFMONEY</td>
+            </tr>
+        }
+        else
+        {
+            <tr style="background:#99FFAA">
+                <td colspan="4" style="text-align:left">
+                    補助金補助期間：@item.TDATERANGE
+                </td>
+                <td colspan="3">@Html.Raw(str_Remaining)</td>
+                <td align="right">@item.SUMOFMONEY</td>
+            </tr>
+        }
+    }
+}

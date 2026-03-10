@@ -1,0 +1,640 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="CLAM"
+xmlns="http://ibatis.apache.org/mapping"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+  <resultMaps>
+  </resultMaps>
+
+  <cacheModel id="NFC.CHECKIN-cache" implementation="MEMORY" >
+    <flushInterval hours="1"/>
+    <property name="Type" value="WEAK"/>
+  </cacheModel>
+
+  <statements>
+
+    
+    <!-- 
+    特定使用者(ACCOUNT)可管理的單位清單 ==> 所有跟 單位清單(選單) 或 資料單位過濾 的查詢, 都要 extends 並 join 這個ＣＴＥ 
+    來自3個表: TB_ACCOUNT_ATHEN(所屬單位), TB_ORG_RELATION(轄下單位), TB_ACCOUNT_RELATION(授權管理單位)    
+    -->
+    <!--
+    <select id="CTE_AUTH_ORG">
+      With CTE_AUTH_ORG
+      AS (
+      Select ORG_ID, ACCOUNT From TB_ACCOUNT_ATHEN Where ACCOUNT = #LOGIN_ACCOUNT#
+      Union All
+      Select CHILD_ORG_ID, A.ACCOUNT From TB_ORG_RELATION R
+      Join TB_ACCOUNT_ATHEN A On R.PARENT_ORG_ID = A.ORG_ID
+      And A.ACCOUNT = #LOGIN_ACCOUNT#
+      Union All
+      Select CHILD_ORG_ID, ACCOUNT From TB_ACCOUNT_RELATION Where ACCOUNT = #LOGIN_ACCOUNT#
+      )
+    </select>
+    -->
+
+    <!-- Services/ClamService 取得系統功能項目所在的功能表階層項目資料集合 -->
+    <!--  -->
+    <select id="queryFuncMenuSet"
+        resultClass="NFC.CHECKIN.Models.Entities.TblCLAMFUNCM"
+        parameterClass="NFC.CHECKIN.Models.Entities.TblCLAMFUNCM"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    with z as (
+        select * from CLAMFUNCM 
+        where 1=1
+        ]]>
+        <dynamic>
+            <isParameterPresent>
+                <isNotEmpty prepend="" property="PRGID">
+                    <![CDATA[
+              and PRGID=#PRGID#
+                    ]]>
+                </isNotEmpty>
+                <isNotEmpty prepend="" property="PRGID2">
+                    <![CDATA[
+              and PRGID2=#PRGID2#
+                    ]]>
+                </isNotEmpty>
+            </isParameterPresent>
+        </dynamic>
+        <![CDATA[   
+    )
+    select distinct *
+    from (select a.* from CLAMFUNCM a
+          inner join z on a.SYS_ID=z.SYS_ID and a.MODULES=' ' and a.SUBMODULES=' '
+          union
+          select a.* from CLAMFUNCM a
+          inner join z on a.SYS_ID=z.SYS_ID and a.MODULES=z.MODULES and a.SUBMODULES=' ' and a.PRGID=' '
+          union
+          select a.* from CLAMFUNCM a
+          inner join z on a.SYS_ID=z.SYS_ID and a.MODULES=z.MODULES and a.SUBMODULES=z.SUBMODULES and a.PRGID=' '
+          union
+          select z.* from z
+         )
+    order by SYS_ID,MODULES,SUBMODULES,PRGID,PRGID2
+		]]>
+    </select>  
+
+    
+
+    <!-- AM/C101M/Index 系統功能維護 系統名稱-查詢 -->
+    <select id="getC101MSysidList"
+    resultClass="Turbo.DataLayer.KeyMapModel"
+    parameterClass=""
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT SYSID AS CODE, PRGNAME AS TEXT
+        FROM(
+        SELECT TO_CHAR(SYS_ID) AS SYSID, TO_CHAR(SYS_ID || ' ' || PRGNAME) AS PRGNAME,TO_CHAR(PRGORDER)
+        FROM CLAMFUNCM
+        WHERE MODULES = ' ' AND SUBMODULES=' ' AND PRGID= ' '
+        ORDER BY PRGORDER)
+		    ]]>
+    </select>
+    
+    <!-- AM/C101M/Index 系統功能維護 模組代號-查詢 -->
+    <select id="getC101MModulesList"
+    resultClass="Turbo.DataLayer.KeyMapModel"
+    parameterClass="NFC.CHECKIN.Areas.AM.Models.C101MFormModel"
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT MODULES AS CODE, PRGNAME AS TEXT
+        FROM(
+        SELECT '' AS MODULES,'' AS PRGNAME,'000000' AS PRGORDER FROM CLAMFUNCM
+        WHERE ROWNUM = 1
+        UNION
+        SELECT TO_CHAR(MODULES) AS MODULES, TO_CHAR(MODULES || ' ' || PRGNAME) AS PRGNAME,TO_CHAR(PRGORDER)
+        FROM CLAMFUNCM
+        WHERE  SUBMODULES=' ' AND PRGID= ' '  AND SYS_ID=#SYS_ID# AND MODULES <> ' '
+        ORDER BY PRGORDER)
+		    ]]>
+    </select>
+    
+    <!-- AM/C101M/Index 系統功能維護-查詢 -->
+    <select id="queryC101M"
+    resultClass="NFC.CHECKIN.Areas.AM.Models.C101MGridModel"
+    parameterClass="NFC.CHECKIN.Areas.AM.Models.C101MFormModel"
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+       SELECT SYS_ID, MODULES, SUBMODULES, PRGID, '' AS PRGNAME, PRGORDER, OPENAUTH, SHOWMENU,
+              MODUSERID, MODUSERNAME, MODIP, MODTIME,
+              PRGNAME AS SYSNAME, PRGNAME AS MODULESNAME, NETID
+       FROM CLAMFUNCM
+       WHERE 1 = 1 AND SYS_ID <> ' ' AND MODULES = ' ' AND SUBMODULES = ' ' AND PRGID = ' '
+       ]]>
+      <dynamic>
+        <isNotEmpty prepend="" property="SYS_ID">
+          <![CDATA[
+            AND SYS_ID = #SYS_ID#
+            ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="" property="MODULES">
+          <![CDATA[
+            AND MODULES = #MODULES#
+            ]]>
+        </isNotEmpty>
+      </dynamic>
+      <![CDATA[
+       UNION
+       SELECT SYS_ID, MODULES, SUBMODULES, PRGID, '' AS PRGNAME, PRGORDER, OPENAUTH, SHOWMENU,
+              MODUSERID, MODUSERNAME, MODIP, MODTIME,
+              (SELECT PRGNAME
+              FROM CLAMFUNCM A
+              WHERE A.SYS_ID = B.SYS_ID
+                    AND A.MODULES = ' '
+                    AND A.SUBMODULES = ' '
+                    AND A.PRGID = ' ') AS SYSNAME,
+              PRGNAME AS MODULESNAME, NETID
+        FROM CLAMFUNCM B
+        WHERE 1 = 1 AND SYS_ID <> ' ' AND MODULES <> ' ' AND SUBMODULES = ' ' AND PRGID = ' '
+        ]]>
+      <dynamic>
+        <isNotEmpty prepend="" property="SYS_ID">
+          <![CDATA[
+            AND SYS_ID = #SYS_ID#
+            ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="" property="MODULES">
+          <![CDATA[
+            AND MODULES = #MODULES#
+            ]]>
+        </isNotEmpty>
+      </dynamic>
+      <![CDATA[
+       UNION
+       SELECT SYS_ID, MODULES, SUBMODULES, PRGID, TO_CHAR(PRGNAME), PRGORDER, OPENAUTH, SHOWMENU,
+              MODUSERID, MODUSERNAME, MODIP, MODTIME,
+              (SELECT PRGNAME
+              FROM CLAMFUNCM A
+              WHERE A.SYS_ID = B.SYS_ID
+                    AND A.MODULES = ' '
+                    AND A.SUBMODULES = ' '
+                    AND A.PRGID = ' ') AS SYSNAME,
+              (SELECT PRGNAME
+              FROM CLAMFUNCM C
+              WHERE C.SYS_ID = B.SYS_ID
+                    AND C.MODULES = B.MODULES
+                    AND C.SUBMODULES = ' '
+                    AND C.PRGID = ' ') AS MODULESNAME, NETID
+        FROM CLAMFUNCM B
+        WHERE 1 = 1 AND SYS_ID <> ' ' AND MODULES <> ' ' AND SUBMODULES <> ' ' AND PRGID = ' '
+        ]]>
+      <dynamic>
+        <isNotEmpty prepend="" property="SYS_ID">
+          <![CDATA[
+            AND SYS_ID = #SYS_ID#
+            ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="" property="MODULES">
+          <![CDATA[
+            AND MODULES = #MODULES#
+            ]]>
+        </isNotEmpty>
+      </dynamic>
+      ORDER  BY SYS_ID,MODULES,PRGORDER
+    </select>
+
+    <!-- AM/C603R1/Index 權限資料列印-帳號-查詢 -->
+    <!--  -->
+    <select id="queryC603R1"
+		resultClass="NFC.CHECKIN.Areas.AM.Models.C603R1GridModel"
+		parameterClass="NFC.CHECKIN.Areas.AM.Models.C603R1FormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT UNITID || CLAMOPUNIT.OPCHN AS UNITIDN,
+               SUBUNIT || SUBUNITN AS SUBUNITNN
+               , USERNO, USERNAME 
+        FROM CLAMDBURM
+        LEFT JOIN CLAMOPUNIT ON CLAMOPUNIT.OPCD=UNITID
+        WHERE 1=1
+		    ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="OPCD">
+            <![CDATA[
+              AND UNITID IN ($WhereInOPCD$)
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="SUBUNIT">
+            <![CDATA[
+	            AND SUBUNIT IN ($WhereInSUBUNIT$)
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY UNITID,SUBUNIT,USERNO
+    </select>
+
+    <!-- AM/C603R2/Index 權限資料列印-程式-查詢 -->
+    <!--  -->
+    <select id="queryC603R2"
+		resultClass="NFC.CHECKIN.Areas.AM.Models.C603R2GridModel"
+		parameterClass="NFC.CHECKIN.Areas.AM.Models.C603R2FormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT A.SYS_ID,SYS.PRGNAME AS SYSNAME,A.MODULES,MODU.PRGNAME AS MODULESNAME,A.SUBMODULES,SUBM.PRGNAME AS SUBMODULESNAME,A.PRGID,A.PRGNAME
+        FROM CLAMFUNCM A  
+        LEFT JOIN CLAMFUNCM SYS ON SYS.SYS_ID=A.SYS_ID AND SYS.MODULES=' ' AND SYS.SUBMODULES=' ' AND SYS.PRGID=' '  
+        LEFT JOIN CLAMFUNCM MODU ON MODU.SYS_ID=A.SYS_ID AND MODU.MODULES=A.MODULES AND MODU.SUBMODULES=' ' AND MODU.PRGID=' '  
+        LEFT JOIN CLAMFUNCM SUBM ON SUBM.SYS_ID=A.SYS_ID AND SUBM.MODULES=A.MODULES AND SUBM.SUBMODULES=A.SUBMODULES AND SUBM.PRGID=' '  
+        WHERE A.PRGID<>' '
+		    ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="SYS_ID">
+            <![CDATA[
+              AND A.SYS_ID IN ($WhereInSYS_ID$)
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="MODULES">
+            <![CDATA[
+	            AND A.SYS_ID||'-'||A.MODULES IN ($WhereInMODULES$)
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="SUBMODULES">
+            <![CDATA[
+	            AND A.SYS_ID||'-'||A.MODULES||'-'||A.SUBMODULES IN ($WhereInSUBMODULES$)
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      ORDER BY A.SYS_ID,A.MODULES,A.SUBMODULES,A.PRGID
+    </select>
+
+    <!-- 取得使用者帳號資訊 -->
+    <select id="getClamUser"
+		resultClass="NFC.CHECKIN.Models.ClamUser"
+		parameterClass="Hashtable"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+      select A.*,
+      (SELECT max(modtime) FROM CLAMPWDH WHERE USERNO = A.USERNO) LAST_PW_CHG_DT,
+      (SELECT MAX(LOGINDATETIME) FROM CLAMLOGIN WHERE USERNO = A.USERNO) LAST_LOGIN_DT,
+      (Select OPCHN from CLAMOPUNIT Where OPCD=A.UNITID) UNIT_NAME
+      from CLAMDBURM A
+      where A.USERNO=#USERNO#
+		 ]]>
+    </select>
+
+    <!-- 取得系統使用者隸屬群組清單 -->
+    <select id="getClamUserGroups"
+        resultClass="NFC.CHECKIN.Models.ClamUserGroup"
+        parameterClass="Hashtable"
+        cacheModel="NFC.CHECKIN-cache">
+        <![CDATA[
+    select distinct a.GRPID as "GROUP",b.GRPNAME as GROUP_NAME from CLAMUROLE a
+    inner join CLAMGRP b on b.GRPID=a.GRPID
+    where a.USERNO=#USERNO#
+    order by a.GRPID
+        ]]>
+    </select>
+
+    <!-- 取得系統中已啟用的所有功能模組 -->
+    <select id="getClamFuncModules"
+		resultClass="NFC.CHECKIN.Models.ClamRoleFunc"
+		parameterClass="Hashtable"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+      select '1' as NODE, a.SYS_ID, a.MODULES, a.SUBMODULES, a.PRGID2, a.PRGNAME, a.PRGORDER, NetID 
+      from CLAMFUNCM a 
+      where a.SHOWMENU = '1' and a.PRGID2 = ' ' 
+      order by PRGORDER
+		 ]]>
+    </select>
+
+    <!-- 取得群組功能權限清單 -->
+    <select id="getClamRoleFuncs"
+        resultClass="NFC.CHECKIN.Models.ClamRoleFunc"
+        parameterClass="Hashtable"
+        cacheModel="NFC.CHECKIN-cache">
+        <!-- 
+        2.0系統以 PRGID2 存放程式 action path, 
+        仍舊維持以 PRGID2 = ' ' (一個空白字元) 作為判斷是否為 TreeNode 的依據
+        但仍保留以 PRGID 作為跟 CLAMGMAPM 表格的關連
+        -->
+        <![CDATA[
+    with CLAMFM as (
+      select distinct a.SYS_ID,a.MODULES,a.SUBMODULES,a.PRGID,
+             b.PRGID2,b.PRGNAME,b.PRGORDER,a.NETID,b.QUERYSTRING2
+      from CLAMGMAPM a
+      inner join CLAMFUNCM b 
+              on b.SYS_ID=a.SYS_ID and b.MODULES=a.MODULES and b.SUBMODULES=a.SUBMODULES and b.PRGID=a.PRGID and b.SHOWMENU='1'
+      where a.GRPID in (select GRPID from CLAMUROLE where USERNO=#USERNO# )
+            and (a.NETID = '3' or a.NETID = #NETID# or rtrim(a.NETID) is null)
+    ), CLAMFMTOP as (
+      select SYS_ID,MODULES,SUBMODULES,PRGID,PRGID2,PRGNAME,PRGORDER,NETID,QUERYSTRING2 from CLAMFUNCM 
+      where SHOWMENU = '1' and PRGID2 = ' '
+    )
+    select *
+    from (select distinct '1' as NODE,a.* from CLAMFMTOP a where a.SYS_ID in (select SYS_ID from CLAMFM)
+          union select '0' as NODE,a.* from CLAMFM a)
+    order by SYS_ID,MODULES,SUBMODULES,PRGORDER,PRGID2
+		]]>
+    </select>
+
+      <!-- 取得系統已啟用的全部功能清單 -->
+      <select id="getClamFuncsAll"
+          resultClass="NFC.CHECKIN.Models.Entities.TblCLAMFUNCM"
+          parameterClass="Hashtable"
+          cacheModel="NFC.CHECKIN-cache">
+          <![CDATA[
+      select distinct a.SYS_ID, a.MODULES, a.SUBMODULES, a.PRGID2, a.PRGNAME, a.PRGORDER, a.netid, a.QUERYSTRING2
+        from CLAMFUNCM a  
+        where a.SHOWMENU = '1' 
+          and a.PRGID2 is not null
+      order by a.SYS_ID, a.MODULES, a.SUBMODULES, a.PRGID2
+		 ]]>
+      </select>
+
+    <!-- AM/C201M/Index 群組維護作業-查詢 -->
+    <!--  -->
+    <select id="queryC201M"
+		resultClass="NFC.CHECKIN.Areas.AM.Models.C201MGridModel"
+		parameterClass="NFC.CHECKIN.Areas.AM.Models.C201MFormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+      SELECT  GRPID,GRPNAME,MODUSERID,MODUSERNAME,MODIP,MODTIME
+      FROM CLAMGRP
+      WHERE 1 = 1
+		 ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="GRPID">
+            <![CDATA[
+	            AND GRPID = #GRPID#
+              ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="GRPNAME">
+            <![CDATA[
+	            AND GRPNAME LIKE '%' || #GRPNAME# || '%'
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <include refId="KeyMap.SQLROWNUM"/>
+      Order by GRPID
+    </select>
+
+    <!-- AM/C201M/Index 群組維護作業-明細 -->
+    <select id="getC201MDetail"
+		resultClass="NFC.CHECKIN.Areas.AM.Models.C201MDetailModel"
+		parameterClass="NFC.CHECKIN.Models.Entities.TblCLAMGRP"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+      SELECT  GRPID,GRPNAME,MODUSERID,MODUSERNAME,MODIP,MODTIME
+FROM CLAMGRP
+WHERE 1 = 1
+AND GRPID = #GRPID#
+		 ]]>
+    </select>
+
+    <!-- A3/C201M/Detail 群組維護作業-指定資料是否存在 -->
+    <select id="isC201MFound"
+          resultClass="NFC.CHECKIN.Models.Entities.TblCLAMGRP"
+          parameterClass="NFC.CHECKIN.Areas.AM.Models.C201MDetailModel"
+          cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+      SELECT  GRPID FROM CLAMGRP
+      WHERE GRPID = #GRPID#
+		 ]]>
+    </select>
+
+<!-- AM/C201M1/Index 群組程式設定-查詢 -->
+    <!--  -->
+    <select id="queryC201M1"
+		resultClass="NFC.CHECKIN.Areas.AM.Models.C201M1GridModel"
+		parameterClass="NFC.CHECKIN.Areas.AM.Models.C201M1FormModel"
+		cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+      SELECT #GRPID# GRPID,CLAMFUNCM.SYS_ID, CLAMFUNCM.MODULES, CLAMFUNCM.SUBMODULES,
+CLAMFUNCM.PRGID,
+CLAMFUNCM.PRGNAME,
+NVL(A.PRG_Q,0) as PRG_Q , NVL(A.PRG_I,0) as PRG_I ,
+NVL(A.PRG_U,0) as PRG_U, NVL(A.PRG_D,0) as PRG_D,
+NVL(A.PRG_P,0) as PRG_P
+FROM CLAMGMAPM  A
+RIGHT OUTER JOIN CLAMFUNCM ON A.SUBMODULES = CLAMFUNCM.SUBMODULES
+AND A.MODULES = CLAMFUNCM.MODULES AND A.PRGID = CLAMFUNCM.PRGID
+AND A.SYS_ID = CLAMFUNCM.SYS_ID
+		 ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="GRPID">
+            <![CDATA[
+	            AND A.GRPID = #GRPID#
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <![CDATA[
+      WHERE CLAMFUNCM.PRGID<>' '
+		 ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="SYS_ID">
+            <![CDATA[
+                  AND CLAMFUNCM.SYS_ID = #SYS_ID#
+                  ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="MODULES">
+            <![CDATA[
+                  AND CLAMFUNCM.MODULES = #MODULES#
+                  ]]>
+          </isNotEmpty>
+          <isNotEmpty prepend="" property="RANGE">
+            <isEqual prepend="" property="RANGE" compareValue="1">
+              <![CDATA[
+                  AND (PRG_Q='1' OR PRG_I='1' OR PRG_U='1' OR PRG_D='1' OR PRG_P='1' )
+                  ]]>
+            </isEqual>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+      <include refId="KeyMap.SQLROWNUM"/>
+      Order by GRPID
+    </select>
+
+
+    <!-- AM/N301M/Index 報到場次維護 系統代碼清單 -->
+    <select id="getN301MSysidList"
+    resultClass="Turbo.DataLayer.KeyMapModel"
+    parameterClass=""
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT SYS_ID AS CODE, SYS_NAME AS TEXT
+        FROM SYSCODE
+        ORDER BY SYS_ID
+		    ]]>
+    </select>
+
+    <!-- AM/N301M/Index 報到場次維護-查詢 -->
+    <select id="queryN301M"
+    resultClass="NFC.CHECKIN.Areas.AM.Models.N301MGridModel"
+    parameterClass="NFC.CHECKIN.Areas.AM.Models.N301MFormModel"
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+       SELECT SYS_ID, PROF_ID, SYS_PROF_ID, PNAME, DATES, DATEE, MEMO, STATUS,
+              (Case When STATUS = '1' Then '有效' Else '停用' End) STATUS_TEXT,
+              (Select SYS_NAME From SYSCODE Where SYS_ID=NFCPROF.SYS_ID) SYS_NAME
+       FROM NFCPROF
+       WHERE 1 = 1 
+       ]]>
+      <dynamic>
+        <isNotEmpty prepend="" property="SYS_ID">
+          <![CDATA[
+            AND SYS_ID = #SYS_ID#
+            ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="" property="PNAME">
+          <![CDATA[
+            AND PNAME like '%' || #PNAME# || '%'
+            ]]>
+        </isNotEmpty>
+        <isNotEmpty prepend="" property="STATUS">
+          <![CDATA[
+            AND STATUS = #STATUS#
+            ]]>
+        </isNotEmpty>
+      </dynamic>
+
+      ORDER  BY PROF_ID desc
+    </select>
+
+    <!-- 
+    AM/N302M/Index 報到名單維護 - 報到場次代碼清單 
+    只抓尚未結束的場次, 但有包含尚未開始的場次,
+    供維護報到名單之用
+    -->
+    <select id="getN302MProfIdList"
+    resultClass="Turbo.DataLayer.KeyMapModel"
+    parameterClass=""
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT to_char(PROF_ID) AS CODE, PNAME AS TEXT
+        from nfcprof
+        where status = '1'
+        and DATEE >= to_char(sysdate, 'yyyymmdd')
+        ORDER BY DATES
+		    ]]>
+    </select>
+
+    <!-- AM/N302M/Index 報到名單維護-查詢 -->
+    <select id="queryN302M"
+    resultClass="NFC.CHECKIN.Areas.AM.Models.N302MGridModel"
+    parameterClass="NFC.CHECKIN.Areas.AM.Models.N302MFormModel"
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+       SELECT NAMELIST_ID, PROF_ID, NAME, IDNO, SEX, BIRTHDAY, 
+              ZIPCODE, ADDRESS, HTEL, OTEL, MOTEL, FAX, EMAIL, TITLE, TCOMMENT, NFC_ID,
+              DECODE(SEX, 'F', '女', 'M', '男', '') SEX_TEXT
+       FROM NAMELIST
+       WHERE 1 = 1 
+       ]]>
+      <dynamic>
+        <isNotEmpty prepend="" property="PROF_ID">
+          <![CDATA[
+            AND PROF_ID = #PROF_ID#
+            ]]>
+        </isNotEmpty>
+      </dynamic>
+
+      ORDER BY NAMELIST_ID
+    </select>
+
+    <!-- 
+    AM/N303M/Index NFC報到作業 - 報到場次代碼清單 
+    取得當前有效(在報到起迄日期內)的報到場次清單
+    -->
+    <select id="getN303MProfIdList"
+    resultClass="Turbo.DataLayer.KeyMapModel"
+    parameterClass=""
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT to_char(PROF_ID) AS CODE, PNAME AS TEXT
+        from nfcprof
+        where status = '1'
+        and DATES <= to_char(sysdate, 'yyyymmdd')
+        and DATEE >= to_char(sysdate, 'yyyymmdd')
+        ORDER BY DATES
+		    ]]>
+    </select>
+
+    <!-- 
+    AM/N303M/Index NFC報到作業 - 報到項目 選項清單來源
+    依報到場次過濾, 系統時間在報到起迄時間範圍內
+    -->
+    <select id="getN303MCheckinItemIdList"
+    resultClass="Turbo.DataLayer.KeyMapModel"
+    parameterClass=""
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT to_char(CHECKIN_ITEM_ID) AS CODE, ITEM_NAME AS TEXT
+        from CHECKIN_ITEM
+        where PROF_ID = #PROF_ID#
+        and ITEM_DATE = to_char(sysdate, 'yyyymmdd')
+        and START_TIME <= to_char(sysdate, 'hh24mi')
+        and END_TIME >= to_char(sysdate, 'hh24mi')
+        ORDER BY SEQ
+		    ]]>
+    </select>
+    
+    <!-- AM/N303M/Index NFC報到作業 - 報到名單查詢 -->
+    <select id="queryN303M"
+    resultClass="NFC.CHECKIN.Areas.AM.Models.N303MGridModel"
+    parameterClass="NFC.CHECKIN.Areas.AM.Models.N303MFormModel"
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+       SELECT N.NAMELIST_ID, PROF_ID, NAME, IDNO, SEX, BIRTHDAY, 
+              HTEL, OTEL, MOTEL, TITLE, TCOMMENT, NFC_ID,
+              DECODE(SEX, 'F', '女', 'M', '男', '') SEX_TEXT,
+              #CHECKIN_ITEM_ID# as CHECKIN_ITEM_ID, C.CHECKIN_TYPE, C.DATETIME
+       FROM NAMELIST N
+       LEFT JOIN CHECKIN C ON N.NAMELIST_ID = C.NAMELIST_ID
+         AND C.CHECKIN_ITEM_ID = #CHECKIN_ITEM_ID#
+         AND C.CHECKIN_TYPE <> 'C' /*取消報到*/
+       WHERE N.PROF_ID = #PROF_ID#
+       ]]>
+      ORDER BY N.NAMELIST_ID
+    </select>
+
+    <!-- 
+    AM/N304R NFC報到記錄查詢 - 報到場次代碼清單 
+    取得指定系統別的報到場次清單
+    註: 
+    1. 配合外部 REST.WRS001005 查詢報到記錄API, CODE 參考 所屬系統場次代碼(SYS_PROF_ID) 欄位
+    2. 只抓取60天以內的場次資料
+    -->
+    <select id="getN304RProfIdList"
+    resultClass="Turbo.DataLayer.KeyMapModel"
+    parameterClass=""
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT SYS_PROF_ID AS CODE, PNAME AS TEXT
+        from nfcprof
+        where status = '1' and SYS_ID = #SYS_ID#
+        and DATEE >= TO_CHAR(SYSDATE - 60, 'YYYYMMDD')
+        ORDER BY DATES
+		    ]]>
+    </select>
+
+    <!-- 
+    AM/N304R/Index NFC報到記錄查詢 - 報到項目 選項清單來源
+    依報到 所屬系統場次代碼 過濾, 
+    不限定系統時間在報到起迄時間範圍內
+    -->
+    <select id="getN304RCheckinItemIdList"
+    resultClass="Turbo.DataLayer.KeyMapModel"
+    parameterClass=""
+    cacheModel="NFC.CHECKIN-cache">
+      <![CDATA[
+        SELECT SYS_ITEM_ID AS CODE, ITEM_NAME AS TEXT
+        from CHECKIN_ITEM
+        where PROF_ID IN (Select PROF_ID From NFCPROF Where SYS_PROF_ID = #SYS_PROF_ID#)
+          and SYS_ITEM_ID is not null
+        ORDER BY SEQ
+		    ]]>
+    </select>
+    
+  </statements>
+</sqlMap>

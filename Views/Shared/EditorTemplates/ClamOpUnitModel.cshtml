@@ -1,0 +1,94 @@
+﻿@using WDAIIP.WEB.Commons
+@model WDAIIP.WEB.Models.ClamOpUnitModel
+
+@{
+    string divControlId = "__divClamOpUnitControl_" + DateTime.Now.Ticks.ToString();
+    bool canEdit = Model.Enabled & (Model.EditOPCD == "Y");
+}
+
+<div id="@divControlId">
+    @Html.HiddenFor(m => m.Uiac)
+    @Html.TextBoxFor(m => m.OPCD, new { @class = "form-control", size = 5, maxLength = 4, placeholder = "代碼", data_tag = "CODE" }, !canEdit)
+    <div class="input-group">
+        @Html.TextBoxFor(m => m.OPCD_TEXT, new { @class = "form-control formbar-bg", size = 40, placeholder = "單位名稱", data_tag = "NAME" }, true)
+        @if (Model.Enabled && Model.ShowButton == "Y") {
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-info" data-tag="BTN">
+                    <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+                </button>
+            </span>
+        }
+    </div>
+</div>
+
+<script type="text/javascript">
+    var __ClamOpUnitControl = function () {
+        var self = this;
+        this.control;
+        this.boxOpcd;
+        this.boxOpcdText;
+        this.btnShow;
+
+        function loadNameAsync(data) {
+            ajaxLoadMore(data.url, data.arg, function (resp) {
+                if (resp === undefined) data.box.val("");
+                else {
+                    if (resp.data != "") data.box.val(resp.data);
+                    else {
+                        data.box.val("");
+                        blockAlert(data.msg);
+                    }
+                }
+            });
+        }
+
+        //顯示單位資料選擇對話框。
+        function doItemSelect() {
+            var data = { "onclickHandler": "__onClamOpUnitItemSelect" }
+            var url = "@Url.Action("Index", "CLAMOPUNIT", new { area = "Share" })?" + $.param(data);
+            popupDialog(url, "單位資料查詢", "", 800);
+        }
+
+        //處理單位資料選取對話框傳回的資料。
+        this.onItemSelect = function (id, name) {
+            this.boxOpcd.val(id);
+            this.boxOpcdText.val(name);
+        }
+
+        //取得單位代碼對應的單位名稱。
+        this.doCodeMapNameGet = function () {
+            if (!self.boxOpcd.prop("readonly")) {
+                var data = {
+                    "url": "@Url.Action("GetClamOpcdName", "Ajax", new { area = "" })",
+                    "msg": "查無該單位資訊!!",
+                    "arg": { "OPCD": self.boxOpcd.val() },
+                    "box": self.boxOpcdText
+                };
+                ($.trim(data.arg.OPCD) == "") ? data.box.val("") : loadNameAsync(data);
+            }
+        }
+
+        //初始化物件
+        this.initialize = function () {
+            self.control = $("#@divControlId");
+            self.boxOpcd = self.control.find("input[data-tag=\"CODE\"]");
+            self.boxOpcdText = self.control.find("input[data-tag=\"NAME\"]");
+            self.btnShow = self.control.find("button[data-tag=\"BTN\"]");
+            self.btnShow.on("click", doItemSelect);
+        }
+    }
+
+    var __ClamOpUnitControl = new __ClamOpUnitControl();
+    __ClamOpUnitControl.initialize();
+
+    //處理單位資料選取對話框傳回的資料。
+    function __onClamOpUnitItemSelect(id, name) {
+        __ClamOpUnitControl.onItemSelect(id, name);
+    }
+
+    $(function () {
+        //單位代碼輸入框失去輸入焦點事件處理。
+        __ClamOpUnitControl.boxOpcd.on("blur", __ClamOpUnitControl.doCodeMapNameGet);
+    })
+</script>
+

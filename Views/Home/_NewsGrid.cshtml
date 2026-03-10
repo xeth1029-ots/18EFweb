@@ -1,0 +1,24 @@
+﻿@using Turbo
+@using Turbo.Crypto
+@using WDAIIP.WEB.Models
+@model HomeViewModel
+
+@if (Model == null || Model.TopNewsGrid == null || Model.TopNewsGrid.Count == 0)
+{
+    <tr>
+        <td colspan="2" class="text-center">尚無資料</td>
+    </tr>
+}
+else
+{
+    foreach (TopContentGridModel item in Model.TopNewsGrid)
+    {
+        AesTk aesTk = new AesTk();
+        //string url1 = string.Format("~/News/Detailv2?SEQ={0}&WXR={1}", @item.SEQNO, aesTk.Encrypt(@item.SEQNO.ToString()));
+        <tr>
+            @*<td width="80%"><a href="javascript:showNews(@item.SEQNO)" title="@item.C_TITLE_TEXT">@(item.C_TITLE_TEXT)</a></td>*@
+            <td width="80%">@Html.ActionLink(item.C_TITLE_TEXT, "Detailv2", new { SUFU = "1", SEQ = aesTk.CreateHash(item.SEQNO.ToString()), WXR = aesTk.Encrypt(item.SEQNO.ToString()) }, new { title = item.C_TITLE_TEXT })</td>
+            <td width="20%" class="newsDate">@item.C_SDATE_TW</td>
+        </tr>
+    }
+}

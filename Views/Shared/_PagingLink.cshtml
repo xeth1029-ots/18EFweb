@@ -1,0 +1,389 @@
+﻿@using Turbo.DataLayer
+@model PagingResultsViewModel
+@if (Model.PagingInfo != null) /*分頁資訊存在時才顯示*/
+{
+@*<div class="pageLink">
+    <a id="firstPage" href="javascript:firstPage()" class="disabled">最前頁</a>
+    <a id="prePage" href="javascript:prePage()" class="disabled">上一頁</a> 
+    <span class="pageInfo">第<span id="curPage">@(Model.PagingInfo.PageIdx)</span>／@(Model.PagingInfo.TotalPages)頁</span>，
+    <span class="recordsInfo">共@(Model.PagingInfo.Total)筆</span> 
+    <a id="nextPage" href="javascript:nextPage()" class="disabled">下一頁</a>
+    <a id="lastPage" href="javascript:lastPage()" class="disabled">最後頁</a>
+</div>*@
+<form name="qryParms" action="@(Model.action)" data-total-pages="@(Model.PagingInfo.TotalPages)">
+    <!--  pager start -->
+    <div class="news-pager news-pager-g4">
+        <div class="news-pager-left">合計<span class="search-pager-mark">@(Model.PagingInfo.Total)</span>筆</div>
+        <div class="news-pager-main">
+            <a id="firstPage" href="javascript:firstPage()" title="回到最前頁">最前頁</a>
+            <a id="prePage" href="javascript:prePage()" title="往上一頁">上一頁</a> 
+            <span>
+                @*
+                2019-02-23 無障礙修正：EV1030112：使用標籤組件將文字標籤與表單控制元件建立關連
+                3.1由呈現方式所傳達的資訊、結構與關連性要能以程式化的方式判讀，或者有對應的文字
+                加 label for
+                *@
+                <label for="ddlGoPage">選擇頁數</label>
+                <select id="ddlGoPage" name="ddlGoPage" class="form-normal formbar-bg" title="請選擇頁數">
+                    @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+                    {
+                        <option value="@(i)">@(i)</option>
+                    }
+                </select>
+                頁
+
+                <a class="goPage" id="btnGoPage" name="btnGoPage" href="javascript:void(0)" onclick="goPage(this)" title="送出頁數">送 出</a>
+            </span> 
+            <a id="nextPage" href="javascript:nextPage()" class="disabled" title="往下一頁">下一頁</a>
+            <a id="lastPage" href="javascript:lastPage()" title="到最後頁">最後頁</a>
+        </div>
+        <div class="news-pager-right search-pager-display">
+            @*
+            2019-02-23 無障礙修正：EV1030112：使用標籤組件將文字標籤與表單控制元件建立關連
+            3.1由呈現方式所傳達的資訊、結構與關連性要能以程式化的方式判讀，或者有對應的文字
+            加 label for
+            *@
+            <label for="PagingInfo_PageSize">每頁</label>
+            @*<select name="" class="form-normal">
+                <option>10</option>
+                <option>20</option>
+                <option>30</option>
+                <option>40</option>
+            </select>*@
+
+            &nbsp;@Html.DropDownListFor(m => m.PagingInfo.PageSize, Model.PageSize_list(), new { @class = "form-normal",title="請選擇每頁筆數" })
+            筆 
+            <a id="btnGoRecCount" name="btnGoRecCount" href="javascript:void(0)" onclick="goRecCount(this)" title="送出每頁筆數">送 出</a>
+        </div>
+    </div>
+    <!-- pager end -->
+
+@*<form name="qryParms" action="@(Model.action)" data-total-pages="@(Model.PagingInfo.TotalPages)">*@
+    @Html.HiddenFor(m=>m.rid)
+    @*@Html.HiddenFor(m=>m.PagingInfo.PageSize)*@
+    @{
+        // 將 Model 中當前的查詢條件, 保存在 hidden 欄位中, 分頁連結時再併入 POST 參數
+        System.Collections.Hashtable qryParms = new System.Collections.Hashtable();
+        CommonUtil.SetQueryParameters(qryParms, Model);
+        foreach (string key in qryParms.Keys)
+        {
+            /*處理 checkbox 多選條件參數(string[])*/
+            object parm = qryParms[key];
+            if (parm != null)
+            {
+                if (parm is string[])
+                {
+                    // 多選參數 string[]
+                    // 參數名稱格式: paramName
+                    string[] listParm = (string[])parm;
+                    for (int i = 0; i < listParm.Length; i++)
+                    {
+                        <input type="hidden" data-role="array" name="@(key)" value="@(listParm[i])" />
+                    }
+                }
+                else
+                {
+                    // 其他視為單值參數 string
+                    <input type="hidden" name="@(key)" value="@(parm)" />
+                }
+            }
+        }
+    }
+</form>
+<script type="text/javascript">
+    var curPageSize = "";
+    var curPageIdx = parseInt('@Model.PagingInfo.PageIdx');
+    var totalPages = parseInt('@Model.PagingInfo.TotalPages');
+    var ddlGoPage = document.getElementById("ddlGoPage");//$("select#ddlGoPage");
+
+    $(document).ready(function () {
+        refreshCurPageInfo();
+
+        //$(ddlGoPage).val(curPageIdx);
+        var ddlPaging = $("select[name=ddlGoPage]");
+        if (ddlPaging.eq(0)) {
+            ddlPaging.eq(0).val(curPageIdx);
+        }
+
+        if (ddlPaging.eq(1)) {
+            ddlPaging.eq(1).val(curPageIdx);
+        }
+        
+    });
+
+    function refreshCurPageInfo() {
+        $("span#curPage").html(curPageIdx);
+        
+        if (curPageIdx <= 1) {
+            $("div.news-pager-main a#firstPage").addClass("disabled");
+            $("div.news-pager-main a#prePage").addClass("disabled");
+            //$("div.news-pager-main a#btnGoPage").addClass("disabled");
+            //$("div.news-pager-right a#btnGoRecCount").addClass("disabled");
+        }
+        else {
+            $("div.news-pager-main a#firstPage").removeClass("disabled");
+            $("div.news-pager-main a#prePage").removeClass("disabled");
+            //$("div.news-pager-main a#btnGoPage").removeClass("disabled");
+            //$("div.news-pager-right a#btnGoRecCount").removeClass("disabled");
+        }
+        if (curPageIdx >= totalPages) {
+            $("div.news-pager-main a#nextPage").addClass("disabled");
+            $("div.news-pager-main a#lastPage").addClass("disabled");
+        }
+        else {
+            $("div.news-pager-main a#nextPage").removeClass("disabled");
+            $("div.news-pager-main a#lastPage").removeClass("disabled");
+        }
+    }
+
+    //2019-03-15 無障礙:EV1100201：使用按鈕來做出行動並啟動脈絡變更
+    //add 送出頁數按鈕（移除下拉選單 onchange）
+    function goPage(obj) {
+        var pageNumObj = $(obj).closest("div").find("select#ddlGoPage");
+        var pageNum = pageNumObj.val();
+        loadPage(pageNum);
+    }
+
+    //2019-03-15 無障礙:EV1100201：使用按鈕來做出行動並啟動脈絡變更
+    //add 送出頁數按鈕（移除下拉選單 onchange）
+    function goRecCount(obj) {
+        var pageSizeObj = $(obj).closest("div").find("select#PagingInfo_PageSize");
+        var pageSize = pageSizeObj.val();
+        changePageSize(pageSize);
+    }
+
+    function firstPage() {
+        if (curPageIdx > 1) {
+            curPageIdx = 1;
+            loadPage(curPageIdx);
+            ddlGoPage.options[curPageIdx - 1].selected = true;
+        }
+    }
+    function prePage() {
+        if (curPageIdx > 1) {
+            curPageIdx--;
+            loadPage(curPageIdx);
+            ddlGoPage.options[curPageIdx - 1].selected = true;
+        }
+    }
+    function nextPage() {
+        if (curPageIdx < totalPages) {
+            curPageIdx++;
+            loadPage(curPageIdx);
+            ddlGoPage.options[curPageIdx - 1].selected = true;
+        }
+    }
+    function lastPage() {
+        if (curPageIdx < totalPages) {
+            curPageIdx = totalPages;
+            loadPage(curPageIdx);
+            ddlGoPage.options[curPageIdx - 1].selected = true;
+        }
+    }
+    function loadPage(p) {
+        var form = $("form[name=qryParms]");
+        var url = form.attr("action");
+        if (url == '') {
+            url = window.location.href;
+        }
+        var parms = {};
+        parms.rid = form.find("input[name=rid]").val();
+        //parms.p = p;
+        if (curPageSize == "") {
+            parms.p = p + "-" + form.find("select#PagingInfo_PageSize").val() + "-@(Model.PagingInfo.Total)";
+            parms.psize = form.find("select#PagingInfo_PageSize").val();
+        } else {
+            parms.p = p + "-" + curPageSize + "-@(Model.PagingInfo.Total)";
+            parms.psize = curPageSize;
+        }
+        
+        // 處理 array 參數
+        var arrParms = {};
+        form.find("input[data-role=array]").each(function () {
+            var parm = parms[$(this).attr("name")];
+            if (!parm) {
+                parm = new Array();
+            }
+            parm.push($(this).val());
+            parms[$(this).attr("name")] = parm;
+        });
+        // 一般參數
+        form.find("input").each(function () {
+            var parm = parms[$(this).attr("name")];
+            if (parm && Array === parm.constructor) {
+                // is an array parms, skip it.
+                return;
+            }
+            parms[$(this).attr("name")] = $(this).val();
+        });
+
+        curPageIdx = p;
+        ajaxLoadMore(url, parms, loadPageCallBack, true);
+        debugTrace("loadPage: " + url + ", parms: {rid=" + parms.rid + ", p=" + parms.p + "}");
+    }
+    function loadPageCallBack(data) {
+
+        var _callback = undefined;
+        @if (!string.IsNullOrEmpty(Model.ajaxLoadPageCallback))
+        {
+            <text>eval('_callback=@Model.ajaxLoadPageCallback');</text>
+        }
+        //debug_trace("loadPage _callback: " + _callback);
+
+        if (typeof _callback == 'undefined') {
+            setPageContent(data);
+        }
+        else {
+            _callback(data);
+        }
+
+        refreshCurPageInfo();
+    }
+    /*
+    預設的分頁 callback 處理 function
+    將置換 tbody#rows 的 innerHtml 為新的分頁內容
+    */
+    function setPageContent(dataModel) {
+        //debugger
+        if (dataModel) {
+            var result = dataModel.Result;
+            var pagingInfo = dataModel.PagingInfo;
+            var rid = dataModel.Rid;
+            var isResetRid = dataModel.IsResetRid;
+
+            var container = $("tbody#rows");
+            if (container != "undefined" && container.is("tbody")) {
+                //container.html(pageHtml);
+
+                var doc = $("div .table.table-responsive");
+                if (doc) {
+                    var h1 = doc.height();
+                    container.html(result);
+                    var h2 = doc.height();
+                    resizeContentGroundHeight(h2 - h1);
+                }
+                else {
+                    container.html(result);
+                }
+
+                //直接統一重新計算總頁數（否則要必須逐一修正每個查詢畫面的 Controller 程式）
+                computeCurrentTotalPages();
+
+                //var ddlPaging = $("#ddlGoPage");
+                var ddlPaging = $("select[name=ddlGoPage]");
+                var opts = '';
+                for (var i = 0 ; i < pagingInfo.TotalPages ; i++) {
+                    // opt += "<option value=" + (i + 1) + ">" + (i + 1) + "</option>";
+                    var opt = $('<option>');
+                    opt.attr('value', i + 1);
+                    opt.text(i + 1);
+                    opts += opt.prop('outerHTML');
+                }
+                //ddlPaging.html(opts);
+                //ddlPaging.val(pagingInfo.PageIdx);
+
+                //重設定分頁下拉選項
+                if (ddlPaging.eq(0)) {
+                    ddlPaging.eq(0).html(opts);
+                    ddlPaging.eq(0).val(pagingInfo.PageIdx);
+                }
+
+                if (ddlPaging.eq(1)) {
+                    ddlPaging.eq(1).html(opts);
+                    ddlPaging.eq(1).val(pagingInfo.PageIdx);
+                }
+                
+                //重設定筆數下拉選項
+                var ddlPageSize = $("select[name='PagingInfo.PageSize']");
+                if (ddlPageSize.eq(0)) {
+                    ddlPageSize.eq(0).val(pagingInfo.PageSize);
+                }
+                if (ddlPageSize.eq(1)) {
+                    ddlPageSize.eq(1).val(pagingInfo.PageSize);
+                }
+
+                if (isResetRid) {
+                    $("form[name=qryParms] input[name=rid]").val(rid);
+                }
+
+            }
+            else {
+                blockAlert("分頁表格 TBODY#rows Not Exists");
+            }
+        }
+    }
+
+    function setPageContent_old(pageHtml) {
+        var container = $("tbody#rows");
+        if (container != "undefined" && container.is("tbody")) {
+            //container.html(pageHtml);
+
+            var doc = $("div .table.table-responsive");
+            if (doc) {
+                var h1 = doc.height();
+                container.html(pageHtml);
+                var h2 = doc.height();
+                resizeContentGroundHeight(h2 - h1);
+            }
+            else {
+                container.html(pageHtml);
+            }
+            //直接統一重新計算總頁數（否則要必須逐一修正每個查詢畫面的 Controller 程式）
+            computeCurrentTotalPages();
+        }
+        else {
+            blockAlert("分頁表格 TBODY#rows Not Exists (o)");
+        }
+    }
+
+    //調整畫面右方內容區域白底高度
+    function resizeContentGroundHeight(offset) {
+        var elm = $("div .wrap");
+        var h = elm.height() + parseFloat(offset);
+        elm.height(h);
+    }
+
+    //重新計算目前總頁數
+    function computeCurrentTotalPages() {
+        try {
+            var form = $("form[name=qryParms]");
+
+            //var totData = parseInt("@(Model.PagingInfo.Total)", 10);
+            var totData = parseInt("@(Model.PagingInfo.Total)", 10);
+            //var pageSize = parseInt(form.find("select#PagingInfo_PageSize").val(), 10);
+            
+            var pagSize = 10;
+            if (curPageSize == "") {
+                pagSize = parseInt(form.find("select#PagingInfo_PageSize").val(), 10);
+            } else {
+                pagSize = parseInt(curPageSize, 10);
+            }
+            totalPages = (pagSize <= 0) ? 1 : Math.floor((totData + (pagSize - 1)) / pagSize);
+            if (curPageIdx > totalPages) curPageIdx = totalPages;
+            form.attr("data-total-pages", totalPages);
+            form.find("span#curPage").text(curPageIdx);
+            form.find("span#totalpageS").text(totalPages);
+
+            var ddlPagSize = $("select[name='PagingInfo.PageSize']");
+            if (ddlPagSize.eq(0)) {
+                //ddlPagSize.eq(0).val(newPagSize);
+            }
+            if (ddlPagSize.eq(1)) {
+                //ddlPagSize.eq(1).val(newPagSize);
+            }
+        }
+        catch (ex) {
+            blockAlert("[getCurrentTotalPages] " + ex.message);
+        }
+    }
+
+    function changePageSize(psize) {
+        curPageSize = psize;
+
+        computeCurrentTotalPages();
+        loadPage(curPageIdx);
+    }
+
+</script>
+
+}

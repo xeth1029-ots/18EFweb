@@ -1,0 +1,378 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassSearchViewModel
+@{
+    //此為查詢頁切換計畫類別，欲變換的查詢條件區塊
+    SessionModel sess = SessionModel.Get();
+
+    string s_URL1 = @"https://jobooks.taiwanjobs.gov.tw/cl.aspx?n=3";
+
+    string guid = Guid.NewGuid().ToString();
+}
+
+@helper RenderScriptBlock(string guid)
+{
+    @*<script src="~/js/autocomplete.js"></script>*@
+    <script>
+        $(document).ready(function () {
+            autocomplete_init();
+        });
+    </script>
+}
+
+@switch (Model.Form.PlanType)
+{
+    case "1"://產業人才投資
+        <div>
+            <div>
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.OCID, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.TextBoxFor(m => m.Form.OCID, new { @class = "form-control", placeholder = "請輸入課程代碼", title = "請輸入課程代碼", maxlength = 10 })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.KEYWORDS, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.TextBoxFor(m => m.Form.KEYWORDS, new { @class = "form-control", placeholder = "請輸入關鍵字", title = "請輸入關鍵字搜尋", maxlength = 100 })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.CLASSCNAME, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.TextBoxFor(m => m.Form.CLASSCNAME, new { @class = "form-control", placeholder = "請輸入課程名稱", title = "請輸入課程名稱檢索", maxlength = 100 })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.ABILITYS, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.TextBoxFor(m => m.Form.ABILITYS, new { @class = "form-control convUnsafeChar width-auto autocomplete", placeholder = "字數上限為30字", title = "請輸入專長能力搜尋", maxlength = 30, autocomplete_bind = "Y", @data_cat = "APP_TEXT APP_TEXT_OTHER APP_TEXT_OTHER_SEEK" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label for="Form_CASETYPE_1" class="form-label-search"><span style="color:red;">＊</span>開訓日期區間</label>
+                    <div class="form-input">
+                        @Html.RadioButtonFor(m => m.Form.CASETYPE, 0, new { @id = "Form_CASETYPE_0", @checked = true, title = "請選擇開訓日期區間類型（日期區間）" })
+                        <label for="Form_CASETYPE_0">
+                            @Html.DropDownListFor(m => m.Form.STDATE_YEAR_SHOW, Model.YEAR0_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_起日年份" })
+                            年
+                            @Html.DropDownListFor(m => m.Form.STDATE_MON, Model.MON_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_起日月份" })
+                            月至
+                            @Html.DropDownListFor(m => m.Form.FTDATE_YEAR_SHOW, Model.YEAR1_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_迄日年份" })
+                            年
+                            @Html.DropDownListFor(m => m.Form.FTDATE_MON, Model.MON_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_迄日月份" })
+                            月
+                        </label>
+                        <br>
+                        @Html.RadioButtonFor(m => m.Form.CASETYPE, 1, new { @id = "Form_CASETYPE_1", title = "請選擇開訓日期區間類型（近一個月內將開訓課程）" })
+                        <label for="Form_CASETYPE_1">最近一個月內將開訓課程</label>
+                        <br>
+                        @Html.RadioButtonFor(m => m.Form.CASETYPE, 2, new { @id = "Form_CASETYPE_2", title = "請選擇開訓日期區間類型（今日開放報名課程）" })
+                        <label for="Form_CASETYPE_2">今日開放報名課程</label>
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.TEACHCNAME, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.TextBoxFor(m => m.Form.TEACHCNAME, new { @class = "form-control", placeholder = "請輸入師資名稱", title = "請輸入師資名稱", maxlength = 100 })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label for="div_Form_CTID_SHOW" class="form-label-search">上課地點</label>
+                    <div id="div_Form_CTID_SHOW" class="form-input form-inline" style="padding-left:16px;">
+                        @Html.CheckBoxListFor(m => m.Form.CTID_SHOW, Model.CTID_CHK_list, new { @class = "group-width", title = "請勾選上課地點" })
+                    </div>
+                </div>
+                @*<div class="form-group-search">
+            <label for="Form_CTID" class="form-label-search">縣市別與區域</label>
+        </div>*@
+                @if (sess != null && sess.IsLogin)
+                {
+                    <div class="form-group-search">
+                        @*@Html.CustomLabelFor(m => m.Form.ProvideLocation, new { @class = "form-label-search" })*@
+                        <label for="Form_ProvideLocation_Y" class="form-label-search">提供上課位置距離</label>
+                        <div class="form-input form-inline">
+                            @Html.RadioGroupFor(m => m.Form.ProvideLocation, Model.ProvideLocation_list, new { @class = "group-width" })
+                        </div>
+                    </div>
+                }
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.SCHOOLNAME, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.DropDownListFor(m => m.Form.COMIDNO, Model.COMIDNO_list, "全部", new { @class = "form-control", title = "請選擇單位名稱" })
+                        <div class="form-input-helf">
+                            @Html.DropDownListFor(m => m.Form.CTID, Model.CTID_list, "請選擇", new { @class = "form-control", title = "請選擇縣市別與區域(縣市別)" })
+                        </div>
+                        <div class="form-input-helf">
+                            @Html.DropDownListFor(m => m.Form.ZIPCODE, Model.ZIPCODE_list, "請選擇", new { @class = "form-control", title = "請選擇縣市別與區域(區域別)" })
+                        </div>
+                        <div class="form-input-helf">
+                            @Html.TextBoxFor(m => m.Form.SCHOOLNAME, new { @class = "form-control", placeholder = "(輸入名稱，將納入搜尋條件)", title = "請輸入單位名稱", maxlength = 100 })
+                        </div>
+                        <div class="form-input-helf">
+                            <button type="button" class="btn btn-warning" onclick="doSchoolListGet()" title="縮小單位範圍">縮小單位名稱範圍</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    <label for="div_Form_TPERIOD28S_SHOW" class="form-label-search">上課時段(可複選)</label>
+                    <div id="div_Form_TPERIOD28S_SHOW" class="form-input form-inline" style="padding-left:16px;">
+                        @Html.CheckBoxListFor(m => m.Form.TPERIOD28S_SHOW, Model.TPERIOD28S_list, new { @class = "group-width", title = "請勾選上課時段(可複選)" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @*@Html.CustomLabelFor(m => m.Form.WEEKS, new { @class = "form-label-search" })*@
+                    <label for="div_Form_WEEKS_SHOW" class="form-label-search">上課時間(可複選)</label>
+                    <div id="div_Form_WEEKS_SHOW" class="form-input form-inline" style="padding-left:16px;">
+                        @Html.CheckBoxListFor(m => m.Form.WEEKS_SHOW, Model.WEEKS_list, new { @class = "group-width", title = "請勾選上課時間(可複選)" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.ORGKIND, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.DropDownListFor(m => m.Form.ORGKIND, Model.ORGKIND_list, "不區分", new { @class = "form-control", title = "請選擇輔助計畫別" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.CLASSCATE, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.DropDownListFor(m => m.Form.CLASSCATE, Model.CLASSCATE_list, "不區分", new { @class = "form-control", title = "請選擇訓練職能別" })
+                    </div>
+                </div>
+                @*<div class="form-group-search">
+            @Html.CustomLabelFor(m => m.Form.TMID, new { @class = "form-label-search" })
+            <div class="form-input">
+                @Html.DropDownListFor(m => m.Form.TMID, Model.TMID_list, "不區分", new { @class = "form-control" })
+            </div>
+        </div>*@
+                <div class="form-group-search">
+                    <label for="Form_JOBTMID" class="form-label-search">訓練業別</label>
+                    <div class="form-input-helf">
+                        @Html.DropDownListFor(m => m.Form.JOBTMID, Model.TMIDLv1_list, "請選擇", new { @class = "form-control", title = "請選擇訓練業別(職類課程)" })
+                    </div>
+                    <div class="form-input-helf">
+                        @Html.DropDownListFor(m => m.Form.TMID, Model.TMIDLv2_list, "請選擇", new { @class = "form-control", title = "請選擇訓練業別(業別)" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @*@Html.CustomLabelFor(m => m.Form.TGOVEXAM, new { @class = "form-label-search" })*@
+                    <label for="Form_DISTANCE" class="form-label-search">辦理方式</label>
+                    <div class="form-input form-inline">
+                        @Html.RadioGroupFor(m => m.Form.DISTANCE, Model.DISTANCE_N_list, new { @class = "group-width", title = "請選擇辦理方式" })
+                    </div>
+                </div>
+                <div class="form-group-search">
+                    @*@Html.CustomLabelFor(m => m.Form.TGOVEXAM, new { @class = "form-label-search" })*@
+                    <label for="Form_TGOVEXAM_" class="form-label-search">輔導考證</label>
+                    <div class="form-input form-inline">
+                        @Html.RadioGroupFor(m => m.Form.TGOVEXAM, Model.TGOVEXAM_list, new { @class = "group-width", title = "請選擇輔導考證" })
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <p>
+            </p>
+            <!--<div class="unit-bg unit-bg-pink">
+                <p>
+                    <strong>最新消息： </strong> <br />
+                </p>
+                <ol>
+                    <li>公告106年度產業人才投資方案政策性產業訓練課程，已於本年9月8日公告，民眾可至<a target="_blank" title="連結至本署官網(另開視窗)" href="https://www.wda.gov.tw/Default.aspx">本署官網</a>-最新消息查詢。</li>
+                    <li>公告106年度下半年產業人才投資方案新增核定之訓練課程，已於本年9月6日公告，民眾可至<a target="_blank" title="連結至本署官網(另開視窗)" href="https://www.wda.gov.tw/Default.aspx">本署官網</a>-最新消息查詢。</li>
+                    <li>公告106年度下半年產業人才投資方案在職訓練課程已於本年7月11日公告，民眾可至<a target="_blank" title="連結至本署官網(另開視窗)" href="https://www.wda.gov.tw/Default.aspx">本署官網</a>-最新消息查詢。</li>
+                    <li>
+                        台灣就業通網站會員帳號設定提醒<br />
+                        為提高會員資料的安全性，台灣就業通自今年1月起調整會員帳號管理機制，會員帳號改以認證之Email信箱登入，為使您能順利收取認證通知信，避免造成擋信之狀況，若您目前常用信箱為Yahoo、PChome等，建議改採Gmail或企業個人信箱登錄，以避免您認證信接收失敗的情況，謝謝您的配合，造成您的不便，敬請見諒！
+                    </li>
+                    <li>公告106年度上半年產業人才投資方案「產業人才投資計畫」在職訓練課程已於本年2月3日在<a target="_blank" title="連結至本署官網(另開視窗)" href="https://www.wda.gov.tw/Default.aspx">本署官網</a>公告。</li>
+                    <li>公告106年度上半年產業人才投資方案「提升勞工自主學習計畫」在職訓練課程已於本年1月19日在<a target="_blank" title="連結至本署官網(另開視窗)" href="https://www.wda.gov.tw/Default.aspx">本署官網</a>公告。</li>
+                    <li>為利本方案統計參訓民眾「服務部門」及「職務」項目，民眾於105.1.1起進行「報名資料維護」作業或「線上報名」作業時，需要重新點選，敬請留意。</li>
+                    <li>為提升參訓學員學習成效，自105年度修正缺席時數未超過總訓練時數1/5者，才能申請本方案訓練補助費。</li>
+                    <li>為提供使用者有文書軟體選擇的權利，本文件為ODF開放文件格式，建議您安裝<a target="_blank" title="連結至ODF文件免費開源軟體下載頁(另開視窗)" href="https://zh-tw.libreoffice.org/download/libreoffice-still/">免費開源軟體</a>或以您慣用的軟體開啟文件。</li>
+                </ol>
+                <strong> 為確保您的相關權益，請先詳讀本方案報名注意事項。<a target="_blank" title="連結至產業人才投資方案報名流程(另開視窗)" href="https://tims.etraining.gov.tw/timsonline/Doc/%E7%94%A2%E6%A5%AD%E4%BA%BA%E6%89%8D%E6%8A%95%E8%B3%87%E6%96%B9%E6%A1%88%E5%A0%B1%E5%90%8D%E6%B5%81%E7%A8%8B.pdf">(相關報名流程，請詳閱<img alt="pdf檔案" longdesc="https://tims.etraining.gov.tw/timsonline/pdf%E6%AA%94%E6%A1%88" src="https://tims.etraining.gov.tw/timsonline/images/pdf-icon.gif" height="20" width="20" />)</a></strong> <br />
+                <strong> 一、申請資格及條件：</strong>
+                <ol>
+                    <li>本方案二計畫補助對象為年滿十五歲以上，具就業保險、勞工保險或農民健康保險被保險人身分的在職勞工。（請參閱二計畫第四點），前項年齡及補助資格以<strong>課程開訓日</strong>為基準日。如欲知更詳細資訊，請至「產業人才投資方案計畫網」(<a target="_blank" title="連結至產業人才投資方案計畫網(另開視窗)" href="https://ihrip.wda.gov.tw/">https://ihrip.wda.gov.tw/</a>)進一步查詢。</li>
+                    <li>若要使用本網站各項功能，請先至台灣就業通網站(<a target="_blank" title="連結至台灣就業通網站(另開視窗)" href="https://www.taiwanjobs.gov.tw/">https://www.taiwanjobs.gov.tw/</a> )加入會員。原職訓e網會員，可直接使用本網站功能。若為100年度以前曾經報名或參訓之學員，仍需至台灣就業通網站加入會員，方可使用本網站相關功能。</li>
+                    <li>其他報名注意事項，請參酌本網上方<a href="@Url.Content("~/QA")" target="_blank" title="Q&amp;A(另開視窗)">Q&amp;A</a>及<a href="https://tims.etraining.gov.tw/timsonline/Doc/%E7%94%A2%E6%A5%AD%E4%BA%BA%E6%89%8D%E6%8A%95%E8%B3%87%E6%96%B9%E6%A1%88%E5%8F%83%E8%A8%93%E5%AD%B8%E5%93%A1%E9%A0%88%E7%9F%A5.pdf" target="_blank" title="產業人才投資方案參訓學員須知(另開視窗)">產業人才投資方案參訓學員須知</a>說明。</li>
+                @* Q&A文件 https://tims.etraining.gov.tw/timsonline/Doc/%E7%94%A2%E6%8A%95%E6%96%B9%E6%A1%88%E5%B8%B8%E8%A6%8B%E5%95%8F%E8%88%87%E7%AD%94.odt *@
+                </ol>
+                <strong> 二、本網站使用說明：</strong>
+                <ol>
+                    <li>如欲參加本方案課程，請先至【報名資料維護】填寫報名相關資料。並於報名期間，至【線上報名】完成報名程序。</li>
+                    <li>有關報名查詢、參訓歷史及補助費使 用情形，請至【報名及參訓課程查詢】。</li>
+                    <li><strong>結訓時應填寫「參訓學員意見調查表」始得獲補助</strong>，並請於訓後3個月填寫「參訓學員訓後動態調查表」。</li>
+                    <li>使用IE瀏覽器之學員，如無法順利使用本網站相關功能，請於工具&gt;&gt;相容性檢視設定，將本網站新增至﹝相容性檢視﹞的網站。</li>
+                    <li>為充分運用訓練資源，自105年度實施，民眾如有報名參訓時段重疊的訓練課程僅可擇一參訓規定。請於完成線上報名後隔日上午，再至「近3年內課程報名及參訓情形」確認是否有報名參訓時段重疊的訓練課程，如經系統比對符合，請擇一參訓。</li>
+                    <li>本網站功能列更新，如欲查詢報名情形、補助費使用情形，請至「報名及參訓課程查詢」&gt;&gt;「近3年內課程報名及參訓情形」。為使民眾報名時更為順暢，本功能於每日11:45至13:00不開放查詢。為加快您的報名速度，請於報名前先至「報名資料維護」區更新內容！部分基本資料內容不提供修正，民眾如欲修正請至<a target="_blank" title="連結至台灣就業通網站(另開視窗)" href="https://www.taiwanjobs.gov.tw/">台灣就業通</a>進行個人會員資料維護。有關「報名資料維護」相關操作，請見<a target="_blank" title="報名資料維護流程圖示(另開視窗)" href="https://tims.etraining.gov.tw/timsonline/Doc/%E7%94%A2%E6%A5%AD%E4%BA%BA%E6%89%8D%E6%8A%95%E8%B3%87%E6%96%B9%E6%A1%88%E5%A0%B1%E5%90%8D%E7%B6%B2%E7%AB%99%E2%94%80%E5%A0%B1%E5%90%8D%E8%B3%87%E6%96%99%E7%B6%AD%E8%AD%B7%E6%B5%81%E7%A8%8B%E5%9C%96%E7%A4%BA1040507.pdf">報名資料維護流程圖示<img alt="pdf檔案" longdesc="https://tims.etraining.gov.tw/timsonline/pdf%E6%AA%94%E6%A1%88" src="https://tims.etraining.gov.tw/timsonline/images/pdf-icon.gif" height="20" width="20" /></a>。</li>
+                </ol>
+            </div>-->
+        </div>
+        break;
+
+    case "2"://自辦在職訓練
+        <div>
+            @Html.HiddenFor(m => m.Form.IsContainsOverEnter)
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.OCID, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.OCID, new { @class = "form-control", placeholder = "請輸入課程代碼", title = "請輸入課程代碼", maxlength = 10 })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.CJOBNO, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.CJOBNO, new { @class = "input-group form-control", placeholder = "請輸入通俗職業代碼", title = "請輸入通俗職業代碼", maxlength = 10 })
+                    @*<button type="button" class="font-size:1.0em" onclick="openNewWindow3()" title="(另開新視窗)通俗職業代碼查詢">(另開新視窗)通俗職業代碼查詢</button>*@
+                    <a href="@(s_URL1)" rel="noopener noreferrer" style="font-size:1.0em" title="(另開新視窗)通俗職業代碼查詢" target="_blank">(另開新視窗)<b>通俗職業代碼查詢</b></a>
+                    @*@Html.ActionLink("(另開新視窗)通俗職業代碼查詢", "claspxUrl3", "ClassSearch", new { @title = "(另開新視窗)通俗職業代碼查詢" })*@
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.KEYWORDS, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.KEYWORDS, new { @class = "form-control", placeholder = "請輸入關鍵字", title = "請輸入關鍵字搜尋", maxlength = 100 })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.CLASSCNAME, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.CLASSCNAME, new { @class = "form-control", placeholder = "請輸入課程名稱", title = "請輸入課程名稱檢索", maxlength = 100 })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.ABILITYS, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.ABILITYS, new { @class = "form-control convUnsafeChar width-auto autocomplete", placeholder = "字數上限為30字", title = "請輸入專長能力搜尋", maxlength = 30, autocomplete_bind = "Y", @data_cat = "APP_TEXT APP_TEXT_OTHER APP_TEXT_OTHER_SEEK" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Form_STDATE_YEAR_SHOW" class="form-label-search">開訓日期區間</label>
+                <div class="form-input">
+                    @Html.DropDownListFor(m => m.Form.STDATE_YEAR_SHOW, Model.YEAR2_list, new { @class = "form-normal", title = "請選擇訓練期間_起日年份" })
+                    年
+                    @Html.DropDownListFor(m => m.Form.STDATE_MON, Model.MON_list, new { @class = "form-normal", title = "請選擇訓練期間_起日月份" })
+                    月至
+                    @Html.DropDownListFor(m => m.Form.FTDATE_YEAR_SHOW, Model.YEAR2_list, new { @class = "form-normal", title = "請選擇訓練期間_迄日年份" })
+                    年
+                    @Html.DropDownListFor(m => m.Form.FTDATE_MON, Model.MON_list, new { @class = "form-normal", title = "請選擇訓練期間_迄日月份" })
+                    月
+                    <br>
+                </div>
+            </div>
+            <div class="form-group-search">
+                @*@Html.CustomLabelFor(m => m.Form.DISTID, new { @class = "form-label-search" })*@
+                <label for="div_Form_DISTID_SHOW" class="form-label-search">分署別</label>
+                <div id="div_Form_DISTID_SHOW" class="form-input form-inline" style="padding-left:16px;">
+                    @Html.CheckBoxListFor(m => m.Form.DISTID_SHOW, Model.DISTID_list, new { @class = "group-width", title = "請勾選分署別" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="div_Form_CTID_SHOW" class="form-label-search">上課地點</label>
+                <div id="div_Form_CTID_SHOW" class="form-input form-inline" style="padding-left:16px;">
+                    @Html.CheckBoxListFor(m => m.Form.CTID_SHOW, Model.CTID_CHK_list, new { @class = "group-width", title = "請勾選上課地點" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="div_Form_WEEKS_SHOW" class="form-label-search">上課時間(可複選)</label>
+                <div id="div_Form_WEEKS_SHOW" class="form-input form-inline" style="padding-left:16px;">
+                    @Html.CheckBoxListFor(m => m.Form.WEEKS_SHOW, Model.WEEKS_list, new { @class = "group-width", title = "請勾選上課時間(可複選)" })
+                </div>
+            </div>
+            @*<div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.DISTNAME, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.TextBoxFor(m => m.Form.DISTNAME, new { @class = "form-control", placeholder = "請輸入訓練單位", title = "請輸入訓練單位" })
+                    </div>
+                </div>*@
+            @*<div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.ProvideLocation, new { @class = "form-label-search" })
+                    <div class="form-input form-inline">
+                        @Html.RadioGroupFor(m => m.Form.ProvideLocation, Model.ProvideLocation_list, new { @class = "group-width" })
+                    </div>
+                </div>*@
+            @*2019-01-30 add 自辦增加包含已截止報名課程的查詢條件*@
+            @*<div class="form-group-search">
+                    <label for="Form_IsContainsOverEnter_Y" class="form-label-search">包含已截止報名課程</label>
+                    <div class="form-input form-inline">
+                        @Html.RadioGroupFor(m => m.Form.IsContainsOverEnter, Model.ContainsOverEnter_list, new { @class = "group-width", title = "請選擇包含已截止報名課程" })
+                    </div>
+                </div>*@
+        </div>
+        break;
+
+    case "5"://區域產業據點
+        <div>
+            @Html.HiddenFor(m => m.Form.IsContainsOverEnter)
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.OCID, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.OCID, new { @class = "form-control", placeholder = "請輸入課程代碼", title = "請輸入課程代碼", maxlength = 10 })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.KEYWORDS, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.KEYWORDS, new { @class = "form-control", placeholder = "請輸入關鍵字", title = "請輸入關鍵字搜尋", maxlength = 100 })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.CLASSCNAME, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.CLASSCNAME, new { @class = "form-control", placeholder = "請輸入課程名稱", title = "請輸入課程名稱檢索", maxlength = 100 })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.ABILITYS, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.ABILITYS, new { @class = "form-control convUnsafeChar width-auto autocomplete", placeholder = "字數上限為30字", title = "請輸入專長能力搜尋", maxlength = 30, autocomplete_bind = "Y", @data_cat = "APP_TEXT APP_TEXT_OTHER APP_TEXT_OTHER_SEEK" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Form_STDATE_YEAR_SHOW" class="form-label-search">開訓日期區間</label>
+                <div class="form-input">
+                    @Html.DropDownListFor(m => m.Form.STDATE_YEAR_SHOW, Model.YEAR2_list, new { @class = "form-normal", title = "請選擇訓練期間_起日年份" })
+                    年
+                    @Html.DropDownListFor(m => m.Form.STDATE_MON, Model.MON_list, new { @class = "form-normal", title = "請選擇訓練期間_起日月份" })
+                    月至
+                    @Html.DropDownListFor(m => m.Form.FTDATE_YEAR_SHOW, Model.YEAR2_list, new { @class = "form-normal", title = "請選擇訓練期間_迄日年份" })
+                    年
+                    @Html.DropDownListFor(m => m.Form.FTDATE_MON, Model.MON_list, new { @class = "form-normal", title = "請選擇訓練期間_迄日月份" })
+                    月
+                    <br>
+                </div>
+            </div>
+            <div class="form-group-search">
+                @*@Html.CustomLabelFor(m => m.Form.DISTID, new { @class = "form-label-search" })*@
+                <label for="div_Form_DISTID_SHOW" class="form-label-search">分署別</label>
+                <div id="div_Form_DISTID_SHOW" class="form-input form-inline" style="padding-left:16px;">
+                    @Html.CheckBoxListFor(m => m.Form.DISTID_SHOW, Model.DISTID_list, new { @class = "group-width", title = "請勾選分署別" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="div_Form_CTID_SHOW" class="form-label-search">上課地點</label>
+                <div id="div_Form_CTID_SHOW" class="form-input form-inline" style="padding-left:16px;">
+                    @Html.CheckBoxListFor(m => m.Form.CTID_SHOW, Model.CTID_CHK_list, new { @class = "group-width", title = "請勾選上課地點" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="div_Form_WEEKS_SHOW" class="form-label-search">上課時間(可複選)</label>
+                <div id="div_Form_WEEKS_SHOW" class="form-input form-inline" style="padding-left:16px;">
+                    @Html.CheckBoxListFor(m => m.Form.WEEKS_SHOW, Model.WEEKS_list, new { @class = "group-width", title = "請勾選上課時間(可複選)" })
+                </div>
+            </div>
+            @*<div class="form-group-search">@Html.CustomLabelFor(m => m.Form.DISTNAME, new { @class = "form-label-search" })
+                <div class="form-input">@Html.TextBoxFor(m => m.Form.DISTNAME,
+                new { @class = "form-control", placeholder = "請輸入訓練單位", title = "請輸入訓練單位" })</div></div>*@
+            @*2019-05-01 add 區域據點增加包含已截止報名課程的查詢條件*@
+            @*<div class="form-group-search">
+                    <label for="Form_IsContainsOverEnter_Y" class="form-label-search">包含已截止報名課程</label>
+                    <div class="form-input form-inline">
+                        @Html.RadioGroupFor(m => m.Form.IsContainsOverEnter, Model.ContainsOverEnter_list, new { @class = "group-width", title = "請選擇包含已截止報名課程" })
+                    </div>
+                </div>*@
+        </div>
+        break;
+}
+
+@RenderScriptBlock(guid)

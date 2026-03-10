@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<sqlMap namespace="Report"
+xmlns="http://ibatis.apache.org/mapping"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+
+  <resultMaps>
+  </resultMaps>
+
+  <statements>
+    <!-- 檢定成績統計表(8818R) -->
+    <sql id="report8818R_Params">
+      <dynamic>
+        <isParameterPresent>
+
+          <isNotEmpty prepend="" property="EXAMKIND">
+            <![CDATA[
+              /*檢定類別*/
+              AND SKT1.EXAMKIND = #EXAMKIND#
+              ]]>
+          </isNotEmpty>
+
+          <isNotEmpty prepend="" property="YR">
+            <![CDATA[
+              /*年度*/
+	            AND SKT1.YR = #YR#
+              ]]>
+          </isNotEmpty>
+
+          <isNotEmpty prepend="" property="STP">
+            <![CDATA[
+              /*梯次*/
+	            AND SKT1.STP = #STP#
+              ]]>
+          </isNotEmpty>
+
+          <isNotEmpty prepend="" property="PNO">
+            <![CDATA[
+              /*辦理單位*/
+	            AND SKT1.PNO = #PNO#
+              ]]>
+          </isNotEmpty>
+
+        </isParameterPresent>
+      </dynamic>
+    </sql>
+    <select id="report8818R"
+		  resultClass="Hashtable"
+		  parameterClass="Hashtable">
+      <![CDATA[
+SELECT OPCHNF,PNO ,PNAME ,EGR ,EGRN ,SUM(ASK1) AS ASK1 ,SUM(ASK2) AS ASK2 ,SUM(ASK3) AS ASK3 ,SUM(ASK4) AS ASK4 ,SUM(ASK5) AS ASK5 
+ FROM ( 
+ 
+ /*應到人數*/ 
+ SELECT CLAM.OPCHNF, SKT1.PNO ,PROF.NAME AS PNAME ,SKT1.EGR ,EGR.DESCR AS EGRN ,COUNT(SKT1.IDNO) AS ASK1 ,0 AS ASK2 ,0 AS ASK3 ,0 AS ASK4 ,0 AS ASK5 
+ FROM SKT1 
+ LEFT JOIN PROF ON PROF.PNO=SKT1.PNO 
+ LEFT JOIN CODE1 EGR ON EGR.CODE=SKT1.EGR AND EGR.ITEM='EGR' 
+ LEFT JOIN CLAMOPUNIT CLAM ON CLAM.OPCD=SKT1.SOPCD 
+ WHERE 1 = 1 
+  AND SKT1.EXAMKIND = '1'
+  AND SKT1.YR = '104'
+  AND SKT1.STP = '3'
+  AND SKT1.PNO = '03100'
+  
+ GROUP BY CLAM.OPCHNF,SKT1.PNO ,PROF.NAME ,SKT1.EGR ,EGR.DESCR 
+ UNION 
+ 
+ /*實到人數*/
+ SELECT CLAM.OPCHNF, SKT1.PNO ,PROF.NAME AS PNAME ,SKT1.EGR ,EGR.DESCR AS EGRN ,0 AS ASK1 ,COUNT(SKT1.IDNO) AS ASK2 ,0 AS ASK3 ,0 AS ASK4 ,0 AS ASK5 
+ FROM SKT1 
+ LEFT JOIN PROF ON PROF.PNO=SKT1.PNO 
+ LEFT JOIN CODE1 EGR ON EGR.CODE=SKT1.EGR AND EGR.ITEM='EGR' 
+ LEFT JOIN CLAMOPUNIT CLAM ON CLAM.OPCD=SKT1.SOPCD 
+ WHERE ((SKT1.WRPASS <> '3'  OR (SKT1.WRPASS IS NULL AND SKT1.DSTNG='A')) AND  (SKT1.OPPASS <> '3'  OR (SKT1.OPPASS IS NULL AND SKT1.DSTNG='B')) OR ((SKT1.WRPASS='3' AND SKT1.OPPASS<>'3') OR (SKT1.WRPASS<>'3' AND SKT1.OPPASS='3')))
+  ]]>
+      <include refId="report8818R_Params" />
+      <![CDATA[ 
+ GROUP BY CLAM.OPCHNF,SKT1.PNO ,PROF.NAME ,SKT1.EGR ,EGR.DESCR 
+ UNION 
+ 
+ /*學科及格人數*/
+ SELECT CLAM.OPCHNF, SKT1.PNO ,PROF.NAME AS PNAME ,SKT1.EGR ,EGR.DESCR AS EGRN ,0 AS ASK1 ,0 AS ASK2 ,COUNT(SKT1.IDNO) AS ASK3 ,0 AS ASK4 ,0 AS ASK5 
+ FROM SKT1 
+ LEFT JOIN PROF ON PROF.PNO=SKT1.PNO 
+ LEFT JOIN CODE1 EGR ON EGR.CODE=SKT1.EGR AND EGR.ITEM='EGR' 
+ LEFT JOIN CLAMOPUNIT CLAM ON CLAM.OPCD=SKT1.SOPCD 
+ WHERE SKT1.WRPASS = '1' AND SKT1.DSTNG IN (' ','B') 
+
+  ]]>
+      <include refId="report8818R_Params" />
+      <![CDATA[ 
+  
+ GROUP BY CLAM.OPCHNF,SKT1.PNO ,PROF.NAME ,SKT1.EGR ,EGR.DESCR 
+ UNION 
+ 
+ SELECT CLAM.OPCHNF, SKT1.PNO ,PROF.NAME AS PNAME ,SKT1.EGR ,EGR.DESCR AS EGRN ,0 AS ASK1 ,0 AS ASK2 ,0 AS ASK3 ,COUNT(SKT1.IDNO) AS ASK4 ,0 AS ASK5 
+ FROM SKT1 
+ LEFT JOIN PROF ON PROF.PNO=SKT1.PNO 
+ LEFT JOIN CODE1 EGR ON EGR.CODE=SKT1.EGR AND EGR.ITEM='EGR' 
+ LEFT JOIN CLAMOPUNIT CLAM ON CLAM.OPCD=SKT1.SOPCD 
+ WHERE SKT1.OPPASS = '1' AND SKT1.DSTNG IN (' ','A') 
+
+  ]]>
+      <include refId="report8818R_Params" />
+      <![CDATA[ 
+  
+ GROUP BY CLAM.OPCHNF,SKT1.PNO ,PROF.NAME ,SKT1.EGR ,EGR.DESCR 
+ UNION 
+
+ SELECT CLAM.OPCHNF, SKT1.PNO ,PROF.NAME AS PNAME ,SKT1.EGR ,EGR.DESCR AS EGRN ,0 AS ASK1 ,0 AS ASK2 ,0 AS ASK3 ,0 AS ASK4 ,COUNT(SKT1.IDNO) AS ASK5 
+ FROM SKT1 
+ LEFT JOIN PROF ON PROF.PNO=SKT1.PNO 
+ LEFT JOIN CODE1 EGR ON EGR.CODE=SKT1.EGR AND EGR.ITEM='EGR' 
+ LEFT JOIN CLAMOPUNIT CLAM ON CLAM.OPCD=SKT1.SOPCD 
+ WHERE ((SKT1.WRPASS = '1' AND SKT1.OPPASS = '1' AND SKT1.DSTNG = ' ') OR (SKT1.OPPASS = '1' AND SKT1.DSTNG = 'A')  OR (SKT1.WRPASS = '1' AND SKT1.DSTNG = 'B')) 
+
+  ]]>
+      <include refId="report8818R_Params" />
+      <![CDATA[ 
+  
+ GROUP BY CLAM.OPCHNF,SKT1.PNO ,PROF.NAME ,SKT1.EGR ,EGR.DESCR 
+ ) 
+ ]]>
+      <dynamic>
+        <isParameterPresent>
+          <isNotEmpty prepend="" property="MAX_ROWS">
+            <![CDATA[
+              /*報表查詢的最大筆數限制*/
+	            Where rownum <= #MAX_ROWS#
+              ]]>
+          </isNotEmpty>
+        </isParameterPresent>
+      </dynamic>
+
+      GROUP BY OPCHNF,PNO ,PNAME ,EGR ,EGRN
+      ORDER BY PNO ,EGR
+    </select>
+
+    
+    <!-- 結束行(這行放在最下面, 不要刪) -->
+  </statements>
+</sqlMap>
+

@@ -1,0 +1,19 @@
+﻿@model WDAIIP.WEB.Models.HomeViewModel
+
+@if (Model.Film != null)
+{
+    ViewBag.C_URL = Model.Film.C_URL;
+    if (Model.Film.C_CONTENT1 != null)
+    {
+        ViewBag.C_URL = Model.Film.C_CONTENT1;
+    }
+    //影片
+    <div class="embed-responsive-16by9 embed-responsive videoLink">
+        <iframe src="@Model.Film.C_URL" frameborder="0" allow="autoplay; encrypted-media" title="@(Model.Film.C_TITLE)影片" allowfullscreen></iframe>
+    </div>
+    <p><a href="@ViewBag.C_URL" target="_blank" rel="noreferrer noopener" title="@("前往" + Model.Film.C_TITLE + "(另開新視窗)")">@Model.Film.C_TITLE</a></p>
+}
+else
+{
+    <div>尚無資料</div>
+}

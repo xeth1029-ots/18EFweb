@@ -1,0 +1,39 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model DigiCertViewModel
+
+@if (Model == null || Model.Grid == null || Model.Grid.Count == 0)
+{
+    <tr valign="middle">
+        <td colspan="8" style="text-align:center;">尚無資料</td>
+    </tr>
+}
+else
+{
+    for (int i = 0; i < Model.Grid.Count; i++)
+    {
+        var item = Model.Grid[i];
+
+        DateTime stdate = item.STDATE.HasValue ? item.STDATE.Value : default(DateTime);
+        DateTime ftdate = item.STDATE.HasValue ? item.FTDATE.Value : default(DateTime);
+        string stdateTW = item.STDATE.HasValue ? string.Concat(stdate.Year - 1911, stdate.ToString("/MM/dd")) : "";
+        string ftdateTW = item.FTDATE.HasValue ? string.Concat(ftdate.Year - 1911, ftdate.ToString("/MM/dd")) : "";
+        //string sftdateTW2 = string.Concat(stdateTW, "<br>>|<br>", ftdateTW);
+        /*<th width="5%"><p>&nbsp;</p><p>結訓數位證明</p></th><th width="8%">轄區分署</th><th width="5%">年度</th><th width="8%">訓練計畫</th><th width="10%">訓練機構</th><th width="10%">班別名稱</th><th width="5%">受訓時數</th><th width="5%">受訓期間</th><th width="5%">訓練狀態</th></tr>*/
+        <tr>
+            <td style="text-align:center;">
+                @Html.EditorFor(m => Model.Grid[i].SELECTIS)
+                @Html.HiddenFor(m => Model.Grid[i].OCID)
+                @Html.HiddenFor(m => Model.Grid[i].SOCID)
+            </td>
+            <td style="text-align:center;">@(item.DISTNAME)</td>
+            <td style="text-align:center;">@(item.ROC_YEAR)</td>
+            <td style="text-align:center;">@(item.PLANNAME)</td>
+            <td style="text-align:center;">@(item.ORGNAME)</td>
+            <td style="text-align:center;">@(item.CLASSCNAME)</td>
+            <td style="text-align:center;">@(item.THOURS)</td>
+            <td style="vertical-align:middle;">@(stdateTW)<br />|<br />@(ftdateTW)</td>
+            <td style="text-align:center;">@(item.STUDSTATUS_N)</td>
+        </tr>
+    }
+}

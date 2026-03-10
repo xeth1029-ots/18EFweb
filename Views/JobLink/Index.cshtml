@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewBag.Title = "相關連結--求職求才資源連結";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<div class="col-sm-12">
+
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 相關連結 / 求職求才資源連結</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-link space-right"></i>求職求才資源連結</h3>
+
+    @Html.Partial("_LinkIndex")
+
+</div>

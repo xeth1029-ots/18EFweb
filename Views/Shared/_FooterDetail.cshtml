@@ -1,0 +1,53 @@
+﻿@using WDAIIP.WEB.Commons;
+@{
+    //無障礙標章網址 //ViewBag.Handicap_free_href = "https://accessibility.moda.gov.tw/Applications/Detail?category=20220209150941";
+    ViewBag.Handicap_free_href = "https://accessibility.moda.gov.tw/Applications/Detail?category=20250115172038";
+    ViewBag.HandWebsite = "無障礙網站";
+    ViewBag.Pass_level_desc = "通過AA無障礙網頁檢測";
+    //隱私權及資訊安全政策 /隱私權及安全政策
+    ViewBag.Url_Privacy1 = "https://www.wda.gov.tw/cp.aspx?n=13";
+}
+<script>
+    function showMsgla1() {
+        var Msgla1 = "@(ViewBag.LocalAddr)";
+        blockAlert(Msgla1, "表單檢核訊息");
+    }
+</script>
+
+<div class="footer-bg footer">
+    <div class="container">
+        <div class="col-sm-3">
+            <div class="logo">
+                <img src="@Url.Content("~/images/footer-logo.png")" class="img-responsive" alt="台灣就業通｜產業人才投資方案計畫網" title="台灣就業通｜產業人才投資方案計畫網">
+                @*<span style="color:#ffffff">@(ViewBag.LocalAddr)</span>*@
+                @*2019-02-23 無障礙修正：EV2040300：確認文字（及影像文字）與文字後面的背景間，至少有4.5:1的對比值，改成用hidden*@
+                @*<input type="hidden" id="localAddr" value="@(ViewBag.LocalAddr)" />*@
+                <img id="localAddr-img" src="@Url.Content("~/images/footer-logo-cr2.png")" class="img-responsive" alt="@(ViewBag.LocalAddr)" title="@(ViewBag.LocalAddr)" onclick="showMsgla1();" />
+            </div>
+            <ul class="footer-link">
+                @*<li><a href="@Url.Content("~/Privacy")" title="前往隱私權及安全政策">隱私權及安全政策</a></li>*@
+                <li><a href="@ViewBag.Url_Privacy1" title="[另開新視窗]「隱私權及資訊安全政策」" target="_blank">隱私權及資訊安全政策</a></li>
+                <li><a href="@Url.Content("~/GovAnnounce")" title="前往政府網站資訊開放宣告">政府網站資訊開放宣告</a></li>
+            </ul>
+        </div>
+        <div class="col-sm-7">
+            <div class="footer-title">勞動力發展署</div>
+            @Html.Raw(MyHelperUtil.ChangeBreakLine(ViewBag.Unit))
+            <p></p>
+            @Html.Raw(MyHelperUtil.ChangeBreakLine(ViewBag.Copyright))
+        </div>
+        <div class="col-md-2" style="text-align:right">
+            <a href="@ViewBag.Handicap_free_href" title="[另開新視窗]@ViewBag.HandWebsite" target="_blank">
+                <img src="@Url.Content("~/images/aria_aa.png")" alt="@ViewBag.Pass_level_desc" border="0" width="88" height="31">
+            </a>&nbsp;
+            <p>&nbsp;</p>
+            <p>
+                &nbsp;
+                <a href="/" title="[再次連結]在職訓練網" target="_parent">
+                    <img src="@Url.Content("~/images/ojt_web_QR_code.png")" alt="在職訓練網頁尾QR code" border="0" width="99" height="99">
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,122 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.Services
+@{            
+    SessionModel sm = SessionModel.Get();
+    IList<eYVTRmngRoleFunc> funcs = sm.RoleFuncs;
+    IList<eYVTRmngRoleFunc> funcModules = ApplicationModel.getFuncModules();
+}
+@functions{
+
+    /// <summary>
+    /// 定位第一層 node 在 funcs List 中的位置, 以便用來呼叫 MakeTree()
+    /// </summary>
+    /// <param name="funcs"></param>
+    /// <param name="node"></param>
+    /// <returns></returns>
+    private string MakeTreeLv1(IList<eYVTRmngRoleFunc> funcs, eYVTRmngRoleFunc node)
+    {
+        int i = 0;
+        for (; i < funcs.Count; i++)
+        {
+            if(node.FUN_ID.Equals(funcs[i].FUN_PID))
+            {
+                break;
+            }
+        }
+        //i++;
+        var curNodeId = "" + node.FUN_ID;
+
+        return MakeTree(funcs, node, curNodeId, ref i);
+    }
+
+    /// <summary>
+    /// 遞迴建立指定節點之下的完整 Menu Tree,
+    /// 並以字串回傳組成的 li, ul 等 html 內容
+    /// </summary>
+    /// <param name="funcs"></param>
+    /// <param name="node"></param>
+    /// <param name="pNodeId"></param>
+    /// <param name="p">funcs的索引位置</param>
+    /// <returns></returns>
+    private string MakeTree(IList<eYVTRmngRoleFunc> funcs, eYVTRmngRoleFunc node, string pNodeId, ref int p)
+    {
+        string rtn = "";
+        IList<eYVTRmngRoleFunc> childList = null;
+
+        if (funcs != null && node != null)
+        {
+            childList = funcs.Where(x => x.FUN_PID == node.FUN_ID).ToList();
+
+            if ("N".Equals(node.FUN_DIR) || (!"1".Equals(node.NODE) && childList == null))
+            {
+                // 已達葉節點(功能連結項目)
+                string nodeId = pNodeId + node.FUN_PAGE2;
+                rtn = string.Format("<li id='{3}'><a href=\"{0}{1}\">{2}</a></li>\n", Url.Content("~/"), node.FUN_PAGE2, node.FUN_NAME, nodeId);
+            }
+            else
+            {
+                // 模組節點, 遞迴往下長分支(sub-tree)
+                // 找出 node 下所有的子項目
+                List<string> subtrees = new List<string>();
+
+                for (; p < funcs.Count;)
+                {
+                    if (node.FUN_ID.Equals(funcs[p].FUN_PID))
+                    {
+                        eYVTRmngRoleFunc curFunc = funcs[p];
+                        string curNodeId = "" + curFunc.FUN_ID + curFunc.FUN_PID;
+                        p++;
+                        string strSub = MakeTree(funcs, curFunc, curNodeId, ref p);
+
+                        if(!string.IsNullOrEmpty(strSub))
+                        {
+                            subtrees.Add(strSub);
+                        }
+                    }
+                    else
+                    {
+
+                        break;
+                    }
+                }
+
+                if (subtrees.Count > 0)
+                {
+                    rtn =
+                        string.Format("<li class=\"has-sub\" id=\"{0}\">\n", pNodeId) +
+                        string.Format("<a href=\"#\">{0}</a>\n", node.FUN_NAME) +
+                        "<ul class='submenu'>\n" +
+                        string.Join("\n", subtrees.ToArray()) +
+                        "</ul>\n";
+
+                }
+                else
+                {
+                    rtn = "";
+                }
+            }
+        }
+
+        return rtn;
+    }
+}
+<!-- Sidebar Left Menu -->
+<div class="navbg">
+    <div class="navigation">
+        <ul class="mainmenu">
+            @if (funcs.Count > 0)
+            {
+                for (int i=0; i<funcModules.Count; i++)
+                {
+                    // 這裡逐列出 "第一層" 項目, 再由 MakeTree 去長各個 subtree
+                    if (funcModules[i].FUN_ID != null)
+                    {
+                        @Html.Raw(MakeTreeLv1(funcs, funcModules[i]))
+                    }
+                }
+            }
+        </ul>
+    </div>    
+</div>
+
+<!-- /#sidebar-wrapper -->

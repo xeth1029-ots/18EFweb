@@ -1,0 +1,187 @@
+﻿@model WDAIIP.WEB.Models.GovClassSearchViewModel
+@using WDAIIP.WEB.Commons
+
+@{ 
+    ViewBag.Title = "瀏覽課程明細";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    var item = Model.Detail;
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 其他政府單位職訓課程</div>
+    <!-- bread end --->
+    <form id="main_form">
+        <h3 class="main-title main-title-blue">
+            <i class="fab fa-readme space-right"></i>
+            瀏覽課程明細
+            <span class="main-btngroup no-print">
+                <a href="javascript:void(0);" data-role="GoPrint" class="btn-titlebar bg-green" title="友善列印">友善列印</a>
+            </span>
+        </h3>
+        <h3 class="titlebar titlebarBg-green">
+            班別資料
+        </h3>
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                <tr>
+                    <th width="15%">課程名稱：</th>
+                    <td width="35%">@item.CLASSCNAME</td>
+                    <th width="15%">訓練費用：<span class="text-primary"></span></th>
+                    <td width="35%">
+                        @if ((!item.DEFSTDCOST.HasValue || item.DEFSTDCOST == 0) && (!item.DEFMAINCOST.HasValue || item.DEFMAINCOST == 0))
+                        {
+                            @Html.Raw("請洽詢訓練單位");
+                        }
+                        else
+                        {
+                            @Html.Raw("學員負擔：" + string.Format("{0:#,##0}",item.DEFSTDCOST) + "<br>政府負擔：" + string.Format("{0:#,##0}",item.DEFMAINCOST))
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th>訓練單位：</th>
+                    <td>@item.ORGNAME</td>
+                    <th>訓練時數：</th>
+                    <td>@item.THOURS</td>
+                </tr>
+                <tr>
+                    <th>訓練位置：</th>
+                    <td>@item.TADDRESS</td>
+                    <th>訓練時段：</th>
+                    <td>@item.HOURRANNAME</td>
+                </tr>
+                <tr>
+                    <th>聯絡電話：</th>
+                    <td>@item.CONTACTPHONE</td>
+                    <th>聯絡窗口：</th>
+                    <td>@item.CONTACTNAME</td>
+                </tr>
+                <tr>
+                    <th>訓練日期：</th>
+                    <td>@item.STDATE_TW ~ @item.FTDATE_TW</td>
+                    <th>報名日期：</th>
+                    <td>@item.SENTERDATE_TW ~ @item.FENTERDATE_TW</td>
+                </tr>
+                <tr>
+                    <th>訓練性質：</th>
+                    <td>@item.TPROPERTY</td>
+                    <th>訓練學員數：</th>
+                    <td>@item.TNUM 人</td>
+                </tr>
+                <tr>
+                    <th>甄試日期：</th>
+                    <td>@item.EXAMDATE_TW</td>
+                    <th>目前課程掲露管道：<span class="text-primary"></span></th>
+                    <td>@item.MSGCHANNEL</td>
+                </tr>
+                <tr>
+                    <th>備註：</th>
+                    <td colspan="3">@Html.Raw(MyHelperUtil.ChangeBreakLine(item.MEMO))</td>
+                </tr>
+            </table>
+        </div>
+        <h3 class="titlebar titlebarBg-green">課程內容</h3>
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                <tr>
+                    <th width="15%">訓練職類：</th>
+                    <td width="85%">@item.TRAINNAME</td>
+                </tr>
+                <tr>
+                    <th>訓練概要：</th>
+                    <td>@Html.Raw(MyHelperUtil.ChangeBreakLine(item.PURPOSE))</td>
+                </tr>
+                <tr>
+                    <th>課程內容：</th>
+                    <td>@Html.Raw(MyHelperUtil.ChangeBreakLine(item.CONTENT))</td>
+                </tr>
+            </table>
+        </div>
+        <h3 class="titlebar titlebarBg-green">參訓資格</h3>
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                <tr>
+                    <th width="15%">性別：</th>
+                    <td width="85%">@item.CAPSEX_TEXT</td>
+                </tr>
+                <tr>
+                    <th>年齡：</th>
+                    <td>@item.CAPAGE</td>
+                </tr>
+                <tr>
+                    <th>學歷：</th>
+                    <td>@item.CAPDEGREE_TEXT</td>
+                </tr>
+                <tr>
+                    <th>兵役：</th>
+                    <td>@item.CAPMILITARY_TEXT</td>
+                </tr>
+                <tr>
+                    <th>其他條件：</th>
+                    <td>
+                        <ul>
+                            @if (!string.IsNullOrEmpty(item.CAPOTHER1))
+                            {
+                                <li>@item.CAPOTHER1</li>
+                            }
+                            @if (!string.IsNullOrEmpty(item.CAPOTHER2))
+                            {
+                                <li>@item.CAPOTHER2</li>
+                            }
+                            @if (!string.IsNullOrEmpty(item.CAPOTHER3))
+                            {
+                                <li>@item.CAPOTHER3</li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="unit-border">
+            <div class="unit-bg unit-bg-green">
+                <p>*本網頁課程資訊如與訓練單位公告事項不符時，仍以訓練單位公告資訊為準，恕不另行通知。</p>
+                <p>*此課程不受理線上報名，如想報名，煩請逕洽課程所屬訓練單位，謝謝。</p>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!--回上一頁-->
+@using (Html.BeginForm("Index", "GovClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoBackForm" }))
+{
+    @Html.Hidden("useCache", 1)
+}
+
+<script type="text/javascript">
+    $(function () {
+        //列印鈕
+        $("a[data-role=GoPrint]").click(doPrint);
+
+        //回上一頁 GoBack
+        $("a[data-role=GoBack]").click(function () {
+            $("form#GoBackForm").submit();
+        });
+    });
+
+    //列印
+    function doPrint() {
+        var content = document.getElementById('main_form').innerHTML;
+
+        var printstyle = '<style type="text/css">';
+        printstyle += ' @@page{size: A4; margin: 35px;} ';
+        printstyle += ' @@media print{ .no-print{display: none !important;}}';
+        printstyle += '</style>';
+        var mywindow = window.open('', 'Print', '');
+
+        mywindow.document.write('<html><head><title></title>');
+        mywindow.document.write('<link href="../css/base.css" rel="stylesheet" type="text/css">');
+        mywindow.document.write(printstyle);
+        mywindow.document.write('</head><body onload="window.print(); window.close();">');
+        mywindow.document.write(content);
+        mywindow.document.write('</body></html>');
+        mywindow.document.close();
+        mywindow.focus();
+    }
+</script>

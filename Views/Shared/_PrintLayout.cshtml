@@ -1,0 +1,20 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <title>@ViewBag.PrintTitle</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="author" content="東柏資訊股份有限公司">
+    <meta name="copyright" content="本網頁著作權屬勞動部勞動力發展署所有">
+    <base href="@(string.Format("{0}://{1}:{2}{3}", Request.Url.Scheme, Request.Url.Host, Request.Url.Port, Request.ApplicationPath))" />
+
+    <style>
+            @Html.Raw( File.ReadAllText(Server.MapPath(@"~/css/print.css")) )
+    </style>
+</head>
+<body class="report">
+    <div class="print-container Page-A4">
+        @RenderBody()
+    </div>
+</body>
+</html>

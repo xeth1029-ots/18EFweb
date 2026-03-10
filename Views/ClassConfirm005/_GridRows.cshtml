@@ -1,0 +1,22 @@
+﻿@model WDAIIP.WEB.Models.ClassConfirm005ViewModel
+@if (Model.Grid != null && Model.Grid.Count > 0)
+{
+    foreach (var item in Model.Grid)
+    {
+        <tr>
+            <td style="vertical-align:middle;">@item.TRAINCLASS</td>
+            <td style="text-align:left;vertical-align:middle;">@item.TRAINORG</td>
+            <td style="vertical-align:middle;">@item.TRAINPLACE</td>
+            <td style="text-align:left;vertical-align:middle;">@item.CJOBNAME</td>            
+            <td style="vertical-align:middle;">@item.SENTERDATE_TW<br>|<br>@item.FENTERDATE_TW</td>
+            <td style="vertical-align:middle;">@item.STDATE_TW<br>|<br>@item.FTDATE_TW</td>
+            <td style="vertical-align:middle;">@item.TPERIODNAME</td>
+            <td style="vertical-align:middle;">@item.TRAINATTR</td>
+            <td style="vertical-align:middle;"><a href="javascript:showDetail(@item.OCID,'@item.CFGUID',@item.CFSEQNO)" title="檢視">檢視</a></td>
+        </tr>
+    }
+}
+else
+{
+    <tr><td colspan="9"><center>查無資料</center></td></tr>
+}

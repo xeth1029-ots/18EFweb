@@ -1,0 +1,211 @@
+﻿@using WDAIIP.WEB.Models
+@{
+    ViewBag.Title = "網站導覽";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    SessionModel sm = SessionModel.Get();
+    bool f_TrainCert1 = ConfigModel.As_TrainCert1.Equals("Y") ? true : false; //下載訓練證明 TrainCert
+    string s_tplanid28_url1 = ConfigModel.tplanid28_url1;
+    string s_tplanid54_url1 = ConfigModel.tplanid54_url1;
+    string s_tplanid06_url1 = ConfigModel.tplanid06_url1;
+    string s_core_url1 = ConfigModel.core_url1;
+    string s_coursefly_url1 = ConfigModel.coursefly_url1;
+    bool fg_As_DigiCert1 = ((ConfigModel.As_DigiCert1 ?? "") == "Y");
+    string MNO_MM = fg_As_DigiCert1 ? "8" : "7";
+    string MNO_QA = fg_As_DigiCert1 ? "9" : "8";
+
+}
+
+<div class="col-sm-12">
+
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 網站導覽</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-sitemap space-right"></i>網站導覽</h3>
+
+    <!-- Page Content -->
+
+    <div class="container-fluid content-bg">
+        <div class="row">
+            <div class="clearfix"></div>
+            <!-- member control start-->
+            <div class="col-md-12">
+                <br />
+                <div class="searchzone">
+                    @*<div class="member-title"><i class="fa fa-sitemap" aria-hidden="true"></i>  網站導覽</div>*@
+                    <div style="padding: 10px 20px; overflow: auto;">
+                        <div class="row">
+                            <div>
+                                <ul style="list-style-type:none;padding:0 0 0 20px; margin:0 0 0 0">
+                                    本網站主要內容分為三大區塊：
+                                    <li>
+                                        <ul>
+                                            <li>1.上方功能區塊</li>
+                                            <li>2.中央內容區塊</li>
+                                            <li>3.下方選單連結區塊</li>
+                                        </ul>
+                                        <br />
+                                    </li>
+                                    本網站的快速鍵﹝Accesskey﹞設定如下：
+                                    <li>
+                                        <ul>
+                                            <li>Alt+U：選單連結區塊，此區塊列有本網站主要連結。</li>
+                                            <li>Alt+C：中央內容區塊，為本頁主要內容區。</li>
+                                            <li>Alt+L：頁尾網站資訊。</li>
+                                        </ul>
+                                        <br />
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <ul class="footer-nav" style="width:auto">
+                                    <li>
+                                        <a href="@Url.Content("~/News")" title="1.最新消息">1.最新消息</a>
+                                        <ul>
+                                            <li><a href="@Url.Content("~/News")" title="1-1 焦點消息">1-1 焦點消息</a></li>
+                                            <li><a href="@Url.Content("~/Plan")" title="1-2 計畫公告">1-2 計畫公告</a></li>
+                                            <li><a href="@Url.Content("~/StudQuestion")" title="1-3 課後意見調查">1-3 課後意見調查</a></li>
+                                            @*<li><a href="@Url.Content("~/GainCollection")" title="1-3 成果集錦">1-3 成果集錦</a></li>*@
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-4">
+                                <ul class="footer-nav" style="width:auto">
+                                    <li>
+                                        <a href="https://www.wda.gov.tw/News_Content.aspx?n=C3D5B0EEB25C0694&sms=6CA2172C29FEDCE9&s=28C0591BBA1BB1DB" rel="noreferrer noopener" title="2.計畫簡介「另開新視窗」" target="_blank"><span class="sr-only">(另開新視窗)</span>2.計畫簡介</a>
+                                        <ul>
+                                            <li><a href="@s_tplanid28_url1" rel="noreferrer noopener" title="2-1 產業人才投資方案「另開新視窗」" target="_blank"><span class="sr-only">(另開新視窗)</span>2-1 產業人才投資方案</a></li>
+                                            <li><a href="@s_tplanid54_url1" rel="noreferrer noopener" title="2-2 充電起飛計畫「另開新視窗」" target="_blank"><span class="sr-only">(另開新視窗)</span>2-2 充電起飛計畫</a></li>
+                                            <li><a href="@s_tplanid06_url1" rel="noreferrer noopener" title="2-3 分署自辦在職訓練「另開新視窗」" target="_blank"><span class="sr-only">(另開新視窗)</span>2-3 分署自辦在職訓練</a></li>
+                                            @*<li><a href="https://www.wda.gov.tw/News_Content.aspx?n=C3D5B0EEB25C0694&sms=6CA2172C29FEDCE9&s=86CB953436A321E1" title="2-4 分署接受企業委託辦理訓練" target="_blank">2-4 分署接受企業委託辦理訓練</a></li>*@
+                                            @*<li><a href="http://163.29.199.223:8080" title="2-5 共通核心職能課程" target="_blank">2-5 共通核心職能課程</a></li>*@
+                                            @*<li><a href="https://corecompetencies.wda.gov.tw/" title="2-4 共通核心職能課程「另開新視窗」" target="_blank"><span class="sr-only">(另開新視窗)</span>2-4 共通核心職能課程</a></li>*@
+                                            <li><a href="@s_core_url1" rel="noreferrer noopener" title="2-4 關鍵就業力課程「另開新視窗」" target="_blank"><span class="sr-only">(另開新視窗)</span>2-4 關鍵就業力課程</a></li>
+                                            <li><a href="@s_coursefly_url1" target="_blank" rel="noreferrer noopener" title="2-5 充電再出發訓練計畫(另開新視窗)"><span class="sr-only">(另開新視窗)</span>2-5 充電再出發訓練計畫</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-4">
+                                <ul class="footer-nav" style="width:auto">
+                                    <li>
+                                        <a href="@Url.Content("~/ClassSearch")" title="3.課程查詢報名">3.課程查詢報名</a>
+                                        <ul>
+                                            <li><a href="@Url.Content("~/SignUp/Online1")" title="3-1 線上報名">3-1 線上報名</a></li>
+                                            <li><a href="@Url.Content("~/ClassSearch")" title="3-2 課程查詢">3-2 課程查詢</a></li>
+                                            <li><a href="@Url.Content("~/PlanClassSearch")" title="3-3 計畫課程列表">3-3 計畫課程列表</a></li>
+                                            <li><a href="@Url.Content("~/DistClassSearch")" title="3-4 分署課程列表">3-4 分署課程列表</a></li>
+                                            <li><a href="@Url.Content("~/KeepUseClassSearch")" title="3-5 適用留用外國中階技術工作人力課程列表">3-5 適用留用外國中階技術工作人力課程列表</a></li>
+                                            @*歷史課程查詢下架<li><a href="@Url.Content("~/HistoryClassSearch")" title="3-6 歷史課程查詢">3-6 歷史課程查詢</a></li>*@
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <ul class="footer-nav" style="width:auto">
+                                    <li>
+                                        <a href="@Url.Content("~/ClassConfirm001")" title="4.課程錄訓名單">4.課程錄訓名單</a>
+                                        <ul>
+                                            @*<li><a href="@Url.Content("~/ClassConfirm002")" title="4-1 分署自辦在職訓練">4-1 分署自辦在職訓練</a></li>*@
+                                            <li><a href="@Url.Content("~/ClassConfirm001")" title="4-1 產業人才投資方案">4-1 產業人才投資方案</a></li>
+                                            <li><a href="@Url.Content("~/ClassConfirm003")" title="4-2 充電起飛計畫">4-2 充電起飛計畫</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-4">
+                                <ul class="footer-nav" style="width:auto">
+                                    <li>
+                                        <a href="@Url.Content("~/TrainingLink")" title="5.相關連結">5.相關連結</a>
+                                        <ul>
+                                            <li><a href="@Url.Content("~/TrainingLink")" title="5-1 訓練資源連結">5-1 訓練資源連結</a></li>
+                                            <li><a href="@Url.Content("~/JobLink")" title="5-2 求職求才資源連結">5-2 求職求才資源連結</a></li>
+                                            <li><a href="@Url.Content("~/OtherLink")" title="5-3 其他資源連結">5-3 其他資源連結</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-4">
+                                <ul class="footer-nav" style="width:auto">
+                                    <li>
+                                        <a href="@Url.Content("~/PlanDownload")" title="6.資料下載">6.資料下載</a>
+                                        <ul>
+                                            <li><a href="@Url.Content("~/PlanDownload")" title="6-1 計畫表單">6-1 計畫表單</a></li>
+                                            @*<li><a href="@Url.Content("~/OtherDownload")" title="6-2 其他資料">6-2 其他資料</a></li>*@
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            @if (fg_As_DigiCert1)
+                            {
+                                <div class="col-sm-4">
+                                    <ul class="footer-nav" style="width:auto">
+                                        <li>
+                                            <a href="@Url.Content("~/SiteMap")" title="7.數位結訓證明">7.數位結訓證明</a>
+                                            <ul>
+                                                <li><a href="@Url.Content("~/DigiCertOnline/Detail")" title="7-1 線上申請">7-1 線上申請</a></li>
+                                                <li><a href="@Url.Content("~/DigiCertDownload")" title="7-2 數位結訓證明下載">7-2 數位結訓證明下載</a></li>
+                                                <li><a href="@Url.Content("~/DCVerify")" title="7-3 線上查驗">7-3 線上查驗</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                            <div class="col-sm-4">
+                                <ul class="footer-nav" style="width:auto">
+                                    <li>
+                                        <a href="@Url.Content("~/SiteMap")" title="@(MNO_MM).會員專區">@(MNO_MM).會員專區</a>
+                                        <ul>
+                                            @if (string.IsNullOrEmpty(sm.UserID))
+                                            {
+                                                <li><a href="@Url.Action("Login", "Member")" title="會員登入">會員登入</a></li>
+                                            }
+                                            else
+                                            {
+                                                <li><a href="@Url.Content("~/EnterType")" title="@(MNO_MM)-1 會員資料維護">@(MNO_MM)-1 會員資料維護</a></li>
+                                                <li><a href="@Url.Content("~/TrainingHistory")" title="@(MNO_MM)-2 參訓歷程紀錄">@(MNO_MM)-2 參訓歷程紀錄</a></li>
+                                                @*<li><a href="@Url.Content("~/ClassMatch")" title="7-3 速配課程設定">7-3 速配課程設定</a></li><li><a href="@Url.Content("~/ClassMatchPlan06")" title="7-4 速配課程清單">7-4 速配課程清單</a></li>*@
+                                                <li><a href="@Url.Content("~/TrainingSubsidy")" title="@(MNO_MM)-3 補助額度使用情形">@(MNO_MM)-3 補助額度使用情形</a></li>
+                                                <li><a href="@Url.Content("~/ClassTrace")" title="@(MNO_MM)-4 會員課程收藏清單">@(MNO_MM)-4 會員課程收藏清單</a></li>
+                                                <li><a href="@Url.Content("~/EnterClass")" title="@(MNO_MM)-5 報名查詢及取消">@(MNO_MM)-5 報名查詢及取消</a></li>
+                                                <li><a href="@Url.Content("~/EnterClassDel")" title="@(MNO_MM)-6 前往 已取消報名查詢">@(MNO_MM)-6 已取消報名查詢</a></li>
+                                                if (f_TrainCert1)
+                                                {
+                                                    <li><a href="@Url.Content("~/TrainCert")" title="@(MNO_MM)-9 前往 下載訓練證明">@(MNO_MM)-9 下載訓練證明</a></li>
+                                                }
+                                                <li><a href="@Url.Content("~/StudQuestion")" title="@(MNO_MM)-10 前往課後意見調查">@(MNO_MM)-10 前往課後意見調查</a></li>
+                                                @*2019-01-31 問題8：因手機版無「會員登出」功能，故於會員登入後的會員專區功能最後面加「會員登出」*@
+                                                @*@Url.Action("Logout", "Member")*@
+                                                <li><a href="#" class="btnLogout" title="@(MNO_MM)-11 會員登出">@(MNO_MM)-11 會員登出</a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-4">
+                                <ul class="footer-nav" style="width:auto">
+                                    <li>
+                                        <a href="@Url.Content("~/SiteMap")" title="@(MNO_QA).Q&A">@(MNO_QA).Q&A</a>
+                                        <ul>
+                                            <li><a href="@Url.Content("~/QA")" title="@(MNO_QA)-1 常見問題">@(MNO_QA)-1 常見問題</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

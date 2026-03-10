@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://wdaiip/GetJobMail3" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://wdaiip/GetJobMail3" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://wdaiip/GetJobMail3">
+      <s:element name="SendMailT">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="strFromName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="strFromEMail" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="strToAddressName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="strToAddressEMail" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="strSubject" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="myHtmlBody" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="strMailServer" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendMailTResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SendMailTResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendMailS">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="strFromName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="strFromEMail" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="strToAddress" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="strSubject" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="myHtmlBody" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="strMailServer" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendMailSResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SendMailSResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="SendMailTSoapIn">
+    <wsdl:part name="parameters" element="tns:SendMailT" />
+  </wsdl:message>
+  <wsdl:message name="SendMailTSoapOut">
+    <wsdl:part name="parameters" element="tns:SendMailTResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendMailSSoapIn">
+    <wsdl:part name="parameters" element="tns:SendMailS" />
+  </wsdl:message>
+  <wsdl:message name="SendMailSSoapOut">
+    <wsdl:part name="parameters" element="tns:SendMailSResponse" />
+  </wsdl:message>
+  <wsdl:portType name="Service1Soap">
+    <wsdl:operation name="SendMailT">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">寄單一測試信</wsdl:documentation>
+      <wsdl:input message="tns:SendMailTSoapIn" />
+      <wsdl:output message="tns:SendMailTSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendMailS">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">寄多人信,使用逗號分隔,再以冒號分隔NAME:EMAIL</wsdl:documentation>
+      <wsdl:input message="tns:SendMailSSoapIn" />
+      <wsdl:output message="tns:SendMailSSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="Service1Soap" type="tns:Service1Soap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="SendMailT">
+      <soap:operation soapAction="http://wdaiip/GetJobMail3/SendMailT" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendMailS">
+      <soap:operation soapAction="http://wdaiip/GetJobMail3/SendMailS" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="Service1Soap12" type="tns:Service1Soap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="SendMailT">
+      <soap12:operation soapAction="http://wdaiip/GetJobMail3/SendMailT" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendMailS">
+      <soap12:operation soapAction="http://wdaiip/GetJobMail3/SendMailS" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Service1">
+    <wsdl:port name="Service1Soap" binding="tns:Service1Soap">
+      <soap:address location="https://ojfile119.ejob.gov.tw/GetJobMail3/Service1.asmx" />
+    </wsdl:port>
+    <wsdl:port name="Service1Soap12" binding="tns:Service1Soap12">
+      <soap12:address location="https://ojfile119.ejob.gov.tw/GetJobMail3/Service1.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,66 @@
+﻿@model WDAIIP.WEB.Models.StudQuestionViewModel
+
+@{
+    string tips = string.Empty;
+    string btnText = "新增";
+}
+
+@if (Model == null || Model.Grid == null || Model.Grid.Count == 0)
+{
+    <tr>
+        <td colspan="4" class="text-center">查無資料</td>
+    </tr>
+}
+else
+{
+    for (int i = 0; i < Model.Grid.Count; i++)
+    {
+        var item = Model.Grid[i];
+
+        <tr class="que-row" data-quever="@item.QUEVER" data-canwrite="@item.CANWRITE" data-ftdate="@item.FTDATE_AD" data-wrdate1="@item.WRDATE1_AD" data-wrdate2="@item.WRDATE2_AD" data-canwritemsg="@item.CANWRITEMSG">
+            <td>
+                @Html.HiddenFor(m => m.Grid[i].SOCID, new { id = "SOCID" })
+                @Html.HiddenFor(m => m.Grid[i].OCID, new { id = "OCID" })
+                @Html.HiddenFor(m => m.Grid[i].PLANYEAR, new { id = "PLANYEAR" })
+                @Html.HiddenFor(m => m.Grid[i].FILLSTATUS, new { id = "FILLSTATUS" })
+
+                <div align="center">@item.PLANYEAR_TW</div>
+            </td>
+            <td align="left">@item.CLASSNAME</td>
+            <td>@item.FILLSTATUS_TEXT</td>
+            <td>
+                <div align="center">
+                    @{
+                        tips = string.Empty;
+                        btnText = "新增";
+                        switch (item.FILLSTATUS)
+                        {
+                            case "0":
+                                tips = "查無此資料!!";
+                                break;
+                            case "1":
+                                tips = "已填寫過該資料!!";
+                                btnText = "編輯";
+                                break;
+                        }
+
+                    }
+                    <button type="button" class="btn btn-vert btn-justified" onclick="return edit(this)" title="@tips">@btnText</button>
+                </div>
+            </td>
+        </tr>
+    }
+}
+
+
+@*<tr>
+    <td><div align="center">2015</div></td>
+    <td>PMP國際專案管理訓練班 第01期</td>
+    <td>
+        <div align="center">
+            <button type="submit" class="btn btn-vert btn-justified">編輯</button>
+        </div>
+    </td>
+</tr>*@
+
+

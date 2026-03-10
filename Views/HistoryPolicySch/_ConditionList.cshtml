@@ -1,0 +1,64 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@using Turbo.DataLayer
+@model ClassSearchViewModel
+@{
+    //此為課程查詢結果清單上方的條件資訊區塊
+
+    MyKeyMapDAO dao = new MyKeyMapDAO();
+
+    //處理查詢條件
+    DateTime Sdate = Convert.ToDateTime(Model.Form.STDATE);
+    DateTime Edate = Convert.ToDateTime(Model.Form.FTDATE);
+    string strDate = "";
+    if (!string.IsNullOrEmpty(Model.Form.STDATE) && !string.IsNullOrEmpty(Model.Form.FTDATE))
+    {
+        strDate = (Sdate.Year - 1911).ToString() + Sdate.ToString("/MM/dd") + "~" + (Edate.Year - 1911).ToString() + Edate.ToString("/MM/dd");
+    }
+
+    string strCityZip = (string.IsNullOrEmpty(Model.Form.CityName) ? "全部" : Model.Form.CityName) + "(" + (string.IsNullOrEmpty(Model.Form.ZipName) ? "全部" : Model.Form.ZipName) + ")";
+    string strOrg = (string.IsNullOrEmpty(Model.Form.OrgName) ? "全部" : Model.Form.OrgName) + (string.IsNullOrEmpty(Model.Form.SCHOOLNAME) ? "" : "(包含 <b>" + Model.Form.SCHOOLNAME + "</b>)");
+
+    string strTMIDName = (!Model.Form.JOBTMID.HasValue ? "全部" : Model.Form.JOBNAME + "(" + (!Model.Form.TMID.HasValue ? "全部" : Model.Form.TRAINNAME) + ")");
+
+    //string strKeywords = "";
+    //if (Model.Form.KEYWORDS_list.Count > 0)
+    //{
+    //    strKeywords += string.Join("、", Model.Form.KEYWORDS_list);
+    //}
+    //List<string> strHeader = new List<string>();
+    //IList<KeyMapModel> strValue = new List<KeyMapModel>();
+    //string strDistid = "";
+    //2019-01-29 add 縣市別(複選)
+    //string strCTName = string.Empty;
+}
+@switch (Model.Form.PlanType)
+{
+    case "1"://產業人才投資
+        <tr>
+            <td rowspan="7" width="10%" style="color:#2d699e"><h3>查詢條件</h3></td>
+            <td width="40%">課程代碼：<span class="text-primary" style="color:#2d699e">@(Model.Form.OCID)</span></td>
+            <td width="40%">課程名稱：<span class="text-primary" style="color:#2d699e">@(Model.Form.CLASSCNAME)</span></td>
+        </tr>
+        <tr>
+            <td>開訓日期間：<span class="text-primary">@strDate</span></td>
+            <td>輔導考證：<span class="text-primary">@(Model.Form.TGOVEXAM == "Y" ? "是" : "否")</span></td>
+        </tr>
+        <tr>
+            <td>縣市別：<span class="text-primary">@strCityZip</span></td>
+            <td>單位名稱：<span class="text-primary">@Html.Raw(strOrg)</span></td>
+        </tr>
+        <tr>
+            <td>訓練業別：<span class="text-primary">@strTMIDName</span></td>
+            <td>
+                @Html.CustomLabelFor(m => m.Form.KEYWORDS, new { })
+                <span class="text-primary">
+                    @Html.TextBoxFor(m => m.Form.KEYWORDS, new { placeholder = "請輸入關鍵字", title = "請輸入關鍵字搜尋", id = "con_KEYWORDS", maxlength = 20, size = 20})
+                    <input type="button" class="btn-orange main-more" title="送出" value="送出" onclick="return doSearch2('@(Model.Form.PlanType)');">
+                </span>
+            </td>
+        </tr>
+
+        break;
+
+}

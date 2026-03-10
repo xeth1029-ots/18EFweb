@@ -1,0 +1,119 @@
+﻿@model WDAIIP.WEB.Models.ChangePwdViewModel
+
+@{
+    ViewBag.Title = "變更密碼";
+    Layout = "~/Views/Shared/_MainLayout_NoHeader.cshtml";
+}
+
+<div class="container">
+    <!-- header start -->
+    <div class="header">
+        @*<div class="logo-login"><img src="~/images/logo-login.png" class="img-responsive" alt="青年職業訓練資源網網站管理系統" id="青年職業訓練資源網網站管理系統"></div>*@
+    </div>
+    <!-- header end -->
+    <div class="content">
+        <div class="col-sm-3">
+
+        </div>
+        <div class="col-sm-6">
+            <div class="login-bar">
+                <h3 class="loginTitleA"><img src="~/images/icon-arrow.svg">變更密碼</h3>
+                @using (Html.BeginForm("Index", "ChangePwd", FormMethod.Post, new { @class = "form-horizontal", id = "main_form" }))
+                {
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 label-set">使用者名稱</label>
+                        <div class="col-sm-8">
+                            @Model.Form.UserName
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 label-set">使用者帳號</label>
+                        <div class="col-sm-8">
+                            @Model.Form.UserNo
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 label-set"><span class="mark-red">＊</span>舊密碼</label>
+                        <div class="col-sm-8">
+                            @Html.PasswordFor(m => m.Form.UserPwd, new { @class = "form-control formbar-bg", placeholder = "請輸入您的密碼", autocomplete = "off" })
+                            @if (!string.IsNullOrEmpty(Model.Form.MESSAGE1))
+                            {
+                                <span class="help-block mark-red" data-role="msg1">@Model.Form.MESSAGE1</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 label-set"><span class="mark-red">＊</span>新密碼</label>
+                        <div class="col-sm-8">
+                            @Html.PasswordFor(m => m.Form.UserPwdNew, new { @class = "form-control formbar-bg", placeholder = "請輸入您的新密碼", autocomplete = "off" })
+                            @if (!string.IsNullOrEmpty(Model.Form.MESSAGE2))
+                            {
+                                <span class="help-block mark-red" data-role="msg2">@Model.Form.MESSAGE2</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-4 label-set"><span class="mark-red">＊</span>確認新密碼</label>
+                        <div class="col-sm-8">
+                            @Html.PasswordFor(m => m.Form.UserPwdNewChk, new { @class = "form-control formbar-bg", placeholder = "請輸入您的密碼", autocomplete = "off" })
+                            @if (!string.IsNullOrEmpty(Model.Form.MESSAGE3))
+                            {
+                                <span class="help-block mark-red" data-role="msg3">@Model.Form.MESSAGE3</span>
+                            }
+                        </div>
+                    </div>
+                    <div >
+                        
+                    </div>
+                    <div class="login-bottom-line">
+                        <div class="text-left">
+                            <span class="mark-red">*因應資訊安全規定，且為保障您的帳號資料，使用者修改後之密碼長度為12~16碼，至少需為英數字混合，使用者需每2個月變更1次密碼。</span> 
+                        </div>
+                        <button type="submit" class="btn btn-default" title="儲存">
+                            確認
+                        </button>
+                        <button type="button" class="btn btn-default" title="取消" data-role="Cancel">
+                            取消
+                        </button>
+                    </div>
+
+                    @*if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="help-block mark-red">@(Model.ErrorMessage)</div>
+                    }*@
+                }
+
+            </div>
+
+        </div>
+        <div class="col-sm-3">
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        // 取消(回登入頁)
+        $("button[data-role='Cancel']").on("click", function () {
+            var url = '@Url.Action("Index","Login")';
+            location.href = url;
+        });
+
+        // 清空檢核訊息1
+        $("input#Form_UserPwd").on("focus", function () {
+            $("span[data-role='msg1']").html("");
+        });
+
+        // 清空檢核訊息2
+        $("input#Form_UserPwdNew").on("focus", function () {
+            $("span[data-role='msg2']").html("");
+        });
+
+        // 清空檢核訊息3
+        $("input#Form_UserPwdNewChk").on("focus", function () {
+            $("span[data-role='msg3']").html("");
+        });
+    });
+</script>

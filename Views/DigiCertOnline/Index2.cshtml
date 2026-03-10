@@ -1,0 +1,171 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model DigiCertViewModel
+
+@{
+    ViewBag.Title = "數位結訓證明--線上申請";
+    ViewBag.Tit2 = "線上申請";
+
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+
+    SessionModel sess = SessionModel.Get();
+
+    string dcano = Model.PForm.DCANO.HasValue ? Model.PForm.DCANO.ToString() : "";
+    string dcaseno = !string.IsNullOrEmpty(Model.PForm.DCASENO) ? Model.PForm.DCASENO : "";
+    string memMsg = "如欲修改個人基本資料，請至台灣就業通「會員中心」變更";
+}
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+    .font-color-red { color: red; }
+</style>
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration: none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 數位結訓證明 / @ViewBag.Tit2 </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-pink"><i class="fas fa-edit space-right"></i>@ViewBag.Tit2</h3>
+
+    <div class="table-responsive">
+        <div class="form-group-search">
+            <label for="TBF_PForm_DCASENO" class="form-label-data"><span class="text-danger">*</span>案件編號</label>
+            <div class="form-input-dataHelf">
+                @Html.TextBoxFor(m => m.PForm.DCASENO, new { @id = "TBF_PForm_DCASENO", @class = "form-control", placeholder = "", @readonly = true, maxlength = "33" })
+            </div>
+        </div>
+        <div class="form-group-search">
+            <label for="TBF_PForm_CNAME" class="form-label-data"><span class="text-danger">*</span> 中文姓名</label>
+            <div class="form-input-dataHelf form-inline">
+                @Html.TextBoxFor(m => m.PForm.CNAME, new { @id = "TBF_PForm_CNAME", @class = "form-control", placeholder = "", @readonly = true, title = @memMsg, maxlength = "99" })
+            </div>
+            <label for="TBF_PForm_IDNO" class="form-label-data"><span class="text-danger">*</span> 身分證字號</label>
+            <div class="form-input-dataHelf">
+                @Html.TextBoxFor(m => m.PForm.IDNO, new { @id = "TBF_PForm_IDNO", @class = "form-control", placeholder = "", @readonly = true, title = @memMsg, maxlength = "13" })
+            </div>
+        </div>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-result">
+            @if (Model.PForm.CLASSCNT.HasValue && Model.PForm.CLASSCNT.Value > 0)
+            {
+                var classCntOKmsg1 = string.Concat("已確認勾選 ", Model.PForm.CLASSCNT.Value, " 班-");
+                <tr>
+                    <td colspan="2"><p class="font-color-red">&nbsp;@(classCntOKmsg1)</p></td>
+                </tr>
+            }
+            <tr>
+                <td width="80%"><span class="text-primary" style="color:#007b8e"><p class="font-color-red">&nbsp;(請先挑選班級勾選後，再按「確認勾選」鈕，再按「送出申請」鈕)</p></span></td>
+                <td width="20%" align="center" valign="middle">
+                    <button type="button" onclick="CheckedxAxVaild()" class="btn btn-result2 btn-justified" title="確認勾選">確認勾選</button>
+                    <button type="button" onclick="SendedxAxVaild('@(dcano)','@(dcaseno)')" class="btn btn-result2 btn-justified" title="送出申請">送出申請</button>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+    <!-- result table -->
+    @using (Html.BeginForm("MultiAddClass", "DigiCertOnline", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+    {
+        @Html.HiddenFor(m => m.PForm.DCANO)
+        @Html.HiddenFor(m => m.PForm.DCASENO)
+        @Html.HiddenFor(m => m.PForm.IDNO)
+
+        <div class="table-responsive">
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+                <thead>
+                    <tr>
+                        @*style="width: 5%;"*@
+                        <th width="8%">
+                            <p>&nbsp;</p>
+                            <p>結訓數位證明</p>
+                            勾選全部<input class="chk-inp" name="cb_CLASS_list" id="cb_CLASS_list_all" type="checkbox" onclick="check_all(this,'check-box')" tabindex="0">
+                        </th>
+                        <th width="8%">轄區分署</th>
+                        <th width="5%">年度</th>
+                        <th width="8%">訓練計畫</th>
+                        <th width="10%">訓練機構</th>
+                        <th width="10%">班別名稱</th>
+                        <th width="5%">受訓時數</th>
+                        <th width="5%">受訓期間</th>
+                        <th width="5%">訓練狀態</th>
+                    </tr>
+                </thead>
+                <tbody id="rows">
+                    @Html.Partial("_GridRows")
+                </tbody>
+            </table>
+        </div>
+    }
+    <!--  pager start -->
+    @Html.Partial("_PagingLink", Model.PForm)
+    <!-- pager end -->
+</div>
+
+@* 確認送出 *@
+@using (Html.BeginForm("Savedata2", "DigiCertOnline", FormMethod.Post, htmlAttributes: new { id = "GoSendForm" }))
+{
+    @Html.Hidden("xDCANO")
+    @Html.Hidden("xDCASENO")
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // 當點擊 class 為 "check-box" 的元素時
+        $('.check-box').click(function () {
+            // 取消勾選 id 為 "cb_CLASS_list_all" 的 checkbox
+            $('#cb_CLASS_list_all').prop('checked', false);
+        });
+        // 選取所有 class 為 "check-box" 的元素
+        $(".check-box").each(function () {
+            // 為每個元素添加 title 屬性，並設定值為 "請勾選"
+            $(this).attr("title", "請勾選");
+        });
+    });
+
+    //其他 checkbox： class 為 check-box，用於區別
+    function check_all(source_obj, classNM) {
+        //var checkboxs = document.getElementsByName(cName);
+        // 取得所有 class 為 "check-box" 的 checkbox 元素
+        var checkboxes = document.getElementsByClassName(classNM);
+        if (checkboxes == null) return;
+        // 遍歷所有 checkbox，並將 checked 屬性設定為與 source (勾選全部 checkbox) 相同
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = source_obj.checked;
+        }
+    }
+
+    //檢核是否已勾選n筆資料
+    function CheckedxAxVaild() {
+        var count = 0;
+        $("#rows input[type=checkbox]").each(function () {
+            if ($(this).prop("checked")) { count += 1; }
+        });
+        if (count == 0) {
+            blockAlert("請至少勾選一筆課程");
+        } else {
+            $("form#main_form").submit();
+            //blockConfirm("確定要送出資料?", "請確認", function () {
+            //    $("form#main_form").submit();
+            //});
+        }
+    }
+
+    function SendedxAxVaild(dcano, dcaseno) {
+        var count = 0;
+        $("#rows input[type=checkbox]").each(function () {
+            if ($(this).prop("checked")) { count += 1; }
+        });
+        if (count == 0) {
+            blockAlert("請至少勾選一筆課程");
+        }
+        else if (dcano == "" || dcano == "") {
+            blockAlert("送出申請資料有誤");
+        }
+        else {
+            blockConfirm("確定要送出資料?", "請確認", function () {
+                $("#xDCANO").val(dcano);
+                $("#xDCASENO").val(dcaseno);
+                $("form#GoSendForm").submit();
+            });
+        }
+    }
+</script>

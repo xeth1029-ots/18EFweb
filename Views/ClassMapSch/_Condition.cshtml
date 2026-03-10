@@ -1,0 +1,214 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassMapSchViewModel
+@{
+    //此為查詢頁切換計畫類別，欲變換的查詢條件區塊
+    SessionModel sess = SessionModel.Get();
+    //查詢類別("1":產業人才投資方案、"2":在職進修訓練、"5":區域產業據點)
+    string s_PlanType = Model.Form.PlanType;
+    var list = Model.PlanType_list.Where(m => m.Value == s_PlanType).ToList();
+    string s_PlanTypeN = (list != null && list.Count > 0) ? list.First().Text : "";
+    string s_PARENT1 = "";
+    string s_PARENT2 = "";
+    string s_KEYWORDS = Model.Form.KEYWORDS ?? "";
+    switch (s_PlanType)
+    {
+        case "1":
+            s_PARENT1 = Model.Form.JOBNAME;
+            s_PARENT2 = Model.Form.TRAINNAME;
+            break;
+        case "2":
+        case "5":
+            s_PARENT1 = Model.Form.PARENT1NAME;
+            s_PARENT2 = Model.Form.PARENT2NAME;
+            break;
+    }
+
+}
+
+<div id="condition" class="col-sm-12">
+
+    <div class="search_select">
+
+        <article class="map-search course" id="map_search">
+            <div class="map-search-select-box">
+                <div class="select-wrapper">
+                    @Html.DropDownListFor(m => m.Form.PlanType, Model.PlanType_list, null, new { @class = "CourseClass", title = "請選擇計畫別", onchange = "doChangePlan($('#Form_PlanType').val());" })
+                    @*<select class="CourseClass" id=""><option selected="selected" value="0">請選擇課程類別</option><option value="1">分署自辦在職訓練</option><option value="2">產業人才投資方案</option><option value="4">區域產業據點</option></select>*@
+                    <i class="fa fa-chevron-down"></i>
+                </div>
+            </div>
+            @*查詢類別("1":產業人才投資方案、"2":在職進修訓練、"5":區域產業據點)*@
+            @switch (Model.Form.PlanType) //計畫別
+            {
+                case "1": //產投
+                    <div class="map-search-select-box">
+                        <div class="select-wrapper">
+                            @*#Form_JOBTMID*@
+                            @Html.DropDownListFor(m => m.Form.JOBTMID, Model.TMIDLv1_list, "訓練業別職類", new { @class = "category_1", title = "請選擇訓練業別(職類課程)", onchange = "doTMIDGet();" })
+                            @*<select class="" name="category_1" id=""><option selected="selected" value="0">職業類別 - 大項</option><option value="1">分署自辦在職訓練</option><option value="2">產業人才投資方案</option><option value="4">區域產業據點</option></select>*@
+                            <i class="fa fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="map-search-select-box">
+                        <div class="select-wrapper">
+                            @Html.DropDownListFor(m => m.Form.TMID, Model.TMIDLv2_list, "訓練業別", new { @class = "category_2", title = "請選擇訓練業別(業別)" })
+                            @*<select class="example" name="category_2" id=""><option selected="selected" value="0">職業類別 - 細項</option><option value="1">分署自辦在職訓練</option><option value="2">產業人才投資方案</option><option value="4">區域產業據點</option></select>*@
+                            <i class="fa fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    break;
+
+                case "2": //自辦在職
+                case "5": //區域產業據點
+                    <div class="map-search-select-box">
+                        <div class="select-wrapper">
+                            @Html.DropDownListFor(m => m.Form.PARENT1, Model.TMIDBUS_list, "訓練職類1", new { @class = "category_1", title = "請選擇 訓練職類大項", onchange = "doTMIDGet2();" })
+                            <i class="fa fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="map-search-select-box">
+                        <div class="select-wrapper">
+                            @Html.DropDownListFor(m => m.Form.PARENT2, Model.TMIDJOB_list, "訓練職類2", new { @class = "category_2", title = "請選擇 訓練職類中項" })
+                            <i class="fa fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    break;
+            }
+            <div class="map-search-input-box">
+                @Html.TextBoxFor(m => m.Form.KEYWORDS, new { @id = "Form_KEYWORDS", placeholder = "課程關鍵字", title = "請輸入課程關鍵字" })
+                @*<input type="text" placeholder="輸入課程關鍵字" id="EnterCourseKeyword">*@
+            </div>
+            <div class="map-search-input-box">
+                <button type="button" class="btn btn--secondary btn--block" onclick="javascript:{btnSearchClick();}" title="查詢線上課程"><i class="re-g-search" aria-hidden="true"></i>查詢線上課程</button>
+            </div>
+        </article>
+    </div>
+    <ul class="search-conditions">
+        <li>查詢條件：</li>
+        <li>@s_PlanTypeN</li>
+        <li>@s_PARENT1</li>
+        <li>@s_PARENT2</li>
+        <li>@s_KEYWORDS</li>@*課程關鍵字*@
+    </ul>
+    <div class="other-conditions">
+        @Html.CheckBoxFor(m => m.Form.ContainsOverEnter, new { @class = "chk-inp", @id = "Form_ContainsOverEnter", alt = "[請勾選]包含已截止報名課程" })
+        @*<input class="chk-inp" id="Sign" type="checkbox">*@
+        <label class="chk-lab" for="Form_ContainsOverEnter">
+            <i class="box box--md" aria-hidden="true"></i>
+            <span>@Html.DisplayNameFor(m => m.Form.ContainsOverEnter)</span>@*包含已截止報名課程*@
+        </label>
+    </div>
+</div>
+<script type="text/javascript">
+    var url_GetCondition = '@Url.Action("GetCondition", "ClassMapSch")';
+    // 切換計畫類別條件
+    function doChangePlan(plantype) {
+        //$("#Form_hidCoursesClosed").val($("#Form_ContainsOverEnter").prop("checked") ? "Y" : "N")
+        let v_ContainsOver = $("#Form_ContainsOverEnter").prop("checked") ? "true" : "false";
+        //console.log("#Form_hidCoursesClosed.val() in:" + $("#Form_hidCoursesClosed").val());
+        let data = {
+            PlanType: plantype
+            , keywords: $("#Form_KEYWORDS").val()
+            , PARENT1: $("#Form_PARENT1").val()
+            , PARENT2: $("#Form_PARENT2").val()
+            , JOBTMID: $("#Form_JOBTMID").val()
+            , TMID: $("#Form_TMID").val()
+            , ContainsOver: v_ContainsOver
+        };
+
+        ajaxLoadMore(url_GetCondition, data, function (resp) {
+            $('#condition').html(resp);
+            //修改無障礙：EV1080300：按照內容的序列及關連性來安排互動元件的放置順序
+            //fix 切換計畫別下拉選項後focus狀態會跑掉問題
+            $("select#Form_PlanType").focus();
+        });
+
+        //console.log("#Form_hidCoursesClosed.val() out:" + $("#Form_hidCoursesClosed").val());
+        //var cc_checked = $("#Form_hidCoursesClosed").val() == "Y" ? "checked" : "";
+        //console.log("#cc_checked out:" + cc_checked);
+        //$("#Form_ContainsOverEnter").prop("checked", cc_checked);
+        //$("#Sign_ContainsOverEnter").removeAttr('checked');
+        //if (cc_checked == "checked") { $("#Sign_ContainsOverEnter").prop("checked", cc_checked); }
+        //console.log("#cc_checked out2:" + cc_checked);
+
+        // 左側選單展開事件
+        function accordionsOpen(Index) {
+            let side_item = $(".lt-more-cnt h4.accordions").eq(Index);
+            let sub_list = side_item.next(".accordions-cnt");
+            side_item.show().addClass("show");
+            sub_list.slideDown(200);
+        }
+
+        function accordionsClose(Index) {
+            let side_item = $(".lt-more-cnt h4.accordions").eq(Index);
+            let sub_list = side_item.next(".accordions-cnt");
+            side_item.hide().removeClass("show");
+            sub_list.slideUp(200);
+        }
+
+        //let plantype=$("#hid_Form_PlanType").val();
+        //查詢類別("1":產業人才投資方案、"2":在職進修訓練、"5":區域產業據點)
+        if (plantype != '1') {
+            accordionsClose(3);
+            accordionsClose(4);
+            $("input[name='cb_CLASSCATE_list']").each(function () { $(this).prop("checked", false); });
+            $("input[name='cb_ORGKIND_list']").each(function () { $(this).prop("checked", false); });
+        }
+        else {
+            accordionsOpen(3);
+            accordionsOpen(4);
+        }
+    }
+
+    var url_GetTMIDList = "@Url.Action("GetTMIDList","Ajax")";
+    //取得訓練業別「職類課程」對應的「業別」清單資料
+    function doTMIDGet() {
+        //var idHead = "#Form_";
+        let data = {
+            "url": url_GetTMIDList,
+            "arg": { "JOBTMID": $("#Form_JOBTMID option:selected").val() },
+            "box": $("#Form_TMID")
+        };
+        //console.log("#doTMIDGet data: " + JSON.stringify(data));
+        //console.log("#doTMIDGet data: " + data);
+        let blankHtml = "<option value=\"\">請選擇</option>";
+        if ($.trim(data.arg.JOBTMID) == "") data.box.html(blankHtml);
+        else {
+            ajaxLoadMore(data.url, data.arg, function (resp) {
+                if (resp === undefined) {
+                    //console.error("#doTMIDGet resp: undefined!");
+                    data.box.html(blankHtml);
+                }
+                else {
+                    //console.log("#doTMIDGet resp: " + JSON.stringify(resp));
+                    data.box.html(resp.data != "" ? resp.data : blankHtml);
+                }
+            });
+        }
+    }
+
+    var url_GetTMIDJOBList = "@Url.Action("GetTMIDJOBList", "Ajax")";
+    //取得 訓練職類 對應的「中項」清單資料
+    function doTMIDGet2() {
+        let data = {
+            "url": url_GetTMIDJOBList,
+            "arg": { "PARENT1": $("#Form_PARENT1 option:selected").val() },
+            "box": $("#Form_PARENT2")
+        };
+        //console.log("#doTMIDGet2 data: " + data);
+        let blankHtml = "<option value=\"\">請選擇</option>";
+        if ($.trim(data.arg.PARENT1) == "") data.box.html(blankHtml);
+        else {
+            ajaxLoadMore(data.url, data.arg, function (resp) {
+                if (resp === undefined) {
+                    //console.error("#doTMIDGet2 resp: undefined!");
+                    data.box.html(blankHtml);
+                }
+                else {
+                    //console.log("#doTMIDGet2 resp: " + JSON.stringify(resp));
+                    data.box.html(resp.data != "" ? resp.data : blankHtml);
+                }
+            });
+        }
+    }
+</script>

@@ -1,0 +1,46 @@
+﻿@model WDAIIP.WEB.Models.EnterClassDelViewModel
+@{
+    //會員專區--已取消報名查詢
+    ViewBag.Title = "已取消報名查詢";
+
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<form>
+    <div class="col-sm-12">
+        <!-- bread start --->
+        <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回了首頁">首頁</a> / 會員專區 / @Html.Raw(ViewBag.Title)</div>
+        <!-- bread end --->
+        <h3 class="main-title main-title-pink"><i class="far fa-list-alt space-right"></i>@Html.Raw(ViewBag.Title)</h3>
+        @*<div class="unit-bg unit-bg-green">
+            <p>本功能使用說明及提醒事項：</p>
+            <ol>@Html.Raw(ViewBag.msg1)</ol>
+        </div>*@
+        <!-- search form start -->
+        <div class="unit-border">
+            <div class="clearfix"></div>
+            <div class="table-responsive">
+                @Html.Partial("_GridRows", Model)
+            </div>
+            <div class="clearfix"></div>
+            <!-- search form end -->
+        </div>
+    </div>
+</form>
+@using (Html.BeginForm("Detail", "ClassSearch", FormMethod.Post, new { id = "detail_form" }))
+{
+    @Html.Hidden("OCID")
+    @Html.Hidden("ProvideLocation")
+    @Html.Hidden("PlanType")
+}
+<script type="text/javascript">
+
+    //導回課程明細頁
+    function showDetail(ocid, plantype) {
+        var form = $("#detail_form");
+        form.find("input[name='OCID']").val(ocid);
+        form.find("input[name='PlanType']").val(plantype);
+        form.find("input[name='ProvideLocation']").val("N");
+        form.submit();
+    }
+</script>

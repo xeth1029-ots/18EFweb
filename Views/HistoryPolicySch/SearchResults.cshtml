@@ -1,0 +1,158 @@
+﻿@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.DataLayers
+@model ClassSearchViewModel
+@{
+    ViewBag.Title = "課程查詢報名--政策性歷史課程查詢結果";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / <a href="@Url.Content("~/ClassSearch")" title="回課程查詢">課程查詢</a> /  課程查詢結果</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fab fa-readme space-right"></i>課程查詢結果</h3>
+    <!-- search result start -->
+    @Html.HiddenFor(m => m.Form.PlanType)
+    @Html.HiddenFor(m => m.Form.ProvideLocation)
+    <div class="table-responsive">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-result">
+            @Html.Partial("_ConditionList")
+        </table>
+    </div>
+
+    <!-- result table -->
+    <!--  pager start -->
+    @Html.Partial("_PagingLink", Model.Form)
+    <!-- pager end -->
+    <div class="table-responsive">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table search-table table-blue">
+            <thead>
+                @switch (Model.Form.PlanType)
+                {
+                    case "1": //產投
+                        <tr>
+                            <th>訓練單位名稱</th>
+                            <th width="24%">訓練班別</th>
+                            <th width="6%">訓練人數</th>
+                            <th width="6%">訓練時數</th>
+                            <th width="9%">學科訓練地點</th>
+                            <th width="9%">術科訓練地點</th>
+                            @if (!string.IsNullOrEmpty(Model.Form.ProvideLocation) && Model.Form.ProvideLocation == "Y")
+                            {
+                                <th width="8%" rowspan="2">
+                                    距離公里數
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-up text-primary" aria-hidden="true"></i></a>
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-down text-primary" aria-hidden="true"></i></a>
+                                </th>
+                            }
+                            <th width="9%">招生狀態</th>
+                            <th width="9%">預訂訓練<br />起迄日期</th>
+                            <th width="9%">訓練性質</th>
+                        </tr>
+                        break;
+                    case "2": //在職
+                        <tr>
+                            <th width="15%">訓練班別</th>
+                            <th width="15%">訓練單位</th>
+                            <th>上課地點</th>
+                            @if (!string.IsNullOrEmpty(Model.Form.ProvideLocation) && Model.Form.ProvideLocation == "Y")
+                            {
+                                <th width="8%" rowspan="2">
+                                    距離公里數
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-up text-primary" aria-hidden="true"></i></a>
+                                    <a href="javascript: doSort();"><i class="fa fa-caret-down text-primary" aria-hidden="true"></i></a>
+                                </th>
+                            }
+                            <th width="15%">通俗職類</th>
+                            <th width="10%">報名起迄日</th>
+                            <th width="10%">訓練起迄日</th>
+                            <th width="10%">上課時間</th>
+                            <th width="10%">學歷資格</th>
+                        </tr>
+                        break;
+                    case "5": @*2019-01-16 add 區域據點*@
+                        <tr>
+                            <th width="15%">訓練班別</th>
+                            <th width="15%">訓練單位</th>
+                            <th>上課地點</th>
+                            <th width="12%">通俗職類</th>
+                            <th width="10%">報名起迄日</th>
+                            <th width="10%">訓練起迄日</th>
+                            <th width="10%">訓練時段</th>
+                            <th width="10%">學歷資格</th>
+                        </tr>
+                        break;
+                }
+            </thead>
+            <tbody id="rows">
+                @Html.Partial("_GridRows")
+            </tbody>
+        </table>
+    </div>
+    <!--  pager start -->
+    @Html.Partial("_PagingLink", Model.Form)
+    <!-- pager end -->
+    <!-- search result end -->
+
+</div>
+
+@using (Html.BeginForm("Detail", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoDetailForm" }))
+{
+    //Html.AntiForgeryToken()
+    @Html.Hidden("PlanType")
+    @Html.Hidden("ProvideLocation")
+    @Html.Hidden("OCID")
+}
+
+@using (Html.BeginForm("Search2", "HistoryPolicySch", FormMethod.Post, htmlAttributes: new { id = "GoSearch2Form" }))
+{
+    //Html.AntiForgeryToken()
+    @Html.Hidden("PlanType")
+    @Html.Hidden("KEYWORDS")
+}
+
+<script type="text/javascript">
+    $(document).on('keydown', function (e) {
+        if (e.keyCode === 13) {
+            // 如果按下enter
+            //alert("keyCode:13-Error! ");
+            var con_KEYWORDS = $("#con_KEYWORDS").val();
+            $("form#GoSearch2Form #PlanType").val('@(Model.Form.PlanType)');
+            $("form#GoSearch2Form #KEYWORDS").val(con_KEYWORDS);
+            $("form#GoSearch2Form").attr("action", "@Url.Action("Search2")").submit();
+        }
+    });
+
+    $(function () {
+        blockAlert("未結束報名之班級，請至課程查詢功能逕行查詢！");
+    });
+
+    //TODO:依距離排序
+    function doSort(type) {
+        alert("Error!");
+    }
+
+    //瀏覽課程明細
+    function doDetail(plantype, providelocation, ocid) {
+        $("form#GoDetailForm #PlanType").val(plantype);
+        $("form#GoDetailForm #ProvideLocation").val(providelocation);
+        $("form#GoDetailForm #OCID").val(ocid);
+        if (window.history) {
+            var url = '@Url.Action("LastResult", "HistoryPolicySch", new { rnd=DateTime.Now.Ticks })'; + '#reversession';
+            window.history.pushState(null, null, url);
+        }
+        $("form#GoDetailForm").attr("action", "@Url.Action("Detail")").submit();
+    }
+
+    //關鍵字搜尋
+    function doSearch2(plantype) {
+        var con_KEYWORDS = $("#con_KEYWORDS").val();
+        $("form#GoSearch2Form #PlanType").val(plantype);
+        $("form#GoSearch2Form #KEYWORDS").val(con_KEYWORDS);
+        if (window.history) {
+            var url = '@Url.Action("LastResult", "HistoryPolicySch", new { rnd=DateTime.Now.Ticks })'; + '#reversession';
+            window.history.pushState(null, null, url);
+        }
+        $("form#GoSearch2Form").attr("action", "@Url.Action("Search2")").submit();
+    }
+</script>

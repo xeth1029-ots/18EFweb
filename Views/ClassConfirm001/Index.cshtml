@@ -1,0 +1,81 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassConfirm001ViewModel
+@{
+    ViewBag.Title = "課程錄訓名單--產業人才投資方案";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+@using (Html.BeginForm("Index", "Classconfirm001", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+{
+    <div class="container">
+        <div class="col-sm-12">
+            <!-- bread start --->
+            <div class="breadlink">
+                <a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a>
+                <i class="fa fa-home space-right" aria-hidden="true">
+                </i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程錄訓名單 / 產業人才投資方案
+            </div>
+            <!-- bread end --->
+            <h3 class="main-title main-title-green"><i class="far fa-list-alt space-right"></i>課程錄訓名單查詢</h3>
+            <!-- search form start -->
+            <div class="unit-border">
+                <div class="unit-bg unit-bg-green">
+                    <p><strong>本功能使用說明： </strong></p>
+                    <ol class="aa">
+                        <li>參訓名單於開訓日後進行公告。</li>
+                        <li>班級如有學員異動情形，將再次公告異動之學員名單。</li>
+                        <li>
+                            學員補助如有以下情形之一者，不得申請補助：
+                            <div class="custom-counter">
+                                <div>  &nbsp; (1) 未取得結訓證書。</div>
+                                <div>  &nbsp; (2) 學員缺課時數超過總訓練時數五分之一以上。</div>
+                                <div>  &nbsp; (3) 未填寫參訓學員意見調查表。</div>
+                            </div>
+                        </li>
+                        <li>班級參訓名單將於公告後1個月進行公告下架作業。</li>
+                    </ol>
+                </div>
+                <div class="clearfix"></div>
+                <p>
+                    <div class="form-horizontal">
+                        <div class="form-group-search">
+                            @Html.CustomLabelFor(m => m.Form.OCID_TEXT, new { @class = "form-label-search"})
+                            @*<label for="keyword" class="form-label-search">課程代碼</label>*@
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Form.OCID_TEXT, new { @class = "form-control", placeholder = "請輸入課程代碼", title = "請輸入課程代碼" })
+                            </div>
+
+                        </div>
+                        <div class="form-group-search">
+                            @Html.CustomLabelFor(m => m.Form.ORGNAME, new { @class = "form-label-search"})
+                            @*<label for="keyword" class="form-label-search">訓練單位名稱</label>*@
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Form.ORGNAME, new { @class = "form-control", placeholder = "請輸入訓練單位名稱", title = "請輸入訓練單位名稱" })
+                            </div>
+
+                        </div>
+                        <div class="form-group-search">
+                            @Html.CustomLabelFor(m => m.Form.CLASSCNAME, new { @class = "form-label-search"})
+                            @*<label for="keyword" class="form-label-search">班別名稱檢索</label>*@
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Form.CLASSCNAME, new { @class = "form-control", placeholder = "請輸入訓練班別名稱",title = "請輸入訓練班別名稱" })
+                            </div>
+
+                        </div>
+                        <div class="form-group-search"> </div>
+                        <div class="clearfix"></div>
+                        <div class="submit-bar">
+                            <button type="submit" class="btn-orange" title="送出">送出</button>
+                            <button type="reset"  class="btn-refill" title="取消">取消</button>
+                        </div>
+                    </div>
+                </p>
+                    <!-- search form end -->
+            </div>
+        </div>
+        <div class="clearfix"></div>
+
+    </div>
+
+}
+

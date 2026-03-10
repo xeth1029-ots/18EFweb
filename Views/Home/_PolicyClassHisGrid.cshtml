@@ -1,0 +1,28 @@
+﻿@model WDAIIP.WEB.Models.HomeViewModel
+
+@if (Model.PolicyClassHisGrid != null && Model.PolicyClassHisGrid.Count > 0)
+{
+
+    foreach (var item in Model.PolicyClassHisGrid)
+    {
+        string plantype = "";
+        switch (item.TPLANID)
+        {
+            case "28":
+                plantype = "1";
+                break;
+            case "06":
+                plantype = "2";
+                break;
+            case "70":
+                plantype = "5";
+                break;
+        }
+        <li><a href="javascript:showClassDetail(@plantype,@item.OCID);" title="@item.CLASSCNAME">@item.CLASSCNAME</a></li>
+    }
+
+}
+else
+{
+    <li><center>尚無資料</center></li>
+}

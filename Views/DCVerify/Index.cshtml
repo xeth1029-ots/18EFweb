@@ -1,0 +1,105 @@
+﻿@model WDAIIP.WEB.Models.DigiCertViewModel
+@using WDAIIP.WEB.DataLayers
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+
+@{
+    ViewBag.Title = "數位結訓證明--線上查驗";
+    ViewBag.Tit2 = "線上查驗";
+    ViewBag.Tit3 = "數位結訓證明有效性檢核";
+
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+
+    SessionModel sm = SessionModel.Get();
+
+}
+
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration: none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 數位結訓證明 / @ViewBag.Tit2 </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-pink"><i class="fas fa-edit space-right"></i>@ViewBag.Tit3</h3>
+    <!-- note info -->
+    <!-- personal info -->
+    @using (Html.BeginForm("Index", "DCVerify", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+    {
+        @Html.HiddenFor(m => m.Form.DCANO)
+        @Html.HiddenFor(m => m.Form.DCASENO)
+        @Html.HiddenFor(m => m.Form.EMVCODE)
+        <div class="unit-border">
+            <h3 class="titlebar titlebarBg-green">@ViewBag.Tit3</h3>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.DCASENO, new { @class = "form-label-data" })
+                <div class="form-input-dataHelf">@Model.Form.DCASENO</div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.CERTSTATUS, new { @class = "form-label-data" })
+                <div class="form-input-dataHelf">@Model.Form.CERTSTATUS</div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.IDNO, new { @class = "form-label-data" })
+                <div class="form-input-dataHelf">@Model.Form.IDNO_MK</div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.CNAME, new { @class = "form-label-data" })
+                <div class="form-input-dataHelf">@Model.Form.CNAME_MK</div>
+            </div>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.APPLNDATE, new { @class = "form-label-data" })
+                <div class="form-input-dataHelf">@Model.Form.APPLNDATE_ROC</div>
+            </div>
+            <span class="text-primary" style="color:#007b8e"><p>&nbsp;</p></span>
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-result">
+                <tr>
+                    <td width="100%">
+                        <span class="text-primary" style="color:#007b8e">
+                            若您無法正確掃描到結訓證書數位證明上之「QR Code」也可在下方自行輸入數位證明上之檢查碼進行驗證,謝謝。
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <span class="text-primary" style="color:#007b8e"><p>&nbsp;</p></span>
+            <div class="form-group-search">
+                @Html.LabelFor(m => m.Form.GUID1, new { @class = "form-label-data form-label-star-data" })
+                <div class="form-input-dataHelf">
+                    @Html.TextBoxFor(m => m.Form.GUID1, new { @class = "form-control", placeholder = "請輸入 驗證碼", maxlength = "66", title = "請輸入 驗證碼", autocomplete = "off" })
+                </div>
+            </div>
+            <div class="submit-bar">
+                <button type="button" data-role="VerifyData" class="btn-orange" title="驗證">驗證</button>
+            </div>
+            <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-result">
+                <tr>
+                    <td width="100%">
+                        <span class="text-primary" style="color:#007b8e">
+                            如有相關疑問,請於服務時間(週一至週五8:30至18:30,不含 國定假日)來電台灣就業通客服中心0800-777-888,或來信 客服信箱,我們將於上班時間主動與您聯繫,謝謝!
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    }
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // 時間倒數 //window.setTimeout('show_secs()', 1);
+
+        // 資料驗證 VerifyData
+        $("button[data-role=VerifyData]").on("click", function () {
+            var form = $("form#main_form");
+            form.submit();
+        });
+
+        // 回個資確認頁 GoBack
+        $("button[data-role=GoBack]").click(function () {
+            $("form#GoBackForm").submit();
+        });
+
+    });
+
+</script>

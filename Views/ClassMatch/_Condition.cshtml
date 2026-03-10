@@ -1,0 +1,206 @@
+﻿@model WDAIIP.WEB.Models.ClassMatchViewModel
+
+@{
+//此為查詢頁切換計畫類別，欲變換的條件區塊
+}
+
+<!-- 自辦在職進修課程速配設定選項 -->
+@switch (Model.Form.PlanType)
+{
+    case "1": //產業人才投資方案
+        <div class="form-group-search">
+            <label class="form-label-search" style="color:red">(必填)</label>
+            <div style="padding-left:1em">
+                本人
+                <label class="form-inline">
+                    @Html.RadioButtonFor(m => m.Form.SENDMAIL28, "Y", new { @class = "form-inline radioset", id = "rdo_SENDMAIL28_Y" })
+                    <label style="font-weight:normal; cursor:pointer" for="rdo_SENDMAIL28_Y"><strong>希望</strong></label><br />
+                </label>
+                <label class="form-inline">
+                    @Html.RadioButtonFor(m => m.Form.SENDMAIL28, "N", new { @class = "form-inline radioset", id = "rdo_SENDMAIL28_N" })
+                    <label style="font-weight:normal; cursor:pointer" for="rdo_SENDMAIL28_N"><strong>不希望</strong></label>
+                </label>
+                定期收到產業人才投資方案速配課程資訊。(如點選「希望」，個人基本資料需填妥email)
+            </div>
+        </div>
+        <div class="form-group-search">
+            @*@Html.CustomLabelFor(m => m.Form.CTID, new { @class = "form-label-search" })*@
+            @*2019-01-31 問題11 課程地點所屬縣市別改為必填，增加「全部」選項（即全選/全不選）*@
+            <label for="Detail_DEGREEID" class="form-label-search"><span style="color:red">(必填)</span> 課程地點所屬縣市別</label>
+            <div class="form-input form-inline">
+                <div style="padding-left:16px">
+                    @Html.CheckBoxListFor(m => m.Form.CTID_SHOW, Model.CTID_list, new { @class = "width-auto",title="請選擇縣市別",data_role= "CTID_Items" })
+                </div>
+            </div>
+        </div>
+        @*<div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.TMID, new { @class = "form-label-search" })
+                <div class="form-input form-inline" style="padding-left:16px;">
+                    @Html.CheckBoxListFor(m => m.Form.TMID_SHOW, Model.TMID_list, new { @class = "widest" })
+                </div>
+            </div>*@
+        <div class="form-group-search">
+            <label for="keyword" class="form-label-search">訓練業別</label>
+            <div class="form-input form-inline">
+                @if (Model.TMIDGrid != null)
+                {
+                    for (int i = 0; i < Model.TMIDGrid.Count; i++)
+                    {
+                        var lv1Item = Model.TMIDGrid[i];
+                @*第一層選項*@
+                <label>
+                    @Html.CheckBox("Form.JOBTMID", false, new { value = lv1Item.JOBTMID, data_role = lv1Item.JOBTMID,title = "請選擇訓練業別" })
+                    @lv1Item.JOBNAME
+                </label>
+                <a href="javascript:void(0)" class="expand_@i" onclick="doChkExpand(@i)" title="展開子選項" style="display:none"><span class="glyphicon glyphicon-chevron-down">展開</span></a>
+                <a href="javascript:void(0)" class="collapse_@i" onclick="doChkExpand(@i)" title="收合子選項"><span class="glyphicon glyphicon-chevron-up">收合</span></a>
+                <br />
+
+                @*第二層選項*@
+                <div class="subChkContent_@i">
+                    @Html.CheckBoxListFor(m => m.TMIDGrid[i].TMIDLv2SelValue, lv1Item.TMID_list, new { data_role = "TMIDLv2SelValue_" + lv1Item.JOBTMID, label_style = "font-weight:lighter", style = "padding-left:30px;", @class = "width-auto", title = "請選擇訓練業別", data_jobtmid=lv1Item.JOBTMID })
+                </div>
+                    }
+                }
+            </div>
+
+        </div>
+        break;
+    case "2": //在職進修
+        <div class="form-group-search">
+            <label class="form-label-search" style="color:red">(必填)</label>
+            <div style="padding-left:1em">
+                本人
+                <label class="form-inline">
+                    @Html.RadioButtonFor(m => m.Form.SENDMAIL06, "Y", new { @class = "form-inline radioset", id = "rdo_SENDMAIL06_Y" })
+                    <label style="font-weight:normal; cursor:pointer" for="rdo_SENDMAIL06_Y"><strong>希望</strong></label><br />
+                </label>
+                <label class="form-inline">
+                    @Html.RadioButtonFor(m => m.Form.SENDMAIL06, "N", new { @class = "form-inline radioset", id = "rdo_SENDMAIL06_N" })
+                    <label style="font-weight:normal; cursor:pointer" for="rdo_SENDMAIL06_N"><strong>不希望</strong></label>
+                </label>
+                定期收到分署自辦在職訓練速配課程資訊。(如點選「希望」，個人基本資料需填妥email)
+            </div>
+        </div>
+        <div class="form-group-search">
+            @*@Html.CustomLabelFor(m => m.Form.DISTID, new { @class = "form-label-search" })*@
+            <label for="Detail_DEGREEID" class="form-label-search"><span style="color:red">(必填)</span>分署別</label>
+            <div class="form-input form-inline" style="padding-left:16px;">
+                @Html.CheckBoxListFor(m => m.Form.DISTID_SHOW, Model.DISTID_list, new { @class = "width-auto",title= "請選擇分署別",data_role="DISTID_Items" })
+            </div>
+        </div>
+        <div class="form-group-search">
+            <label for="keyword" class="form-label-search">通俗職類別</label>
+            <div class="form-input form-inline">
+                @if (Model.CJobNoGrid != null)
+                {
+                    for (int i = 0; i < Model.CJobNoGrid.Count; i++)
+                    {
+                        var lv1Item = Model.CJobNoGrid[i];
+                        var lv2List = lv1Item.CJOBNOLv2ListItem;
+                @*第一層選項*@
+                <label>
+                    @Html.CheckBox("Form.CJOBTYPE", false, new { value = lv1Item.CJOBTYPE, data_role = lv1Item.CJOBTYPE, title = "請選擇通俗職類別" })
+                    @lv1Item.CJOBNAME
+                </label>
+                <a href="javascript:void(0)" class="expand_@i" onclick="doChkExpand(@i)" title="展開子選項" style="display:none"><span class="glyphicon glyphicon-chevron-down">展開</span></a>
+                <a href="javascript:void(0)" class="collapse_@i" onclick="doChkExpand(@i)" title="收合子選項"><span class="glyphicon glyphicon-chevron-up">收合</span></a>
+                <br />
+
+                <div class="subChkContent_@i">
+                    @if (lv2List != null)
+                        {
+
+                            for (int j = 0; j < lv2List.Count; j++)
+                            {
+                                var lv2Item = lv2List[j];
+                            @*第二層選項*@
+                            <div style="padding-left:16px">
+                                <label>
+                                    @Html.CheckBox("Form.CJOBNO", false, new { value = lv2Item.CJOBNO, data_role = "CJOBNOLv2SelValue_" + lv1Item.CJOBTYPE, data_cjobtype = lv1Item.CJOBTYPE, data_cjobno = lv2Item.CJOBNO, title = "請選擇通俗職類別" })
+                                    @lv2Item.CJOBNAME
+                                </label>
+                            </div>
+
+                            @*第三層選項*@
+                            @Html.CheckBoxListFor(m => m.CJobNoGrid[i].CJOBNOLv2ListItem[j].CJOBNOLv3SelValue, lv2Item.CJOBNO_list, new { data_role = "CJOBNOLv3SelValue_" + lv1Item.CJOBTYPE + "_" + lv2Item.CJOBNO, label_style = "font-weight:lighter", style = "padding-left:50px;", @class = "width-auto", title = "請選擇通俗職類別",data_cjobtype=lv1Item.CJOBTYPE,data_cjobno=lv2Item.CJOBNO })
+                            }
+                        }
+                </div>
+
+                <br />
+                    }
+                }
+            </div>
+        </div>
+        break;
+    case "5": //區域產業據點
+        <div class="form-group-search">
+            <label class="form-label-search" style="color:red">(必填)</label>
+            <div style="padding-left:1em">
+                本人
+                <label class="form-inline">
+                    @Html.RadioButtonFor(m => m.Form.SENDMAIL70, "Y", new { @class = "form-inline radioset", id = "rdo_SENDMAIL70_Y" })
+                    <label style="font-weight:normal; cursor:pointer" for="rdo_SENDMAIL70_Y"><strong>希望</strong></label><br />
+                </label>
+                <label class="form-inline">
+                    @Html.RadioButtonFor(m => m.Form.SENDMAIL70, "N", new { @class = "form-inline radioset", id = "rdo_SENDMAIL70_N" })
+                    <label style="font-weight:normal; cursor:pointer" for="rdo_SENDMAIL70_N"><strong>不希望</strong></label>
+                </label>
+                定期收到區域產業據點速配課程資訊。(如點選「希望」，個人基本資料需填妥email)
+            </div>
+        </div>
+        <div class="form-group-search">
+            @*@Html.CustomLabelFor(m => m.Form.DISTID, new { @class = "form-label-search" })*@
+            <label for="Detail_DEGREEID" class="form-label-search"><span style="color:red">(必填)</span> 分署別</label>
+            <div class="form-input form-inline" style="padding-left:16px;">
+                @Html.CheckBoxListFor(m => m.Form.DISTID_SHOW, Model.DISTID_list, new { @class = "width-auto", title = "請選擇分署別", data_role = "DISTID_Items" })
+            </div>
+        </div>
+        <div class="form-group-search">
+            <label for="keyword" class="form-label-search">通俗職類別</label>
+            <div class="form-input form-inline">
+                @if (Model.CJobNoGrid != null)
+                {
+                    for (int i = 0; i < Model.CJobNoGrid.Count; i++)
+                    {
+                        var lv1Item = Model.CJobNoGrid[i];
+                        var lv2List = lv1Item.CJOBNOLv2ListItem;
+                        @*第一層選項*@
+                        <label>
+                            @Html.CheckBox("Form.CJOBTYPE", false, new { value = lv1Item.CJOBTYPE, data_role = lv1Item.CJOBTYPE, title = "請選擇通俗職類別" })
+                            @lv1Item.CJOBNAME
+                        </label>
+                        <a href="javascript:void(0)" class="expand_@i" onclick="doChkExpand(@i)" title="展開子選項" style="display:none"><span class="glyphicon glyphicon-chevron-down">展開</span></a>
+                        <a href="javascript:void(0)" class="collapse_@i" onclick="doChkExpand(@i)" title="收合子選項"><span class="glyphicon glyphicon-chevron-up">收合</span></a>
+                        <br />
+
+                        <div class="subChkContent_@i">
+                            @if (lv2List != null)
+                            {
+
+                                for (int j = 0; j < lv2List.Count; j++)
+                                {
+                                    var lv2Item = lv2List[j];
+                                    @*第二層選項*@
+                                    <div style="padding-left:16px">
+                                        <label>
+                                            @Html.CheckBox("Form.CJOBNO", false, new { value = lv2Item.CJOBNO, data_role = "CJOBNOLv2SelValue_" + lv1Item.CJOBTYPE, data_cjobtype = lv1Item.CJOBTYPE, data_cjobno = lv2Item.CJOBNO, title = "請選擇通俗職類別" })
+                                            @lv2Item.CJOBNAME
+                                        </label>
+                                    </div>
+
+                                    @*第三層選項*@
+                                    @Html.CheckBoxListFor(m => m.CJobNoGrid[i].CJOBNOLv2ListItem[j].CJOBNOLv3SelValue, lv2Item.CJOBNO_list, new { data_role = "CJOBNOLv3SelValue_" + lv1Item.CJOBTYPE + "_" + lv2Item.CJOBNO, label_style = "font-weight:lighter", style = "padding-left:50px;", @class = "width-auto", title = "請選擇通俗職類別", data_cjobtype = lv1Item.CJOBTYPE, data_cjobno = lv2Item.CJOBNO })
+                                }
+                            }
+                        </div>
+
+                        <br />
+                    }
+                }
+            </div>
+        </div>
+        break;
+
+}

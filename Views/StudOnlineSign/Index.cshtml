@@ -1,0 +1,86 @@
+﻿@model WDAIIP.WEB.Models.StudOnlineViewModel
+@using WDAIIP.WEB.DataLayers
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+
+@{
+    ViewBag.Title = "會員專區--學員線上表單";
+    ViewBag.Tit2 = "學員線上表單";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    bool CANVIEW = Model.Form.CANVIEW;
+}
+
+
+@using (Html.BeginForm("Index", "StudOnlineSign", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+{
+    <div class="col-sm-12">
+        <!-- bread start --->
+        <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / @ViewBag.Tit2</div>
+        <!-- bread end --->
+        <h3 class="main-title main-title-pink"><i class="fas fa-history space-right"></i>@ViewBag.Tit2</h3>
+        <!-- search form start -->
+        <div class="unit-border">
+            <div class="unit-bg unit-bg-pink">
+                <p>
+                    <strong>本功能使用說明：</strong> <br />
+                </p>
+                <ol>
+                    <li>本功能提供參訓學員可線上簽署各項開訓期間及補助申請所需填寫的表單文件。</li>
+                    <li>依電子簽章法第4條、第6條及第9條第2款規定，依法令應以書面或以簽名蓋章為之者，均得以電子文件或電子簽章為之。</li>
+                    <li>為使民眾報名時更為順暢，本功能於每日11:45至13:00不開放查詢，請避開本時段再做查詢，謝謝。</li>
+                </ol>
+            </div>
+            <div class="clearfix"></div>
+            @if (CANVIEW)
+            {
+                <div class="clearfix"></div>
+                <div class="table-responsive">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-responsive table-newsList">
+                        <thead>
+                            <tr>
+                                <th style="width:14%">轄區分署</th>
+                                <th style="width:6%">年度</th>
+                                <th style="width:13%">訓練計畫</th>
+                                <th style="width:13%">訓練機構</th>
+                                <th style="width:14%">班別名稱</th>
+                                <th style="width:8%">受訓時數</th>
+                                <th style="width:10%">受訓期間</th>
+                                <th style="width:8%">訓練狀態</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rows">
+                            @Html.Partial("_GridRows", Model)
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+                <div class="unit-bg unit-bg-gray">
+                </div>
+            }
+            <div class="clearfix"></div>
+            @*<div class="submit-bar"> <button type="button" data-role="ReturnLastPage" class="btn-orange" title="回上一頁">回上一頁</button> </div>*@
+            <!-- search form end -->
+        </div>
+    </div>
+}
+
+@using (Html.BeginForm("DetailF", "StudOnlineSign", FormMethod.Post, htmlAttributes: new { id = "GoDetailForm" }))
+{
+    @Html.Hidden("SOCID")
+    @Html.Hidden("OCID")
+    @Html.Hidden("SID")
+}
+
+<script type="text/javascript">
+    @* $(document).ready(function () { var idHead = "#Form_";//回上一頁$("button[data-role=ReturnLastPage]").on("click", function () {history.go(-1);});});*@
+    @*瀏覽課程*@
+    function doDetail(socid, ocid, sid)
+    {
+        //debugger;
+        $("#SOCID").val(socid);
+        $("#OCID").val(ocid);
+        $("#SID").val(sid);
+        @*$("form#GoDetailForm").attr("action", "@Url.Action("Detail")").submit();*@
+        $("form#GoDetailForm").submit();
+    }
+</script>

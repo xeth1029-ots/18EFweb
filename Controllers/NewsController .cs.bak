@@ -1,0 +1,114 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using WDAIIP.WEB.DataLayers;
+using WDAIIP.WEB.Models;
+
+namespace WDAIIP.WEB.Controllers
+{
+    public class NewsController : BaseController
+    {
+        // GET: News
+        /// <summary>
+        /// 最新消息/焦點新片-查詢結果清單頁
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public ActionResult Index()
+        {
+            SessionModel sm = SessionModel.Get();
+            NewsViewModel model = new NewsViewModel();
+            NewsFormModel form = model.Form;
+            ActionResult rtn = View("Index", model);
+
+            //設定最新消息明細頁導回依據
+            sm.NewsIndexController = @Url.Action("Index", "News");
+
+            if (form.useCache > 0 || ModelState.IsValid)
+            {
+                ModelState.Clear();
+
+                // 欄位檢核 OK, 處理查詢
+                WDAIIPWEBDAO dao = new WDAIIPWEBDAO();
+
+                // 設定查詢分頁資訊
+                dao.SetPageInfo(form.rid, form.p);
+
+                // 依輸入條件進行查詢
+                model.Grid = dao.QueryNews();
+
+                // 設定分頁元件(_PagingLink partial view)所需的資訊
+                base.SetPagingParams(form, dao, "Index");
+            }
+
+            return rtn;
+        }
+
+        /// <summary>
+        /// 最新消息/焦點新片-查詢結果清單頁
+        /// </summary>
+        /// <param name="form"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult Index(NewsFormModel form)
+        {
+            SessionModel sm = SessionModel.Get();
+            NewsViewModel model = new NewsViewModel();
+            ActionResult rtn = View("Index", model);
+
+            if (form.useCache > 0 || ModelState.IsValid)
+            {
+                ModelState.Clear();
+
+                // 欄位檢核 OK, 處理查詢
+                WDAIIPWEBDAO dao = new WDAIIPWEBDAO();
+
+                // 設定查詢分頁資訊
+                dao.SetPageInfo(form.rid, form.p);
+
+                // 依輸入條件進行查詢
+                model.Grid = dao.QueryNews();
+
+                // 從 cache 中取回 或 從 DB 中查詢 (自動根據 rid 判斷)
+                if (!string.IsNullOrEmpty(form.rid) && form.useCache == 0)
+                {
+                    rtn = PartialView("_GridRows", model);
+                }
+
+                // 設定分頁元件(_PagingLink partial view)所需的資訊
+                base.SetPagingParams(form, dao, "Index");
+            }
+
+            return rtn;
+        }
+
+        /// <summary>
+        /// 最新消息-明細頁
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult Detail(Int64? seqno)
+        {
+            if (!seqno.HasValue)
+            {
+                throw new ArgumentNullException("seqno ");
+            }
+
+            SessionModel sm = SessionModel.Get();
+            NewsViewModel model = new NewsViewModel();
+            WDAIIPWEBDAO dao = new WDAIIPWEBDAO();
+
+            model.Detail = dao.GetNewsDetail(seqno.Value);
+
+            if (model.Detail == null)
+            {
+                sm.LastResultMessage = "查無資料";
+                //sm.RedirectUrlAfterBlock = sm.NewsIndexController;
+            }
+
+            return View("Detail", model);
+        }
+    }
+}

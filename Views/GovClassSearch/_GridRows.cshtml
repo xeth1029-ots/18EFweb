@@ -1,0 +1,21 @@
+﻿@model WDAIIP.WEB.Models.GovClassSearchViewModel
+
+@if (Model == null || Model.Grid == null || Model.Grid.Count == 0)
+{
+    <tr><td colspan="6" style="text-align:center;">查無資料</td></tr>
+}
+else
+{
+    foreach (var item in Model.Grid)
+    {
+        <tr>
+            <td><a href="javascript:showDetail(@(item.CPID))" title="@(item.CLASSCNAME)">@item.CLASSCNAME</a></td>
+            <td>@item.ORGNAME</td>
+            <td>@item.CLASSPOS</td>
+            <td>@item.SENTERDATE_TW <br>|<br> @item.FENTERDATE_TW</td>
+            <td>@item.STDATE_TW <br>|<br> @item.FTDATE_TW</td>
+            <td>@item.HOURRANNAME</td>
+        </tr>
+    }
+}
+

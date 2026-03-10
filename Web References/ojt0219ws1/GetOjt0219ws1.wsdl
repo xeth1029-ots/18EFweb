@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://ojt/OJTWS/GetOjt0219ws1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://ojt/OJTWS/GetOjt0219ws1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://ojt/OJTWS/GetOjt0219ws1">
+      <s:element name="GetDataS3">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="aIDNO" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDataS3Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDataS3Result">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRemSubCost">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="aIDNO" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="STDATE1" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRemSubCostResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetRemSubCostResult" type="s:double" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSumOfMoneyCost">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="aIDNO" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="STDATE1" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSumOfMoneyCostResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetSumOfMoneyCostResult" type="s:double" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTotalSubCost">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="aIDNO" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="STDATE1" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTotalSubCostResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetTotalSubCostResult" type="s:double" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetLabCostDay">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="aIDNO" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="STDATE1" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="MSGTITLE1" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetLabCostDayResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetLabCostDayResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DataSet" nillable="true">
+        <s:complexType>
+          <s:sequence>
+            <s:element ref="s:schema" />
+            <s:any />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="double" type="s:double" />
+      <s:element name="string" nillable="true" type="s:string" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetDataS3SoapIn">
+    <wsdl:part name="parameters" element="tns:GetDataS3" />
+  </wsdl:message>
+  <wsdl:message name="GetDataS3SoapOut">
+    <wsdl:part name="parameters" element="tns:GetDataS3Response" />
+  </wsdl:message>
+  <wsdl:message name="GetRemSubCostSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRemSubCost" />
+  </wsdl:message>
+  <wsdl:message name="GetRemSubCostSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRemSubCostResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSumOfMoneyCostSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSumOfMoneyCost" />
+  </wsdl:message>
+  <wsdl:message name="GetSumOfMoneyCostSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSumOfMoneyCostResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTotalSubCostSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTotalSubCost" />
+  </wsdl:message>
+  <wsdl:message name="GetTotalSubCostSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTotalSubCostResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetLabCostDaySoapIn">
+    <wsdl:part name="parameters" element="tns:GetLabCostDay" />
+  </wsdl:message>
+  <wsdl:message name="GetLabCostDaySoapOut">
+    <wsdl:part name="parameters" element="tns:GetLabCostDayResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDataS3HttpGetIn">
+    <wsdl:part name="aIDNO" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetDataS3HttpGetOut">
+    <wsdl:part name="Body" element="tns:DataSet" />
+  </wsdl:message>
+  <wsdl:message name="GetRemSubCostHttpGetIn">
+    <wsdl:part name="aIDNO" type="s:string" />
+    <wsdl:part name="STDATE1" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRemSubCostHttpGetOut">
+    <wsdl:part name="Body" element="tns:double" />
+  </wsdl:message>
+  <wsdl:message name="GetSumOfMoneyCostHttpGetIn">
+    <wsdl:part name="aIDNO" type="s:string" />
+    <wsdl:part name="STDATE1" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSumOfMoneyCostHttpGetOut">
+    <wsdl:part name="Body" element="tns:double" />
+  </wsdl:message>
+  <wsdl:message name="GetTotalSubCostHttpGetIn">
+    <wsdl:part name="aIDNO" type="s:string" />
+    <wsdl:part name="STDATE1" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetTotalSubCostHttpGetOut">
+    <wsdl:part name="Body" element="tns:double" />
+  </wsdl:message>
+  <wsdl:message name="GetLabCostDayHttpGetIn">
+    <wsdl:part name="aIDNO" type="s:string" />
+    <wsdl:part name="STDATE1" type="s:string" />
+    <wsdl:part name="MSGTITLE1" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLabCostDayHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:portType name="GetOjt0219ws1Soap">
+    <wsdl:operation name="GetDataS3">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">學員在職參訓歷史 資料撈取，依IDNO</wsdl:documentation>
+      <wsdl:input message="tns:GetDataS3SoapIn" />
+      <wsdl:output message="tns:GetDataS3SoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRemSubCost">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">每3年所使用的補助金 剩餘可用額度，依IDNO,STDATE1</wsdl:documentation>
+      <wsdl:input message="tns:GetRemSubCostSoapIn" />
+      <wsdl:output message="tns:GetRemSubCostSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSumOfMoneyCost">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">每3年所使用的補助金 已使用補助經費，依IDNO,STDATE1</wsdl:documentation>
+      <wsdl:input message="tns:GetSumOfMoneyCostSoapIn" />
+      <wsdl:output message="tns:GetSumOfMoneyCostSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTotalSubCost">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">每3年所使用的補助金 可用補助金總額，依IDNO,STDATE1</wsdl:documentation>
+      <wsdl:input message="tns:GetTotalSubCostSoapIn" />
+      <wsdl:output message="tns:GetTotalSubCostSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLabCostDay">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">每3年所使用的補助金 計算開始日為 sDate ~ eDate，依IDNO,STDATE1</wsdl:documentation>
+      <wsdl:input message="tns:GetLabCostDaySoapIn" />
+      <wsdl:output message="tns:GetLabCostDaySoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="GetOjt0219ws1HttpGet">
+    <wsdl:operation name="GetDataS3">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">學員在職參訓歷史 資料撈取，依IDNO</wsdl:documentation>
+      <wsdl:input message="tns:GetDataS3HttpGetIn" />
+      <wsdl:output message="tns:GetDataS3HttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRemSubCost">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">每3年所使用的補助金 剩餘可用額度，依IDNO,STDATE1</wsdl:documentation>
+      <wsdl:input message="tns:GetRemSubCostHttpGetIn" />
+      <wsdl:output message="tns:GetRemSubCostHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSumOfMoneyCost">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">每3年所使用的補助金 已使用補助經費，依IDNO,STDATE1</wsdl:documentation>
+      <wsdl:input message="tns:GetSumOfMoneyCostHttpGetIn" />
+      <wsdl:output message="tns:GetSumOfMoneyCostHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTotalSubCost">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">每3年所使用的補助金 可用補助金總額，依IDNO,STDATE1</wsdl:documentation>
+      <wsdl:input message="tns:GetTotalSubCostHttpGetIn" />
+      <wsdl:output message="tns:GetTotalSubCostHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLabCostDay">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">每3年所使用的補助金 計算開始日為 sDate ~ eDate，依IDNO,STDATE1</wsdl:documentation>
+      <wsdl:input message="tns:GetLabCostDayHttpGetIn" />
+      <wsdl:output message="tns:GetLabCostDayHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="GetOjt0219ws1Soap" type="tns:GetOjt0219ws1Soap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetDataS3">
+      <soap:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetDataS3" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRemSubCost">
+      <soap:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetRemSubCost" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSumOfMoneyCost">
+      <soap:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetSumOfMoneyCost" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTotalSubCost">
+      <soap:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetTotalSubCost" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLabCostDay">
+      <soap:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetLabCostDay" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="GetOjt0219ws1Soap12" type="tns:GetOjt0219ws1Soap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetDataS3">
+      <soap12:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetDataS3" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRemSubCost">
+      <soap12:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetRemSubCost" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSumOfMoneyCost">
+      <soap12:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetSumOfMoneyCost" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTotalSubCost">
+      <soap12:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetTotalSubCost" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLabCostDay">
+      <soap12:operation soapAction="http://ojt/OJTWS/GetOjt0219ws1/GetLabCostDay" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="GetOjt0219ws1HttpGet" type="tns:GetOjt0219ws1HttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="GetDataS3">
+      <http:operation location="/GetDataS3" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRemSubCost">
+      <http:operation location="/GetRemSubCost" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSumOfMoneyCost">
+      <http:operation location="/GetSumOfMoneyCost" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTotalSubCost">
+      <http:operation location="/GetTotalSubCost" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLabCostDay">
+      <http:operation location="/GetLabCostDay" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="GetOjt0219ws1">
+    <wsdl:port name="GetOjt0219ws1Soap" binding="tns:GetOjt0219ws1Soap">
+      <soap:address location="https://ojfile119.ejob.gov.tw/OJTWS/GetOjt0219ws1.asmx" />
+    </wsdl:port>
+    <wsdl:port name="GetOjt0219ws1Soap12" binding="tns:GetOjt0219ws1Soap12">
+      <soap12:address location="https://ojfile119.ejob.gov.tw/OJTWS/GetOjt0219ws1.asmx" />
+    </wsdl:port>
+    <wsdl:port name="GetOjt0219ws1HttpGet" binding="tns:GetOjt0219ws1HttpGet">
+      <http:address location="https://ojfile119.ejob.gov.tw/OJTWS/GetOjt0219ws1.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

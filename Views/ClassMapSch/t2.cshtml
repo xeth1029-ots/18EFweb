@@ -1,0 +1,728 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassMapSchViewModel
+@{
+    //ViewBag.Title = "Index"; ~/ClassMapSch
+    ViewBag.Title = "課程查詢報名--地圖找課程";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+}
+<style type="text/css">
+    .group-width input { margin-right: 8px; }
+    .group-width label { margin-right: 13px; }
+</style>
+
+<script type="text/javascript" src="@Url.Content(" ~/js/leaflet-src.js")"></script>
+<script type="text/javascript" src="@Url.Content(" ~/js/leaflet.markercluster-src.js")"></script>
+<script type="text/javascript" src="@Url.Content(" ~/js/leaflet_api.js")" charset="utf-8"></script>
+@*
+OWASP,09EC8EBB3E920B7CD6D0AC404ABA69A47D398A0080D287318314AAD70C84BADF5FD63C84F375AF6E4B7E08CFEE1F5B732A9D360EF62D8041975E35F8
+87873A9391F78D3C46743F7D7C72238886252EED711ABD98186A9A97F0A49C69CA872BEDA05A6C36BEA48D7FBAC2C9EF64DCD45E8511F7DAA5C81858
+84280D7D26C2449F11DB17A9B00D6D9C6FEDD28DE10B9E034CE6701927C94D9CD7458FDBE434B37B5EFBFF2AB4FB1E65719A43BC7AA0F36564D7AEAE
+7F42F3902F0750BB0306280EC7598271E73AD26F8AD1F3469FAE67F447A8487AE6562E0BCC4B679F7E9D9A233414C5C91E64D446BC1448999765B71E
+78BA1AEEF5A21CC7664EB1E1444D60810CFED38D0D9A83380E599140283871DA610CE16BEF33A3E1805153FAE2CCCEDCF4E2D8BF0C487F2A9E6D2358
+C1FB1688150D6110139A1C40AF25C1F9C95208D109AC1508420027D5EDF959D8CDCB6413E0EE2D1A478BC423F1EACEC770C179A982CC6FB386846507
+9706CAE06EEEA35073DBB27AF16D93DE821177C1DDB3BDC52CC8DC5ADCCF4FB4FAD027A8D20B86D8E8B082539BE9AD276774867894E6750962E41446
+7138A2C04D0CFE2DF25EA733CC5EBED25FE03573381D876F5939A9F33D9E46A1D6FDEB5341AE2E82AAE3C0BB39AA4F756B0F230872E8B598AB00BF28
+4606B4E1A47869A1643999132FB6BE154D434C1E082A155560B0969706BB73299A1647B18FA59631B5E8818D5994DB159A841C146C6AA89477187885
+228DF2252D35B9BF23A074950D4CAD2364384EF7369C43AC4F396172D9ABF4597B713EB68413E4E2E0F82B094D3070607054FC4F79D0E0F663054A92
+D17244A5772F4AA947B65962263B793634DAECDA20FC6F34
+*@
+<script type="text/javascript" src="@Url.Content("~/js/tgos_map.js")" charset="utf-8"></script>
+<script type="text/javascript" src="@Url.Content("~/js/jquery.touchSwipe.min.js")" charset="utf-8"></script>
+<script type="text/javascript" src="@Url.Content("~/js/map_list_rwd.js")" charset="utf-8"></script>
+@*<script type="text/javascript" src="@Url.Content("~/js/service_location_map.js")" charset="utf-8"></script>*@
+<script type="text/javascript" src="@Url.Content("~/js/base64.js")"></script>
+
+<script type="text/javascript">
+    //rbl_RegDate
+    $(document).ready(function () {
+
+        var $body = (window.opera) ? (document.compatMode == "CSS1Compat" ? $('html') : $('body')) : $('html,body');
+        var sTop = 120;  // 上方標題處
+
+        if ($("[id*=hidIsSearchBack]").val() == "Y") {
+            // 若是查詢結果, 把頁面往上捲, 以最佳化地圖區塊顯示
+
+            if ($(window).width() <= 480) {
+                // 手機 RWD 模式, 捲到地圖區塊上緣
+                sTop = 400;
+            }
+            $body.animate({ scrollTop: sTop }, 500);
+        }
+        else {
+            // 直接 GET 開啟
+            if ($(window).width() <= 480) {
+                // 手機 RWD 模式, 捲到頁面最上方(避免 browser 保存前次的頁面位置)
+                $body.animate({ scrollTop: 0 }, 500);
+            }
+        }
+
+        //Initial status
+        //var optionSelected = $("input[type='radio'][name='ctl00$CPH1$rblExcludeCondition']:checked").val();
+
+
+        //Hide the query conditions
+        function hideQueryCond() {
+            var qCondHtml = $("#search_condition").html();
+            console.log("hide html=" + qCondHtml);
+            $("#hdJobQueryCondition").val(qCondHtml);
+        }
+        //Show the query conditions
+        function showQueryCond() {
+            var qCondHtml = $("#hdJobQueryCondition").val();
+            if (qCondHtml != "") {
+                console.log("show html=" + qCondHtml);
+                $("#search_condition").html(qCondHtml);
+                $("#hdJobQueryCondition").val("");
+            }
+        }
+
+        //collapse icon (分頁)
+        $('#spanExpendAll').click(function () {
+            if ($('#spanExpendAll').prop('class') === 'glyphicon glyphicon-plus') {
+                $('#spanExpendAll').prop('class', 'glyphicon glyphicon-minus')
+                $(".panel-group .collapse").parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+            } else {
+                $('#spanExpendAll').prop('class', 'glyphicon glyphicon-plus')
+                $(".panel-group .collapse").parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+            }
+            //$('#CPH1_jobQueryDiv1 .panel-collapse').collapse('toggle');
+        });
+        //collapse icon (捲動)
+        $('#spanExpendAll2').click(function () {
+            if ($('#spanExpendAll2').prop('class') === 'glyphicon glyphicon-plus') {
+                $('#spanExpendAll2').prop('class', 'glyphicon glyphicon-minus')
+                $(".panel-group .collapse").parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
+            } else {
+                $('#spanExpendAll2').prop('class', 'glyphicon glyphicon-plus')
+                $(".panel-group .collapse").parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+            }
+            //$('#CPH1_jobQueryDiv2 .panel-collapse').collapse('toggle');
+        });
+    });
+    var flag = 0;
+    function displayWait() {
+        //var obj = $("#<%= ModalPopup.ClientID%>"); //obj.css("display", "block");
+    }
+</script>
+
+<script type="text/javascript">
+    function togglePanlConditions() {
+        var w = $(window).width();
+        //if (w > 480) {
+        //    console.log("window.width=" + w + " > 480 open panlConditions.");
+        //    $('#panlConditions').addClass('in');
+        //    changeToogleMoreCondIcon(true, "panlConditions");
+        //}
+    }
+
+    $(window).resize(function () {
+        togglePanlConditions();
+        //resizeItem('list_zone');
+    });
+    $(document).ready(function () {
+
+        $('#panlConditions')
+            .on('hide.bs.collapse', function (e) {
+                //console.log(e.target);
+                changeToogleMoreCondIcon(false, $(e.target).attr("id"));
+            })
+            .on('show.bs.collapse', function (e) {
+                //console.log(e.target);
+                changeToogleMoreCondIcon(true, $(e.target).attr("id"));
+            });
+
+        togglePanlConditions();
+        //resizeItem('list_zone');
+        mapListRwd.init('.list_zone');
+    });
+</script>
+
+<input type="hidden" id="hidJobBounds" />
+<input type="hidden" id="hidSearchBounds" />
+<input type="hidden" id="hidSearchLoc" />
+<input type="hidden" id="hidOpenNotSearch" />
+
+<div class="left06">
+    <!--左邊維度清單 START-->
+    <div class="other_conditions"></div>
+    <!--左邊維度清單END-->
+</div>
+
+@*@Html.AntiForgeryToken()*@
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content(" ~/")" title="回首頁">首頁</a> / 課程查詢報名 / 地圖找課程</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fas fa-search space-right"></i>開班資料查詢條件</h3>
+    <!-- search form start -->
+    <div class="unit-border">
+        <div class="form-group-search">
+
+        </div>
+
+        <div class="clearfix"></div>
+        <div class="submit-bar">
+            <button type="submit" class="btn-orange" title="送出">送出</button>
+            <button type="button" data-role="Reset" class="btn-refill" title="取消">取消</button>
+        </div>
+        <p>
+        <p>
+            <!-- search form end -->
+    </div>
+</div>
+
+
+<div class="left06">
+    <!--左邊維度清單 START-->
+    <div class="other_conditions">
+
+        <div class="conditions_box01">
+            <button type="button" class="btn" data-toggle="collapse" data-target="#conditions01">
+                <p class="sr-only">展開/收合 分署別條件</p>
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            </button>
+            <div class="h5">分署別：</div>
+        </div>
+        <div id="conditions01" class="collapse">
+            <div class="conditions_box02">
+                <fieldset>
+                    <legend class="sr-only">選項</legend>
+                    <ul id="ul_conditions01">
+                        @foreach (var item1 in Model.DISTID_list)
+                        {
+                        string s_id_lab = string.Format("cb_DISTID_list_{0}", item1.Value);
+                        <li><input id="@s_id_lab" type="checkbox" value="@item1.Value" /><label for="@s_id_lab">@item1.DisplayText</label></li>
+                        }
+                    </ul>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="conditions_box01">
+            <button type="button" class="btn" data-toggle="collapse" data-target="#conditions02">
+                <p class="sr-only">展開/收合 開課日期區間</p>
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            </button>
+            <div class="h5">開課日期區間：</div>
+        </div>
+        <div id="conditions02" class="collapse">
+            <div class="conditions_box02">
+                <fieldset>
+                    <legend class="sr-only">選項</legend>
+                    <ul id="ul_conditions02">
+                        <li>
+                            @Html.DropDownListFor(m => m.Form.STDATE_YEAR_SHOW, Model.YEAR0_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_起日年份" })
+                            年
+                            @Html.DropDownListFor(m => m.Form.STDATE_MON, Model.MON_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_起日月份" })
+                            月
+                        </li>
+                        <li>至</li>
+                        <li>
+                            @Html.DropDownListFor(m => m.Form.FTDATE_YEAR_SHOW, Model.YEAR1_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_迄日年份" })
+                            年
+                            @Html.DropDownListFor(m => m.Form.FTDATE_MON, Model.MON_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_迄日月份" })
+                            月
+                        </li>
+                    </ul>
+
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="conditions_box01">
+            <button type="button" class="btn" data-toggle="collapse" data-target="#conditions03">
+                <p class="sr-only">展開/收合 是否截止報名</p>
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            </button>
+            <div class="h5">是否截止報名：</div>
+        </div>
+        <div id="conditions03" class="collapse">
+            <div class="conditions_box02">
+                <fieldset>
+                    <legend class="sr-only">選項</legend>
+                    <ul id="ul_conditions03">
+                        <li>
+                            <input id="rbl_IsContainsOver_0" name="rbl_IsContainsOver" type="radio" value="" checked="checked" /><label for="rbl_IsContainsOver_0">不拘</label>
+                            <input id="rbl_IsContainsOver_1" name="rbl_IsContainsOver" type="radio" value="1" /><label for="rbl_IsContainsOver_1">是</label>
+                            <input id="rbl_IsContainsOver_2" name="rbl_IsContainsOver" type="radio" value="2" /><label for="rbl_IsContainsOver_2">否</label>
+                        </li>
+                    </ul>
+                </fieldset>
+            </div>
+        </div>
+
+
+
+        <div class="conditions_box01">
+            <button type="button" class="btn" data-toggle="collapse" data-target="#conditions15">
+                <p class="sr-only">展開/收合 是否供宿條件</p>
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            </button>
+            <div class="h5">是否供宿：</div>
+        </div>
+        <div id="conditions15" class="collapse">
+            <div class="conditions_box02">
+                <fieldset>
+                    <legend class="sr-only">選項</legend>
+                    <ul id="CPH1_rbl_BoardExp">
+                        <li><input id="CPH1_rbl_BoardExp_0" type="radio" name="ctl00$CPH1$rbl_BoardExp" value="" checked="checked" /><label for="CPH1_rbl_BoardExp_0">不拘</label></li>
+                        <li><input id="CPH1_rbl_BoardExp_1" type="radio" name="ctl00$CPH1$rbl_BoardExp" value="1" /><label for="CPH1_rbl_BoardExp_1">提供</label></li>
+                        <li><input id="CPH1_rbl_BoardExp_2" type="radio" name="ctl00$CPH1$rbl_BoardExp" value="2" /><label for="CPH1_rbl_BoardExp_2">不提供</label></li>
+                    </ul>
+                </fieldset>
+            </div>
+        </div>
+
+    </div>
+    <!--左邊維度清單END-->
+</div>
+<!-- middle map -->
+<div class="mid06">
+    <!--map Start -->
+    <div id="map" class="job_search_map">
+        <div class="search_map_toolbar">
+            <button type="button" id="btnBoundSearch" class="btn btn-success" onclick="btnBoundSearchClick()">
+                <img src="@Url.Content(" ~/images/refreshIcon.svg")" width="16" alt="*" />
+                搜尋地圖區域
+            </button>
+            <button type="button" id="btnLocate" class="btn btn-primary" onclick="btnLocateClick()">
+                <img src="@Url.Content(" ~/images/locateUserPos.svg")" width="16" alt="*" />
+                定位您的地點
+            </button>
+        </div>
+    </div>
+    <!--map End -->
+</div>
+<div class="right06">
+    <!--conditions_list Start -->
+
+    <div class="search_map_list">
+
+        <!--筆數-->
+        <div class="list_title" id="search_map_list_title">
+            課程列表
+        </div>
+
+        <!-- Tab panes 主要  LISTVIEW 區 -->
+        <!-- Modal -->
+        <div class="modal fade" id="addressSelModal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">找到多個符合項目、請選擇（或輸入更完整資訊重新查詢）：</h4>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @*<asp:HiddenField ID="hidScrollIdx" runat="server" />*@
+        <div class="jwbox_left" style="display: none;"></div>
+        <div class="jwbox_left" style="display: none;"></div>
+        <div class="clear"></div>
+    </div>
+
+    <!--conditions_list End -->
+</div>
+
+<!-- 地圖相關 -->
+<script type="text/javascript">
+
+    var jobBounds = undefined;
+    var searchLoc = undefined;
+    var searchBounds = undefined;
+    var isMarkerFocused = false;
+    // 通知 onMapBoundsChanged() 不要連動更新右側站台清單
+    var preventBoundsChangeRefreshList = false;
+
+    $(document).ready(function () {
+
+        //jobBounds = $.parseJSON($("input[id*=hidJobBounds]").val());
+        //searchLoc = $.parseJSON($("input[id*=hidSearchLoc]").val());
+
+        var hidOpenNotSearch = $("input[id*=hidOpenNotSearch]").val();
+
+        // hidSearchBounds 格式是前次傳至後端的字串格式:  left/right/top/bottom
+        var bounds = $("input[id*=hidSearchBounds]").val().split('/');
+        if (bounds.length == 4) {
+            searchBounds = {
+                'left': bounds[0],
+                'right': bounds[1],
+                'top': bounds[2],
+                'bottom': bounds[3]
+            };
+        }
+
+        // binding Map event
+        mapEventHandler.zoomend = onMapBoundsChanged;
+        mapEventHandler.dragend = onMapBoundsChanged;
+
+        // 地圖起始參數
+        leafletApi.mapSetting.zoom = 8;  // 最大化顯示台灣地圖範圍
+
+        leafletApi.initMap("map", function () {
+            console.log("Map ready");
+
+            if ("Y" != hidOpenNotSearch) {
+
+                showJobMarkers();
+
+                var selCity = $("[id*=ddlCity] option:selected").val();
+                if (selCity) {
+                    // 查詢縣市,
+                    // 抓取 GeoJson 資料進行地理區域標示
+                    showGeoArea(selCity);
+                }
+
+            }
+
+            //if (searchLoc && searchLoc != 'undefined') {
+            //    var mPoint = new TGOS.TGPoint(searchLoc.x, searchLoc.y);
+            //    leafletApi.setSingleMarker([searchLoc.y, searchLoc.x], 40, $("input[id*=txt_AddrKeyword]").val());
+            //}
+        });
+
+
+        // 避免 Enter 觸發 form POST
+        $('form input:not([type="submit"])').keydown(function (e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+
+    // 查詢縣市,
+    // 抓取 GeoJson 資料進行地理區域標示
+    function showGeoArea(selCity) {
+        loadingMask("body");
+        var url = "/internet/index/js/CityGeoJson/" + selCity + ".json";
+        var getSuccess = false;
+        var geoData = undefined;
+        var jqxhr = $.get(url, function (data) {
+            console.log(data);
+            getSuccess = true;
+            geoData = data;
+        })
+        .fail(function () {
+            console.error("showGeoArea: Ajax Get failed: " + url);
+        })
+        .always(function () {
+            removeLoadingMask();
+            //showJobMarkers();
+            if (getSuccess) {
+                leafletApi.geoFill(geoData);
+            }
+        });
+    }
+
+    function onMapBoundsChanged(e) {
+        console.log("onMapBoundsChanged");
+        console.log(e);
+        /*
+        var geo = leafletApi.getMapBounds();
+        console.log(geo);
+
+        if (!isMarkerFocused && !preventBoundsChangeRefreshList) {
+            // 更新右側職缺列表
+            setTimeout(function () {
+                refreshJobList(geo);
+            }, 100);
+        }
+
+        // always reset
+        preventBoundsChangeRefreshList = false;
+        */
+    }
+
+    // 根據傳入的 geo bounds {left,top,right,bottom}
+    // 更新顯示右側職缺清單
+    function refreshJobList(geo) {
+        // 更新右側站台清單
+        var locZone = $(".list_zone");
+        var ulist = locZone.find("ul");
+        ulist.hide();
+
+        // 重新過濾右側職缺清單, 只顯示點選 marker 包含的職缺
+        var jobCount = 0;
+        ulist.each(function () {
+
+            var metaLi = $(this).find("li.meta");
+            var job = {};
+            job.HireId = metaLi.find("span#HireId").text();
+            job.JobName = metaLi.find("span#JobName").text();
+            job.MAP_X = metaLi.find("span#TWD97_X").text();
+            job.MAP_Y = metaLi.find("span#TWD97_Y").text();
+
+            var locX = parseFloat(job.MAP_X);
+            var locY = parseFloat(job.MAP_Y);
+            if (isNaN(locX) || isNaN(locY)) {
+                //沒有座標點, 略過
+                return;
+            }
+
+            if (geo.left <= locX && locX <= geo.right && geo.bottom <= locY && locY <= geo.top) {
+                $(this).show("slow");
+                jobCount++;
+            }
+        });
+
+        $("#search_map_list_title").html("地圖範圍共 <span>" + jobCount + "</span> 筆課程");
+    }
+
+    function showJobMarkers() {
+
+        // 標點顏色
+        var colors = ["#d64161", "#ff7b25", "#30ae30"];
+
+        // 準備標記點資料
+        var markerDatas = [];
+
+        // 找出所有職缺資訊
+        $(".list_zone").find("ul").each(function () {
+            var job = {};
+            var metaLi = $(this).find("li.meta");
+            job.HireId = metaLi.find("span#HireId").text();
+            job.JobName = metaLi.find("span#JobName").text();
+            job.MAP_X = metaLi.find("span#TWD97_X").text();
+            job.MAP_Y = metaLi.find("span#TWD97_Y").text();
+
+            var locX = parseFloat(job.MAP_X);
+            var locY = parseFloat(job.MAP_Y);
+            if (isNaN(locX) || isNaN(locY)) {
+                //沒有座標點, 略過
+                $(this).hide();
+                return;
+            }
+
+            // binding job list item event
+            $(this)
+                .on("click", function () { jobListItemClick($(this).data("id")); })
+                .mouseenter(function () { jobListItemHoverIn($(this).data("id")); })
+                .mouseleave(function () { jobListItemHoverOut($(this).data("id")); })
+
+            var markerData = {};
+            markerData.id = job.HireId;
+            markerData.name = job.JobName;
+            //markerData.markerImgUrl = getImgUrl(1);
+            markerData.locX = locX;
+            markerData.locY = locY;
+            markerData.fillColor = colors[0];
+            markerData.textColor = "#FFF";
+            //markerData.onClick = jobMarkClick;
+            markerData.data = job;
+
+            markerDatas.push(markerData);
+        });
+
+        $("#search_map_list_title").html("附近共有 <span>" + markerDatas.length + "</span> 筆課程");
+
+        // 判斷是否為「地圖範圍」搜尋, 若是就不要根據點位自動縮放
+        var fitBounds = (searchBounds == undefined) ? true : false;
+        leafletApi.setMarkers(markerDatas, onMarkerClick, 0, '', fitBounds);
+
+        if (searchBounds && searchBounds != undefined) {
+            leafletApi.setMapBounds(searchBounds);
+        }
+
+    }
+
+    // 地圖 cluster 點位 click 事件處理
+    function onMarkerClick(m) {
+        console.log("onMarkerClick");
+        console.log(m);
+
+        isMarkerFocused = true;
+
+        // 更新右側站台清單
+        var locZone = $(".list_zone");
+        locZone.find("ul").hide();
+
+        // 重新過濾右側職缺清單, 只顯示點選 marker 包含的職缺
+        var jobCount = 0;
+        for (var k = 0; k < m.length; k++) {
+            locZone.find("ul[data-id=" + m[k].itemId + "]").show("slow");
+            jobCount++;
+        }
+
+        $("#search_map_list_title").html("該位置附近有 <span>" + jobCount + "</span> 筆課程");
+
+        // 行動裝置環境中, 重設列表清單至第1個位置
+        mapListRwd.resetList();
+    }
+
+    // 點選右側列表Job
+    function jobListItemClick(hireId, JobName, locX, locY) {
+        setMarkerMapCenter(locX, locY, hireId, JobName);
+        // 右側清單點選項目置頂
+        //var d = {}; d.id = hireId;
+        //jobMarkClick(d);
+    }
+
+
+    // 右側清單, 最後 highlight 對應的點位 cluster marker
+    var curHighlightMarker;
+
+    function jobListItemHoverIn(jobId) {
+        //console.log("jobListtItemHoverIn: " + jobId);
+
+        if (curHighlightMarker != undefined && curHighlightMarker.removeIconClass) {
+            curHighlightMarker.removeIconClass("custom-cluster-hint");
+            curHighlightMarker = undefined;
+        }
+
+        var marker = leafletApi.findMarkerByItemId(jobId);
+        if (marker != undefined && marker != null) {
+            // 找到點位, 同時在顯示範圍
+            curHighlightMarker = marker;
+            marker.addIconClass("custom-cluster-hint");
+        }
+    }
+
+    function jobListItemHoverOut(jobId) {
+        //console.log("jobListtItemHoverOut: " + jobId);
+
+        if (curHighlightMarker != undefined && curHighlightMarker.removeIconClass) {
+            curHighlightMarker.removeIconClass("custom-cluster-hint");
+            curHighlightMarker = undefined;
+        }
+        else {
+            var marker = leafletApi.findMarkerByItemId(jobId);
+            if (marker != undefined && marker != null) {
+                // 找到點位, 同時在顯示範圍
+                marker.removeIconClass("custom-cluster-hint");
+            }
+        }
+    }
+
+    // 點選右側列表
+    function jobListItemClick(jobId) {
+        var marker = leafletApi.findMarkerByItemId(jobId);
+        if (marker != undefined && marker != null) {
+            // 找到點位, 同時在顯示範圍
+
+            // 通知 onMapBoundsChanged() 不要連動更新右側站台清單
+            preventBoundsChangeRefreshList = true;
+
+            // 加上提示的CSS樣式
+            marker.addIconClass("custom-cluster-hint");
+            // 將點位移到地圖中央
+            leafletApi.setCenter(marker.getLatLng());
+        }
+    }
+
+
+    /* 定位使用者位置 */
+    function btnLocateClick() {
+
+        // 使用者定位後, 地圖的縮放比例
+        var userZoom = 12;
+
+        // 地圖加上 loading mask
+        loadingMask("body");
+
+        locateUserPoint(
+            function (p) {
+                leafletApi.setCenter(p, userZoom);
+                leafletApi.setSingleMarker(p, 40, "您所在的位置");
+                removeLoadingMask();
+            },
+            function (msg) {
+                removeLoadingMask();
+                alert("定位失敗: \n" + msg);
+            }
+        );
+    }
+
+    /* 搜尋地圖區域 */
+    function btnBoundSearchClick() {
+
+        // 在地圖加上 loading mask
+        loadingMask("body");
+
+        // 清除縣市條件
+        $("[id*=ddlCity]").val("");
+        $("[id*=CascadingDropDown1_ClientState]").val("");
+
+        // 地圖顯示區域的 座標範圍
+        var env = leafletApi.getMapBounds();
+        // 組成能夠安全傳至後端的字串格式:  left/right/top/bottom
+        var bounds = "" + env.left + "/" + env.right + "/" + env.top + "/" + env.bottom;
+
+        $("input[id*=hidSearchBounds]").val(bounds);
+
+        doSearch();
+    }
+
+    function btnSearchClick() {
+
+        // 判斷 txt_AddrKeyword 道路名稱或地標搜尋
+        // 20210205, 改為縣市下拉選單在後端職缺資料查詢過濾即可, 不再支援地標輸入
+        /*
+        var addrInput = $("input[id*=txt_AddrKeyword]");
+        var addrKeyword = addrInput.val();
+        var modalDialog = $("#addressSelModal");
+        */
+
+        // 在地圖加上 loading mask
+        loadingMask("body");
+
+        // 一律清除 hidSearchBounds
+        $("input[id*=hidSearchBounds]").val("");
+
+        /*
+        if (addrKeyword.length > 0) {
+            // 依輸入的地標,縣市區域或路名 定位地圖, 然後查詢職缺
+            locateSearch('', addrKeyword, '', modalDialog, function (address, env, loc) {
+                console.log('locateSearch onSuccess: ' + address);
+                console.log(env);
+
+                //addrInput.val(address);
+
+                // 組成能夠安全傳至後端的字串格式:  left/right/top/bottom
+                var bounds = "" + env.left + "/" + env.right + "/" + env.top + "/" + env.bottom;
+                var locStr = "" + loc[1] + "/" + loc[0];  // 點位座標: x/y
+                $("input[id*=hidSearchBounds]").val(bounds);
+                $("input[id*=hidSearchLoc]").val(locStr);
+                //$("input[id*=hidSearchLoc]").val(locStr);
+
+                doSearch();
+            },
+            function (msg) {  // 定位失敗
+                removeLoadingMask();
+                alert(msg);
+            },
+            true);  // 停用連動地標查詢
+
+            return;
+        }
+        */
+
+        //doSearch();
+    }
+
+
+    /* 職缺搜尋 */
+    function doSearch() {
+        // 清掉 hidJobBounds 及 hidSearchLoc JSON 字串, 不然會觸發資安 filter rule
+        $("input[id*=hidJobBounds]").val("");
+
+        var hidSearchLoc = $("input[id*=hidSearchLoc]");
+        if (hidSearchLoc.val().indexOf("/") == -1) { hidSearchLoc.val(""); }
+
+        // 原本的動作
+        //saveQueryCondition();
+
+        // 送回後端查詢
+        //$('#<%=btnFormSearch.ClientID %>').trigger('click');
+    }
+
+</script>

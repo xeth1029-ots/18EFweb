@@ -1,0 +1,173 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassSearchViewModel
+
+@{
+    //此為查詢頁切換計畫類別，欲變換的查詢條件區塊
+}
+
+@switch (Model.Form.PlanType)
+{
+    case "1"://產業人才投資
+        <div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.OCID, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.OCID, new { @class = "form-control", placeholder = "不拘", title = "請輸入課程代碼" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.KEYWORDS, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.KEYWORDS, new { @class = "form-control", placeholder = "請輸入關鍵字", title = "請輸入關鍵字" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.CLASSCNAME, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.CLASSCNAME, new { @class = "form-control", placeholder = "請輸入關鍵字", title = "請輸入課程名稱檢索關鍵字" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Form_STDATE_YEAR_SHOW" class="form-label-search">開訓日期區間</label>
+                <div class="form-input">
+                    <label for="Form_CASETYPE_1">
+                        @Html.DropDownListFor(m => m.Form.STDATE_YEAR_SHOW, Model.YEAR3_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_起日年份" })
+                        年
+                        @Html.DropDownListFor(m => m.Form.STDATE_MON, Model.MON_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_起日月份" })
+                        月至
+                        @Html.DropDownListFor(m => m.Form.FTDATE_YEAR_SHOW, Model.YEAR3_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_迄日年份" })
+                        年
+                        @Html.DropDownListFor(m => m.Form.FTDATE_MON, Model.MON_list, "請選擇", new { @class = "form-normal", title = "請選擇開訓日期區間_迄日月份" })
+                        月
+                    </label>
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.TEACHCNAME, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.TEACHCNAME, new { @class = "form-control", placeholder = "請輸入關鍵字", title = "請輸入師資名稱" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.SCHOOLNAME, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.DropDownListFor(m => m.Form.COMIDNO, Model.COMIDNO_list, "全部", new { @class = "form-control", title = "請選擇單位名稱" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                <label for="Form_CTID" class="form-label-search">縣市別與區域</label>
+                <div class="form-input">
+                    <div class="form-input-helf">
+                        @Html.DropDownListFor(m => m.Form.CTID, Model.CTID_list, "請選擇", new { @class = "form-control", title = "請選擇縣市別與區域(縣市別)" })
+                    </div>
+                    <div class="form-input-helf">
+                        @Html.DropDownListFor(m => m.Form.ZIPCODE, Model.ZIPCODE_list, "請選擇", new { @class = "form-control", title = "請選擇縣市別與區域(區域別)" })
+                    </div>
+                    <div class="form-input-helf">
+                        @Html.TextBoxFor(m => m.Form.SCHOOLNAME, new { @class = "form-control", placeholder = "(輸入名稱，將納入搜尋條件)", title = "請輸入單位名稱", maxlength = 100 })
+                    </div>
+                    <button type="button" class="btn btn-warning" onclick="doSchoolListGet()" title="縮小單位範圍">縮小單位名稱範圍</button>
+                </div>
+            </div>
+            @*<div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.ProvideLocation, new { @class = "form-label-search" })
+                    <div class="form-input form-inline">
+                        @Html.RadioGroupFor(m => m.Form.ProvideLocation, Model.ProvideLocation_list, new { @class = "group-width" })
+                    </div>
+                </div>*@
+            <div class="form-group-search">
+                @*@Html.CustomLabelFor(m => m.Form.WEEKS, new { @class = "form-label-search" })*@
+                <label for="Form_WEEKS_SHOW_0" class="form-label-search">上課時間(可複選)</label>
+                <div class="form-input form-inline" style="padding-left:16px;">
+                    @Html.CheckBoxListFor(m => m.Form.WEEKS_SHOW, Model.WEEKS_list, new { @class = "group-width", title = "請勾選上課時間(可複選)" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.ORGKIND, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.DropDownListFor(m => m.Form.ORGKIND, Model.ORGKIND_list, "不區分", new { @class = "form-control", title = "請選擇輔助計畫別" })
+                </div>
+            </div>
+            <div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.CLASSCATE, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.DropDownListFor(m => m.Form.CLASSCATE, Model.CLASSCATE_list, "不區分", new { @class = "form-control", title = "請選擇訓練職能別" })
+                </div>
+            </div>
+            @*<div class="form-group-search">
+                    @Html.CustomLabelFor(m => m.Form.TMID, new { @class = "form-label-search" })
+                    <div class="form-input">
+                        @Html.DropDownListFor(m => m.Form.TMID, Model.TMID_list, "不區分", new { @class = "form-control" })
+                    </div>
+                </div>*@
+            @*<div class="form-group-search">
+                    <label for="keyword" class="form-label-search">訓練業別</label>
+                    <div class="form-input-helf">
+                        @Html.DropDownListFor(m => m.Form.JOBTMID, Model.TMIDLv1_list, "請選擇", new { @class = "form-control", title = "請選擇訓練業別(職類課程)" })
+                    </div>
+                    <div class="form-input-helf">
+                        @Html.DropDownListFor(m => m.Form.TMID, Model.TMIDLv2_list, "請選擇", new { @class = "form-control", title = "請選擇訓練業別(業別)" })
+                    </div>
+                </div>*@
+            <div class="form-group-search">
+                @*@Html.CustomLabelFor(m => m.Form.TGOVEXAM, new { @class = "form-label-search" })*@
+                <label for="Form_TGOVEXAM_" class="form-label-search">輔導考證</label>
+                <div class="form-input form-inline">
+                    @Html.RadioGroupFor(m => m.Form.TGOVEXAM, Model.TGOVEXAM_list, new { @class = "group-width", title = "請選擇輔導考證" })
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+
+        break;
+    case "2": //自辦在職訓練
+    case "5": //區域據點
+        <div class="form-group-search">
+            @Html.CustomLabelFor(m => m.Form.KEYWORDS, new { @class = "form-label-search" })
+            <div class="form-input">
+                @Html.TextBoxFor(m => m.Form.KEYWORDS, new { @class = "form-control", placeholder = "請輸入關鍵字", title = "請輸入關鍵字搜尋" })
+            </div>
+        </div>
+        <div class="form-group-search">
+            @Html.CustomLabelFor(m => m.Form.CLASSCNAME, new { @class = "form-label-search" })
+            <div class="form-input">
+                @Html.TextBoxFor(m => m.Form.CLASSCNAME, new { @class = "form-control", placeholder = "請輸入關鍵字", title = "請輸入課程名稱檢索" })
+            </div>
+        </div>
+        <div class="form-group-search">
+            <label for="Form_STDATE_YEAR_SHOW" class="form-label-search">訓練期間</label>
+            <div class="form-input">
+                @Html.DropDownListFor(m => m.Form.STDATE_YEAR_SHOW, Model.YEAR4_list, new { @class = "form-normal", title = "請選擇訓練期間起日年份" })
+                年
+                @Html.DropDownListFor(m => m.Form.STDATE_MON, Model.MON_list, new { @class = "form-normal", title = "請選擇訓練期間起日月份" })
+                月至
+                @Html.DropDownListFor(m => m.Form.FTDATE_YEAR_SHOW, Model.YEAR4_list, new { @class = "form-normal", title = "請選擇訓練期間迄日年份" })
+                年
+                @Html.DropDownListFor(m => m.Form.FTDATE_MON, Model.MON_list, new { @class = "form-normal", title = "請選擇訓練期間迄日月份" })
+                月
+                <br>
+                (如您要查詢尚未開班的課程，請利用<a href="@Url.Content("~/ClassSearch")" title="前往課程查詢">課程查詢</a>功能)
+            </div>
+        </div>
+        <div class="form-group-search">
+            @*@Html.CustomLabelFor(m => m.Form.DISTID, new { @class = "form-label-search" })*@
+            <label for="Form_DISTID_SHOW_001" class="form-label-search">分署別</label>
+            <div class="form-input form-inline" style="padding-left:16px;">
+                @Html.CheckBoxListFor(m => m.Form.DISTID_SHOW, Model.DISTID_list, new { @class = "group-width", title = "請勾選分署別" })
+            </div>
+        </div>
+        <div class="form-group-search">
+            <label for="Form_CTID_SHOW_1" class="form-label-search">上課地點</label>
+            <div class="form-input form-inline" style="padding-left:16px;">
+                @Html.CheckBoxListFor(m => m.Form.CTID_SHOW, Model.CTID_CHK_list, new { @class = "group-width", title = "請勾選上課地點" })
+            </div>
+        </div>
+        @*<div class="form-group-search">
+                @Html.CustomLabelFor(m => m.Form.DISTNAME, new { @class = "form-label-search" })
+                <div class="form-input">
+                    @Html.TextBoxFor(m => m.Form.DISTNAME, new { @class = "form-control", placeholder = "請輸入訓練單位", title = "請輸入訓練單位" })
+                </div>
+            </div>*@
+    break;
+}
+

@@ -1,0 +1,104 @@
+﻿@model WDAIIP.WEB.Models.LoginViewModel
+
+@{
+    ViewBag.Title = "系統登入";
+    Layout = "~/Views/Shared/_MainLayout_NoHeader.cshtml";
+}
+<div class="container">
+    <!-- header start -->
+    <div class="header">
+        <div class="logo-login"><img src="~/images/logo-login.png" class="img-responsive" alt="青年職業訓練資源網網站管理系統" id="青年職業訓練資源網網站管理系統"></div>
+    </div>
+    <!-- header end -->
+    <div class="content">
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <div class="login-bar">
+            <h3 class="loginTitleA"><img src="~/images/icon-arrow.svg" alt="登入圖示">登入</h3>
+@using (Html.BeginForm("Login", "Login", FormMethod.Post, new { @class = "form-horizontal" }))
+{
+
+    <div class="form-group">
+        <label class="control-label col-sm-3 label-set"><span class="mark-red">＊</span>帳號</label>
+        <div class="col-sm-9">
+            @Html.TextBoxFor(m => m.Form.UserNo, new { @class = "form-control", placeholder = "請輸入您的帳號", autocomplete = "off" })
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3 label-set"><span class="mark-red">＊</span>密碼</label>
+        <div class="col-sm-9">
+            @Html.PasswordFor(m => m.Form.UserPwd, new { @class = "form-control", placeholder = "請輸入您的密碼", autocomplete = "off" })
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-3 label-set"><span class="mark-red">＊</span>圖型驗證碼 </label>
+        <div class="col-sm-9">
+            <div>
+                <div>
+                    @Html.TextBoxFor(m => m.Form.ValidateCode,
+                        htmlAttributes: new { @class = "form-50 form-control", placeholder = "請輸入下方圖片中文字", autocomplete = "off" })
+                </div>
+                <div sytle="float:right">
+                    <img id="vCode" src="@Url.Action("GetValidateCode", "Login")"
+                         alt="產生驗證碼" class="loginVCode"
+                         data-toggle="tooltip" data-placement="top" />
+                    <a href="VCodeAudio" target="frmPlayer" title="語音撥放驗證碼"><img id="playCode" alt="撥放" src="~/images/speaker.png" height="40" /></a>
+                    <button type="button" class="btn btn-link" onclick="reloadValidCode()" title="產生新驗證碼">重新產生 <i class="fa fa-refresh" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            <!--<iframe name="frmPlayer" style="height:0;border:0;" src=""></iframe>-->
+            <iframe name="frmPlayer" style="display:none;" src="" title="語音撥放" ></iframe>
+        </div>
+    </div>
+
+    <div class="login-bottom-line">
+        <button type="submit" class="btn btn-default" title="登入">
+            確認
+        </button>
+    </div>
+
+    if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="help-block mark-red" data-role="msg">@(Model.ErrorMessage)</div>
+    }
+}
+                    
+            </div>
+        </div>
+        <div class="col-sm-3"></div>
+    </div>
+</div>
+ 
+<script type="text/javascript">
+    $('#vCode').on("load", function () {
+        unblockUI();
+    });
+
+    function reloadValidCode() {
+        blockUI();
+        $('#vCode').attr("src", '@Url.Action("GetValidateCode")' + "?rand=" + new Date().getMilliseconds());
+    }
+
+    $(function () {
+        $('#vCode').on("click", function (e) {
+                reloadValidCode();
+        });
+
+        $('[data-toggle="tooltip"]').tooltip()
+        
+        // 清空檢核訊息
+        $("input#Form_UserNo").on("focus", function () {
+            $("div[data-role='msg']").html("");
+        });
+
+        // 清空檢核訊息
+        $("input#Form_UserPwd").on("focus", function () {
+            $("div[data-role='msg']").html("");
+        });
+
+        // 清空檢核訊息
+        $("input#Form_ValidateCode").on("focus", function () {
+            $("div[data-role='msg']").html("");
+        });
+    });
+</script>

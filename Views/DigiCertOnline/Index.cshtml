@@ -1,0 +1,32 @@
+﻿@using WDAIIP.WEB.Models
+@model DigiCertViewModel
+
+@{
+    ViewBag.Title = "數位結訓證明--線上申請";
+    ViewBag.Tit2 = "線上申請";
+
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearchNoGTM.cshtml";
+
+    SessionModel sm = SessionModel.Get();
+
+}
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="首頁">首頁</a> / 數位結訓證明 / @ViewBag.Tit2 </div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-edit space-right"></i>@ViewBag.Tit2</h3>
+    <!-- search form start -->
+    <div class="unit-border">
+
+        <div class="clearfix"></div>
+        @using (Html.BeginForm("index", "DigiCertOnline", FormMethod.Post, new { id = "form1" }))
+        {
+            <div class="submit-bar">
+                <p><p><button type="submit" class="btn btn-search " title="線上申請">線上申請</button><p>
+            </div>
+        }
+        <p><p>
+        <!-- search form end -->
+    </div>
+</div>

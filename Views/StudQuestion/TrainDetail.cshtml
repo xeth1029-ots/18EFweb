@@ -1,0 +1,225 @@
+﻿@model WDAIIP.WEB.Models.StudQuestionViewModel
+
+@{
+    //TrainDetail.cshtml
+    ViewBag.Title = "會員專區--受訓期間意見調查表 明細";
+    ViewBag.Title_2 = "課後意見調查";
+    ViewBag.Title_3 = string.Format("{0} 受訓期間意見調查表", Model.TrainDetail.PLANNAME);
+
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+    //(以上選項為：非常滿意、滿意、尚可、不滿意、非常不滿意)
+    string[] StdBase2 = { "", "非常滿意", "滿意", "尚可", "不滿意", "非常不滿意" };
+
+    string s_width_1 = "45%";
+    string s_width_2 = "55%";
+    string s_NOTE_MaxLength_Title = string.Format("(限制:{0}字 含空白、換行及其它字元)", 700);
+}
+
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / @Html.Raw(ViewBag.Title_2)</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-green"><i class="fas fa-clipboard-list space-right"></i>@Html.Raw(ViewBag.Title_2)</h3>
+    <!-- search form start -->
+    <div class="unit-border">
+        @using (Html.BeginForm("SaveTrain", "StudQuestion", FormMethod.Post, new { name = "form1" }))
+        {
+            @Html.HiddenFor(m => m.TrainDetail.IsNew)
+            @Html.HiddenFor(m => m.TrainDetail.OCID)
+            @Html.HiddenFor(m => m.TrainDetail.SOCID)
+            @Html.HiddenFor(m => m.TrainDetail.STUDENTID)
+            @Html.HiddenFor(m => m.TrainDetail.RID)
+            @Html.HiddenFor(m => m.TrainDetail.TYPE)
+
+            <!-- table -->
+            <h3 class="titlebar titlebarBg-green">@Html.Raw(ViewBag.Title_3)</h3>
+            <div class="table-responsive">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-form">
+                    <tr>
+                        <th colspan="2">
+                            親愛的學員：您好!<br />
+                            為瞭解您參加職業訓練的學習滿意情形，請您協助填寫本問卷第壹項至第貳項之題項，以做為辦理訓練課程及教學改進之參考；本問卷絕不會提供給培訓單位，請您放心作答，謝謝您的協助。
+                        </th>
+                    </tr>
+                </table>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-form">
+                    <tr>
+                        <th colspan="2">壹、參訓意見 (請依滿意度擇一勾選)</th>
+                    </tr>
+                    <tr><td colspan="2">一、課程安排</td></tr>
+                    <tr>
+                        <td width="@Html.Raw(s_width_1)">1.您對整體課程安排是否滿意?</td>
+                        <td width="@Html.Raw(s_width_2)">
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_1, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_1, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_1, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_1, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_1, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.您對課程安排內容銜接情形是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_2, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_2, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_2, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_2, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_2, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3.您對課程內容時數安排是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_3, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_3, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_3, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_3, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q1_3, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">二、師資、助教及教學</th>
+                    </tr>
+                    <tr>
+                        <td>1.您對老師的教學方式是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_1, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_1, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_1, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_1, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_1, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.您對老師的教學態度是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_2, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_2, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_2, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_2, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_2, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.您對老師的教學態度是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_3, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_3, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_3, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_3, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_3, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4.您對助教的協助教學是否滿意? (無助教不須勾選)</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_4, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_4, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_4, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_4, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q2_4, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">三、設備和教材</th>
+                    </tr>
+                    <tr>
+                        <td>1.您對上課期間，教材和設備的充分利用情形是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_1, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_1, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_1, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_1, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_1, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.您對教材的新穎是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_2, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_2, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_2, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_2, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_2, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3.您對教材內容的難易程度是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_3, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_3, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_3, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_3, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q3_3, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="2">四、行政措施</th>
+                    </tr>
+                    <tr>
+                        <td>1.您對導師關心學員學習狀況及解決問題的能力是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_1, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_1, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_1, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_1, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_1, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.您對求助及申訴管道是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_2, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_2, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_2, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_2, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_2, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3.您對學習空間是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_3, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_3, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_3, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_3, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_3, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4.您對上課地點場地及週遭環境清潔是否滿意?</td>
+                        <td>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_4, "1") @StdBase2[1]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_4, "2") @StdBase2[2]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_4, "3") @StdBase2[3]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_4, "4") @StdBase2[4]</label>
+                            <label class="radio-inline">@Html.RadioButtonFor(m => m.TrainDetail.Q4_4, "5") @StdBase2[5]</label>
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-form">
+                    <tr>
+                        <th colspan="2">貳、其他意見：@s_NOTE_MaxLength_Title</th>
+                    </tr>
+                    <tr>
+                        <td width="10%"></td>
+                        <td width="90%">
+                            @Html.TextAreaFor(m => m.TrainDetail.SUGGESTION, new { @class = "form-control", rows = "5", title = s_NOTE_MaxLength_Title })
+                        </td>
+                    </tr>
+                </table>
+                
+            </div>
+            <!-- btn -->
+            <div class="submit-bar text-center">
+                <p>
+                    <button type="submit" class="btn btn-orange" title="儲存">儲存</button>
+                    <button type="button" onclick="location.href ='@Url.Content("~/StudQuestion")';" class="btn btn-orange" title="回上一頁">回上一頁</button>
+                </p>
+            </div>
+        }
+        <p></p>
+        <!-- search form end -->
+    </div>
+</div>

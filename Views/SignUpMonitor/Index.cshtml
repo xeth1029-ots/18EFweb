@@ -1,0 +1,387 @@
+﻿@{
+    ViewBag.Title = "線上報名即時統計";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', { 'packages': ['corechart'] });
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(drawStatistics);
+
+    var statistics = {
+        current: 0,
+        data: []
+    }
+
+    function drawStatistics() {
+        // 資料來源 Url
+        var dataUrl = '@Url.Action("Statistics" )';
+        var parm = {};
+        ajaxLoadJson(dataUrl, parm, function (result) {
+            if (!result.data) {
+                debugTrace(result);
+                blockAlert("Statistics 回應內容不正確:");
+                return;
+            }
+            statistics = result;
+
+            processTimesChart();
+            poolCapacityChart();
+            waitTimesChart();
+            waitCountChart();
+            successCountChart();
+            failCountChart();
+            errorCountChart();
+            timeoutCountChart();
+
+            setTimeout(drawStatistics, 1000);
+
+        }, false, true);
+
+    };
+
+    function resetStat() {
+        var url = '@Url.Action("Reset")';
+
+        ajaxLoadMore(url, {}, function (msg) {
+            blockMessage(msg, "重設統計資訊");
+        });
+    }
+
+    function getNextX(x) {
+        x++;
+        if (x >= statistics.data.length) { x = 0; }
+        return x;
+    }
+
+    /*報名處理時間*/
+    function processTimesChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', '');  // X
+        data.addColumn('number', '時間(毫秒)');     // Y
+
+        var i = 0;
+        var x = statistics.current + 1;
+        var dataRows = [];
+        while (i < statistics.data.length - 1) {
+            x = getNextX(x);
+            dataRows[i] = [String(x), statistics.data[x].AvgProcessTime];
+            i++;
+        }
+        //console.log(dataRows);
+        data.addRows(dataRows);
+        var options = {
+            title: '報名處理時間(毫秒)',
+            width: 500,
+            height: 150,
+            titleTextStyle: { fontSize: 14 },
+            legend: { position: 'none' },
+            colors: ['#009'],
+            vAxis: {
+                minValue: 0,
+                viewWindow: {
+                    min: 0
+                }
+            }
+        };
+
+        var div = document.getElementById("processTimes")
+        var chart = new google.visualization.LineChart(div);
+
+        chart.draw(data, options);
+    }
+
+    /*等待時間*/
+    function waitTimesChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', '');  // X
+        data.addColumn('number', '時間(毫秒)');     // Y
+
+        var i = 0;
+        var x = statistics.current + 1;
+        var dataRows = [];
+        while (i < statistics.data.length - 1) {
+            x = getNextX(x);
+            dataRows[i] = [String(x), statistics.data[x].AvgWaitTime];
+            i++;
+        }
+        //console.log(dataRows);
+        data.addRows(dataRows);
+        var options = {
+            title: '等待時間(毫秒)',
+            width: 500,
+            height: 150,
+            titleTextStyle: { fontSize: 14 },
+            legend: { position: 'none' },
+            colors: ['#009'],
+            vAxis: {
+                minValue: 0,
+                viewWindow: {
+                    min: 0
+                }
+            }
+        };
+
+        var div = document.getElementById("waitTimes")
+        var chart = new google.visualization.LineChart(div);
+
+        chart.draw(data, options);
+    }
+
+    /*等待人數*/
+    function waitCountChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', '');  // X
+        data.addColumn('number', '人');     // Y
+
+        var i = 0;
+        var x = statistics.current + 1;
+        var dataRows = [];
+        while (i < statistics.data.length - 1) {
+            x = getNextX(x);
+            dataRows[i] = [String(x), statistics.data[x].Wait];
+            i++;
+        }
+        //console.log(dataRows);
+        data.addRows(dataRows);
+        var options = {
+            title: '等待人數',
+            width: 500,
+            height: 150,
+            titleTextStyle: { fontSize: 14 },
+            legend: { position: 'none' },
+            colors: ['#009'],
+            vAxis: {
+                minValue: 0,
+                viewWindow: {
+                    min: 0
+                }
+            }
+        };
+
+        var div = document.getElementById("waitCount")
+        var chart = new google.visualization.LineChart(div);
+
+        chart.draw(data, options);
+    }
+
+    /*等待逾時人數*/
+    function timeoutCountChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', '');  // X
+        data.addColumn('number', '人');     // Y
+
+        var i = 0;
+        var x = statistics.current + 1;
+        var dataRows = [];
+        while (i < statistics.data.length - 1) {
+            x = getNextX(x);
+            dataRows[i] = [String(x), statistics.data[x].Timeouts];
+            i++;
+        }
+        //console.log(dataRows);
+        data.addRows(dataRows);
+        var options = {
+            title: '等待逾時人數',
+            width: 500,
+            height: 150,
+            titleTextStyle: { fontSize: 14 },
+            legend: { position: 'none' },
+            colors: ['#009'],
+            vAxis: {
+                minValue: 0,
+                viewWindow: {
+                    min: 0
+                }
+            }
+        };
+
+        var div = document.getElementById("timeoutCount")
+        var chart = new google.visualization.LineChart(div);
+
+        chart.draw(data, options);
+    }
+
+    /*報名收件成功人數*/
+    function successCountChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', '');  // X
+        data.addColumn('number', '人');     // Y
+
+        var i = 0;
+        var x = statistics.current + 1;
+        var dataRows = [];
+        while (i < statistics.data.length - 1) {
+            x = getNextX(x);
+            dataRows[i] = [String(x), statistics.data[x].Success];
+            i++;
+        }
+        //console.log(dataRows);
+        data.addRows(dataRows);
+        var options = {
+            title: '報名收件成功人數',
+            width: 500,
+            height: 150,
+            titleTextStyle: { fontSize: 14 },
+            legend: { position: 'none' },
+            colors: ['#090'],
+            vAxis: {
+                minValue: 0,
+                viewWindow: {
+                    min: 0
+                }
+            }
+        };
+
+        var div = document.getElementById("successCount")
+        var chart = new google.visualization.LineChart(div);
+
+        chart.draw(data, options);
+    }
+
+    /*報名失敗人數*/
+    function failCountChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', '');  // X
+        data.addColumn('number', '人');     // Y
+
+        var i = 0;
+        var x = statistics.current + 1;
+        var dataRows = [];
+        while (i < statistics.data.length - 1) {
+            x = getNextX(x);
+            dataRows[i] = [String(x), statistics.data[x].Fail];
+            i++;
+        }
+        //console.log(dataRows);
+        data.addRows(dataRows);
+        var options = {
+            title: '報名失敗人數',
+            width: 500,
+            height: 150,
+            titleTextStyle: { fontSize: 14 },
+            legend: { position: 'none' },
+            colors: ['#900'],
+            vAxis: {
+                minValue: 0,
+                viewWindow: {
+                    min: 0
+                }
+            }
+        };
+
+        var div = document.getElementById("failCount")
+        var chart = new google.visualization.LineChart(div);
+
+        chart.draw(data, options);
+    }
+
+    /*系統異常人數*/
+    function errorCountChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', '');  // X
+        data.addColumn('number', '人');     // Y
+
+        var i = 0;
+        var x = statistics.current + 1;
+        var dataRows = [];
+        while (i < statistics.data.length - 1) {
+            x = getNextX(x);
+            dataRows[i] = [String(x), statistics.data[x].Error];
+            i++;
+        }
+        //console.log(dataRows);
+        data.addRows(dataRows);
+        var options = {
+            title: '系統異常人數',
+            width: 500,
+            height: 150,
+            titleTextStyle: { fontSize: 14 },
+            legend: { position: 'none' },
+            colors: ['#900'],
+            vAxis: {
+                minValue: 0,
+                viewWindow: {
+                    min: 0
+                }
+            }
+        };
+
+        var div = document.getElementById("errorCount")
+        var chart = new google.visualization.LineChart(div);
+
+        chart.draw(data, options);
+    }
+
+    /*ThreadPool 使用量*/
+    function poolCapacityChart() {
+
+        var maxThreads = @(ViewBag.ProcessEnterWorkerMaxThreads);
+        var currentProcess = statistics.data[statistics.current].Process;
+        if(!currentProcess) { currentProcess = 0 }
+        var availThreads = maxThreads - currentProcess;
+
+        var dataRows = [];
+        dataRows[0] = ["分類", "閒置Threads", "處理中", { role: 'annotation' } ];
+        dataRows[1] = ["數值", availThreads, currentProcess, ''];
+
+        var data = google.visualization.arrayToDataTable([
+        ['分類', "處理中", "閒置Threads", { role: 'annotation' } ],
+        ["", currentProcess, availThreads, '']
+        ]);
+        console.log(data);
+
+        var options = {
+            title: 'ThreadPool 使用/閒置 量(當下)',
+            width: 500,
+            height: 150,
+            titleTextStyle: { fontSize: 14 },
+            legend: { position: 'top' },
+            colors: ['#900', '#090'],
+            isStacked: true,
+            hAxis: {
+                format: '#'
+            }
+        };
+
+        var div = document.getElementById("poolCapacity")
+        var chart = new google.visualization.BarChart(div);
+
+        chart.draw(data, options);
+    }
+
+</script>
+<div class="col-md-12" style="text-align: center; margin-bottom:10px;">
+    <label>主機：</label>@ViewBag.Host
+    &nbsp;&nbsp;&nbsp;
+    <label>報名ThreadPool容量設定：</label>@ViewBag.ProcessEnterWorkerMaxThreads
+    &nbsp;&nbsp;&nbsp;
+    <label>排隊等待逾時設定(秒)：</label>@ViewBag.ProcessEnterWorkerWaitTimeout
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <button type="button" onclick="resetStat()">重設統計資訊</button>
+</div>
+<div class="col-md-12" style="text-align: center">
+    <!-- 統計表格/圖型 顯示用 container-->
+    <div style="width: 1024px">
+        <div id="processTimes" style="margin: 5px; float: left"></div>
+        <div id="poolCapacity" style="margin: 5px; float: right"></div>
+    </div>
+    <div style="width: 1024px">
+        <div id="waitTimes" style="margin: 5px; float: right"></div>
+        <div id="waitCount" style="margin: 5px; float: left"></div>
+    </div>
+    <div style="width: 1024px">
+        <div id="successCount" style="margin: 5px; float: left"></div>
+        <div id="failCount" style="margin: 5px; float: right"></div>
+    </div>
+    <div style="width: 1024px">
+        <div id="errorCount" style="margin: 5px; float: left"></div>
+        <div id="timeoutCount" style="margin: 5px; float: right"></div>
+    </div>
+</div>
+
+
+

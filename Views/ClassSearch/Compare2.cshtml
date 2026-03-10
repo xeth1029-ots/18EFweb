@@ -1,0 +1,405 @@
+﻿@using WDAIIP.WEB.Models
+@model ClassSearchViewModel
+@{
+    //for 自辦在職
+    ViewBag.Title = "課程查詢報名--課程比一比";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+}
+
+
+<div class="col-sm-12">
+    <!-- bread start --->
+    <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 課程查詢報名 / 課程查詢 / 課程比一比</div>
+    <!-- bread end --->
+    <h3 class="main-title main-title-blue"><i class="fab fa-readme space-right"></i>課程比一比</h3>
+    <!-- class result start -->
+    <div class="row">
+        @for (int i = 0; i < 2; i++)
+        {
+            if (i + 1 <= Model.Compare.Detail2.Count)
+            {
+                var item = Model.Compare.Detail2[i];
+                var strAddress = ""; //訓練位置地址
+                var strUrl = ""; //訓練位置地址(google)
+                var strTDate = "";
+                var strEnterDate = "";
+
+                DateTime sdate = Convert.ToDateTime(item.STDATE);
+                DateTime fdate = Convert.ToDateTime(item.FTDATE);
+                if (item.STDATE != null)
+                {
+                    strTDate += sdate.ToString("yyyy/MM/dd");
+                }
+                if (item.FTDATE != null)
+                {
+                    strTDate += "～" + fdate.ToString("yyyy/MM/dd");
+                }
+
+                DateTime senterdate = Convert.ToDateTime(item.SENTERDATE);
+                DateTime fenterdate = Convert.ToDateTime(item.FENTERDATE);
+                if (item.SENTERDATE != null)
+                {
+                    strEnterDate += senterdate.ToString("yyyy/MM/dd HH:mm");
+                }
+                if (item.FENTERDATE != null)
+                {
+                    strEnterDate += "～" + fenterdate.ToString("yyyy/MM/dd HH:mm");
+                }
+                <div class="col-sm-6">
+                    <h3 class="titlebar titlebarBg-green">班別資料</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">課程代碼：</th>
+                                <td width="70%">@(item.OCID)</td>
+                            </tr>
+                            <tr>
+                                <th>通俗職類：</th>
+                                <td>@(item.CJOB_NAME)</td>
+                            </tr>
+                            <tr>
+                                <th>課程名稱：</th>
+                                <td>@(item.CLASSCNAME)</td>
+                            </tr>
+                            <tr>
+                                <th>訓練費用：</th>
+                                <td>學員負擔：@(item.DEFSTDCOST)  / 政府負擔：@(item.DEFGOVCOST)</td>
+                            </tr>
+                            <tr>
+                                <th>訓練單位：</th>
+                                <td>@(item.ORGNAME)</td>
+                            </tr>
+                            <tr>
+                                <th>訓練時數：</th>
+                                <td>@(item.THOURS)小時</td>
+                            </tr>
+                            <tr>
+                                <th>訓練位置：</th>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.TADDRESS))
+                                    {
+                                        strAddress = "(" + item.TADDRESSZIP + ")" + item.TADDRESS;
+                                        strUrl = item.TADDRESS;
+                                    }
+                                    @strAddress
+                                    @if (!string.IsNullOrEmpty(strUrl) && strUrl.Length > 5) { strUrl = HttpUtility.UrlEncode(strUrl); }
+                                    @if (!string.IsNullOrEmpty(strAddress))
+                                    {
+                                        <span class="text-primary"> <a target="_blank" rel="noreferrer noopener" title="開啟Google地圖查看訓練位置(另開視窗)" href="https://maps.google.com.tw/maps?hl=zh-TW&t=m&z=16&q=@strUrl">開啟Google地圖(另開新視窗) <i class="fa fa-map-pin" aria-hidden="true"></i></a></span>
+                                        if (Model.Compare.ProvideLocation == "Y")
+                                        {
+                                            @("，距離")<span class="text-success">@(item.Distance)</span>@("公里")
+
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>訓練時段：</th>
+                                <td>@(item.HOURRANNAME)</td>
+                            </tr>
+                            <tr>
+                                <th>上課時間：</th>
+                                <td>@(item.NOTE3)</td>
+                            </tr>
+                            <tr>
+                                <th>聯絡電話：</th>
+                                <td>@(item.CONTACTPHONE)</td>
+                            </tr>
+                            <tr>
+                                <th>訓練日期：</th>
+                                <td>@strTDate</td>
+                            </tr>
+                            <tr>
+                                <th>聯絡窗口：</th>
+                                <td>@(item.CONTACTNAME)</td>
+                            </tr>
+                            <tr>
+                                <th>報名日期：</th>
+                                <td>@strEnterDate</td>
+                            </tr>
+                            <tr>
+                                <th>訓練性質：</th>
+                                <td>@(item.TPROPERTY)</td>
+                            </tr>
+                            <tr>
+                                <th>報名人數：</th>
+                                <td>@(item.STUD_ENTERTYPE)人</td>
+                            </tr>
+                            <tr>
+                                <th>訓練學員數：</th>
+                                <td>@(item.TNUM)人</td>
+                            </tr>
+                            <tr>
+                                <th>甄試日期：</th>
+                                <td>@(item.EXAMDATE != null ? Convert.ToDateTime(item.EXAMDATE).ToString("yyyy/MM/dd") : "")</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">課程內容</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">訓練職類：<br></th>
+                                <td width="70%">@(item.TRAINNAME)</td>
+                            </tr>
+                            <tr>
+                                <th>訓練目標：</th>
+                                <td>
+                                    @Html.Raw(item.PURTECH)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>課程內容：</th>
+                                <td>
+                                    @if (item.TrainDesc != null)
+                                    {
+                                        foreach (var row in item.TrainDesc)
+                                        {
+                                            @:&#9679;&nbsp;@((row.PNAME + "(" + row.PHOUR + "小時) - " + row.PCONT).Replace(" ", ""))<br />
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">參訓資格</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">性別：</th>
+                                <td width="70%">@(item.CAPSEX)</td>
+                            </tr>
+                            <tr>
+                                <th>年齡：</th>
+                                <td>@(item.CAPAGE)</td>
+                            </tr>
+                            <tr>
+                                <th>學歷：</th>
+                                <td>@(item.CAPEDU)</td>
+                            </tr>
+                            <tr>
+                                <th>兵役：</th>
+                                <td>@(item.CAPMILITARY)</td>
+                            </tr>
+                            <tr>
+                                <th>其他條件：</th>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.CAPOTHER1) && item.CAPOTHER1.Trim() != "")
+                                    {
+                                        @:&#9679;&nbsp;@(item.CAPOTHER1)<br />
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.CAPOTHER2) && item.CAPOTHER2.Trim() != "")
+                                    {
+                                        @:&#9679;&nbsp;@(item.CAPOTHER2)<br />
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.CAPOTHER3) && item.CAPOTHER3.Trim() != "")
+                                    {
+                                        @:&#9679;&nbsp;@(item.CAPOTHER3)<br />
+                                    }
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">錄訓方式</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">持推介單：</th>
+                                <td width="70%">@(item.GETTRAIN1)</td>
+                            </tr>
+                            <tr>
+                                <th>自行報名：</th>
+                                <td>
+                                    @Html.Raw(item.GETTRAIN2)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>甄試方式：</th>
+                                <td>@(item.GETTRAIN3)</td>
+                            </tr>
+                            <tr>
+                                <th>其他說明：</th>
+                                <td>@Html.Raw(item.GETTRAIN4)</td>
+                            </tr>
+                            <tr>
+                                <th>備註：</th>
+                                <td>@Html.Raw(("" + item.NOTE).Replace("\n", "<br />"))</td>
+                            </tr>
+                        </table>
+                        <div class="titlebar-note">本網頁課程資訊如與訓練單位公告事項不符時，仍以訓練單位公告資訊為準，恕不另行通知。</div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-sm-6">
+                    <h3 class="titlebar titlebarBg-green">班別資料</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">課程代碼：</th>
+                                <td width="70%"></td>
+                            </tr>
+                            <tr>
+                                <th>通俗職類：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>課程名稱：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>訓練費用：</th>
+                                <td>學員負擔：  / 政府負擔：</td>
+                            </tr>
+                            <tr>
+                                <th>訓練單位：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>訓練時數：</th>
+                                <td>小時</td>
+                            </tr>
+                            <tr>
+                                <th>訓練位置：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>訓練時段：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>上課時間：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>聯絡電話：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>訓練日期：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>聯絡窗口：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>報名日期：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>訓練性質：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>報名人數：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>訓練學員數：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>甄試日期：</th>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">課程內容</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">訓練職類：<br></th>
+                                <td width="70%"></td>
+                            </tr>
+                            <tr>
+                                <th>訓練目標：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>課程內容：</th>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">參訓資格</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">性別：</th>
+                                <td width="70%"></td>
+                            </tr>
+                            <tr>
+                                <th>年齡：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>學歷：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>兵役：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>其他條件：</th>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <h3 class="titlebar titlebarBg-green">錄訓方式</h3>
+                    <div class="table-responsive">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table-class">
+                            <tr>
+                                <th width="30%">持推介單：</th>
+                                <td width="70%"></td>
+                            </tr>
+                            <tr>
+                                <th>自行報名：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>甄試方式：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>其他說明：</th>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <th>備註：</th>
+                                <td></td>
+                            </tr>
+                        </table>
+                        <div class="titlebar-note">本網頁課程資訊如與訓練單位公告事項不符時，仍以訓練單位公告資訊為準，恕不另行通知。</div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <div class="clearfix"></div>
+    <!-- btn -->
+    <div class="submit-bar-gray text-center">
+        <button type="button" data-role="GoBack" class="btn btn-orange " title="回上一頁">回上一頁</button>
+    </div>
+</div>
+<!--回上一頁-->
+@using (Html.BeginForm("Index", "ClassSearch", FormMethod.Post, htmlAttributes: new { id = "GoBackForm" }))
+{
+    @Html.Hidden("useCache", 1)
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //GoBack
+        $("button[data-role=GoBack]").click(function () {
+            $("form#GoBackForm").submit();
+        });
+        $("a[data-role=GoBack]").click(function () {
+            $("form#GoBackForm").submit();
+        });
+    });
+
+</script>

@@ -1,0 +1,41 @@
+﻿@model WDAIIP.WEB.Models.ClassMatchListViewModel
+@using WDAIIP.WEB.DataLayers
+
+@if (Model == null || Model.Grid2 == null || Model.Grid2.Count == 0)
+{
+    <tr valign="middle">
+        <td colspan="8" style="text-align:center;">尚無資料</td>
+    </tr>
+}
+else
+{
+    MyKeyMapDAO keyDao = new MyKeyMapDAO();
+    DateTime nowTime = keyDao.GetSysDateNow();
+
+    for (int i = 0; i < Model.Grid2.Count; i++)
+    {
+        var item = Model.Grid2[i];
+        <tr valign="middle">
+            <td><a title="@(item.TRAINCLASS)" href="javascript:doDetail('@(Model.Form.PlanType)','@(Model.Form.ProvideLocation)','@(item.OCID)');">@(item.TRAINCLASS)</a></td>
+            <td>@(item.TRAINORG)</td>
+            <td align="center">@(item.TRAINPLACE)</td>
+            @*@if (Model.Form.ProvideLocation == "Y")//TODO:顯示距離
+                    {
+                <td align="center">@(item.Distance)</td>
+            }*@
+            <td>@(item.CJOBNAME)</td>
+            <td align="center">
+                @(item.SENTERDATE_FULL_TW)
+                <br />|<br />
+                @(item.FENTERDATE_FULL_TW)
+            </td>
+            <td align="center">
+                @(item.STDATE_TW)
+                <br />|<br />
+                @(item.FTDATE_TW)
+            </td>
+            <td align="center">@Html.Raw(item.TPERIODNAME)</td>
+            <td align="center">@(item.TRAINEDGE)</td>
+        </tr>
+    }
+}

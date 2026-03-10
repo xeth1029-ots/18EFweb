@@ -1,0 +1,18 @@
+﻿@using WDAIIP.WEB.Models
+@{
+    Layout = "~/Views/Shared/_MainLayout_NoHeader.cshtml";
+    SessionModel sm = SessionModel.Get();
+    string s_SessionID = (sm != null) ? sm.SessionID : "...";
+    string s_RID = (sm != null) ? sm.RID : "!!!";
+}
+<div class="wrap" style="overflow: auto;">
+    <div class="col-sm-12">
+        <div class="theme-news ErrorPage">
+            <h1>沒有權限!</h1>
+            <p>您的角色: <span>@(s_RID) @(s_SessionID)</span></p>
+            <p>沒有執行下列程式的權限: <span>@(sm.LastActionPath) (@(!string.IsNullOrEmpty(sm.LastActionController) ? sm.LastActionController : "未知功能"))</span></p>
+            <p>若是您認為應該具有該程式的權限，請聯絡管理人員!</p>
+        </div>
+    </div>
+</div>
+

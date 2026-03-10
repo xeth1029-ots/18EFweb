@@ -1,0 +1,132 @@
+﻿@model WDAIIP.WEB.Models.ContentViewModel
+@using WDAIIP.WEB.Commons
+@using WDAIIP.WEB.Models
+@using WDAIIP.WEB.Models.Entities
+
+@{
+    ContentDetailModel item = Model.Detail;
+    if (item == null)
+    {
+        <script type="text/javascript">blockAlert("查無資料", "", function () { });</script>
+        return;
+    }
+    string s_titleH3 = string.Concat("", item.C_TITLE);
+    string s_prtalt1 = string.Concat("列印", item.C_TITLE);
+}
+
+<div id="print_div" class="news-content">
+    <h3 class="news-headtitle">@s_titleH3</h3>
+    <ul class="share-link no-print">
+        @*列印*@
+        <li><a href="#" onclick="doPrint()" title="@s_prtalt1"><img src="@Url.Content("~/images/icon-print-machine.svg")" alt="@s_prtalt1" align="middle"></a></li>
+        @*<li><a href="#" title="Facebook"><img src="@Url.Content("~/images/icon-facebook.svg")" title="facebook" alt=""></a></li>*@
+        @*<li><a href="#" title="推特"><img src="images/icon-twitter.svg" title="twitter" alt="twitter"></a></li>*@
+    </ul>
+    <div class="clearfix"></div>
+    <ul class="news-content-data">
+        <li>發布日期 : <span>@item.C_SDATE_TW</span></li>
+        <li>發布單位 : <span>勞動力發展署</span></li>
+    </ul>
+    <div class="clearfix"></div>
+    @*<p>uTTSWeb API 使用範例頁面</p>*@
+    <!-- 用來放置 HTML audio player 的容器 -->
+    <div id="playerContainer"></div>
+    <button type="button" id="bt_playTTS" onclick="playTTS()" title="撥放語音" class="btn-orange">撥放語音 </button>
+    <!-- news group start -->
+    <div id="news1" class="newsgroup">
+        @if (Model.Detail.SECTIONGrid != null)
+        {
+            string alignType = string.Empty;
+            foreach (TblTB_CONTENT_SECTION section in Model.Detail.SECTIONGrid)
+            {
+                string s_alt = section.SEC_PICTURE_ALT ?? "一張圖片";
+                if (string.IsNullOrEmpty(s_alt)) { s_alt = "一張圖片"; }
+                alignType = ("R".Equals(section.ALIGN_TYPE) ? "img-right" : "img-left");
+
+                if (!string.IsNullOrEmpty(section.SEC_PICTURE))
+                {
+                    <img src="@Url.Content(ConfigModel.UploadTempPath + "/NEWS/" + section.SEC_PICTURE)" class="img-responsive @alignType img-thumbnail" alt="@(s_alt)" title="@(s_alt)">
+                }
+                <p>@Html.Raw(section.SEC_CONTENT)</p>
+                @*<p>@Html.Raw(section.SEC_CONTENT)</p><p>@MyHelperUtil.ChangeBreakLine(section.SEC_CONTENT)</p>*@
+            }
+        }
+    </div>
+    <div class="clearfix"></div>
+    <div class="form-group clearfix">
+        @if (Model.Detail != null)
+        {
+            @Html.Partial("_NewsFileGridRows", Model);
+        }
+        @*@{ if (!string.IsNullOrEmpty(item.C_PFILE1)) { <p> 附件：<br /> <a href="@ConfigModel.DownloadPath/@item.C_PFILE1" title="@item.C_VFILE1" target="_blank">@item.C_VFILE1</a> </p> } }*@
+    </div>
+
+    <!-- news group end -->
+    <!-- news page start -->
+    <div class="submit-bar no-print">
+        <button type="button" id="GoBack" onclick="goBack()" onkeypress="goBack()" title="回上一頁" class="btn-orange">回上一頁</button>
+        <button type="button" id="GoList" onclick="goList()" onkeypress="goList()" title="回列表" class="btn-orange">回列表</button>
+        @*<button type="button" id="bt_playTTS" onclick="playTTS()" title="撥放語音" class="btn-orange">撥放語音 </button>*@
+    </div>
+    <!-- news page end -->
+</div>
+<form action="DownloadFile" method="post"></form>
+@if (TempData["message"] != null)
+{
+    <script type="text/javascript">
+        var message = @Html.Raw(Json.Encode(TempData["message"]));
+        //alert(message);
+        blockAlert(@Html.Raw(Json.Encode(TempData["message"])),"錯誤資訊");
+    </script>
+}
+
+<script type="text/javascript">
+    // 附件下載
+    function doDownloadFile(fileID, fileID2) {
+        var data = { "fileid": fileID, "fileid2": fileID2};
+        var url = '@Url.Action("DownloadFile")';
+        //goForwardPage(url, data, 2, "POST");
+
+        $.ajax( {type: 'POST',
+                url: url,
+                data: JSON.stringify(data),
+                contentType:"application/json",
+                success:function(resp){
+                    if (resp)
+                    {
+                        //無檔案
+                        blockAlert(resp);
+                    }
+                    else
+                    {
+                        //有檔案
+                        location.href = url;
+                    }
+                }
+            });
+    }
+
+    //列印
+    function doPrint() {
+        var content = document.getElementById('print_div').innerHTML;
+
+        var printstyle = '<style type="text/css">';
+        printstyle += ' @@page{size: A4; margin: 35px;} ';
+        printstyle += ' @@media print{ .no-print{display: none !important;}';
+        printstyle += '}';
+        printstyle += '</style>';
+        var mywindow = window.open('', 'Print', '');
+
+        mywindow.document.write('<html><head><title></title>');
+        mywindow.document.write('<link href="../css/base.css" rel="stylesheet" type="text/css">');
+        //<link href="~/Content/bootstrap.css" rel="stylesheet" />
+        mywindow.document.write('<link href="../Content/bootstrap.css" rel="stylesheet" type="text/css">')
+        mywindow.document.write('<link rel="stylesheet" href="../css/flexslider.css" type="text/css" media="screen" />');
+        mywindow.document.write(printstyle);
+        mywindow.document.write('</head><body onload="window.print(); window.close();">');
+        mywindow.document.write(content);
+        mywindow.document.write('</body></html>');
+        mywindow.document.close();
+        mywindow.focus();
+    }
+</script>

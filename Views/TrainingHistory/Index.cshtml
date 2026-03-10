@@ -1,0 +1,103 @@
+﻿@using WDAIIP.WEB.Models
+@model WDAIIP.WEB.Models.TrainingHistoryViewModel
+
+@{
+    ViewBag.Title = "會員專區--參訓歷程紀錄";
+    Layout = "~/Views/Shared/_MainLayout_NoClassSearch.cshtml";
+
+    string s_Txt3YSC = ConfigModel.Txt3YSubCost;
+    bool CANVIEW = Model.Form.CANVIEW;
+
+}
+
+@using (Html.BeginForm("Index", "TrainingHistory", FormMethod.Post, htmlAttributes: new { id = "main_form", @class = "form-horizontal" }))
+{
+    <div class="col-sm-12">
+        <!-- bread start --->
+        <div class="breadlink"><a title="中間主要功能選項區" accesskey="C" id="C" href="#C" style="text-decoration:none;">:::</a><i class="fa fa-home space-right" aria-hidden="true"></i>目前位置：<a href="@Url.Content("~/")" title="回首頁">首頁</a> / 會員專區 / 參訓歷程紀錄</div>
+        <!-- bread end --->
+        <h3 class="main-title main-title-pink"><i class="fas fa-history space-right"></i>參訓歷程紀錄</h3>
+        <!-- search form start -->
+        <div class="unit-border">
+            <div class="unit-bg unit-bg-pink">
+                <p>
+                    <strong>本功能使用說明：</strong> <br />
+                </p>
+                <ol>
+                    @*2019-01-29 修正問題單400：將說明第1點及第4點刪除*@
+                    @*<li>請依需求點選相關功能，於台灣就業通網站登入會員後，再繼續使用下列功能。</li>*@
+                    <li>為使民眾報名時更為順暢，本功能於每日11:45至13:00不開放查詢，請避開本時段再做查詢，謝謝。</li>
+                    <li>
+                        有關訓練費用補助情形，請參考「補助額度使用情形」。若申請狀態顯示「已撥款」，表示已由各分署撥出訓練補助費，<br />
+                        款項將於近期內撥付至您的帳戶，或由訓練單位轉撥給您，敬請耐心等候。
+                    </li>
+                    @*<li>請於完成線上報名後隔日上午，再至「參訓歷程紀錄」確認是否有報名參訓時段重疊的訓練課程。</li>*@
+                    <li>有關@(s_Txt3YSC)計算方式，請參酌本網上方<a href="@Url.Content("~/QA")" title="前往Q&A">Q&amp;A</a>說明。</li>
+                </ol>
+            </div>
+            <div class="clearfix"></div>
+            <ul class="plan-nav-min2">
+                <li><a href="@Url.Content("~/TrainingSubsidy")" title="補助額度使用情形">補助額度使用情形</a>
+                <li><a href="@Url.Content("~/TrainingHistory")" class="active" title="參訓歷程紀錄">參訓歷程紀錄</a>
+            </ul>
+
+            @if (CANVIEW)
+            {
+                <div class="clearfix"></div>
+                <div class="table-responsive">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="table table-responsive table-newsList">
+                        <thead>
+                            @*<tr>
+                                    <th style="width:10%">年度</th>
+                                    <th style="width:20%">訓練計畫</th>
+                                    <th style="width:15%">開訓日期</th>
+                                    <th style="width:15%">結訓日期</th>
+                                    <th style="width:25%">訓練班別</th>
+                                    <th style="width:15%">補助金額</th>
+                                </tr>*@
+                            <tr>
+                                <th style="width:14%">轄區分署</th>
+                                <th style="width:6%">年度</th>
+                                <th style="width:13%">訓練計畫</th>
+                                <th style="width:13%">訓練機構</th>
+                                <th style="width:14%">班別名稱</th>
+                                <th style="width:8%">受訓時數</th>
+                                <th style="width:10%">受訓期間</th>
+                                <th style="width:14%">上課時間</th>
+                                <th style="width:8%">訓練狀態</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rows">
+                            @Html.Partial("_GridRows", Model)
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clearfix"></div>
+                <div class="unit-bg unit-bg-gray">
+                    @*<div class="text-danger">
+                            備註：<br>
+                            ＊紅色金額為參加本方案課程之起算日。<br>
+                            ＊「補助金額」欄在補助費完成撥款時，才會顯示補助金額。
+                        </div>*@
+                </div>
+            }
+
+            <div class="clearfix"></div>
+            <div class="submit-bar">
+                <button type="button" data-role="ReturnLastPage" class="btn-orange" title="回上一頁">回上一頁</button>
+            </div>
+            <!-- search form end -->
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var idHead = "#Form_";
+
+        //回上一頁
+        $("button[data-role=ReturnLastPage]").on("click", function () {
+            history.go(-1);
+        });
+    });
+</script>
