@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<DiscoveryClientResultsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Results>
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.DiscoveryDocumentReference" url="https://ojfile119.ejob.gov.tw/OJTWS/GetOjt0219ws1.asmx?disco" filename="GetOjt0219ws1.disco" />
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="https://ojfile119.ejob.gov.tw/OJTWS/GetOjt0219ws1.asmx?wsdl" filename="GetOjt0219ws1.wsdl" />
-  </Results>
-</DiscoveryClientResultsFile>

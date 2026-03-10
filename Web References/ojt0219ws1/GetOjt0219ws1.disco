@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<discovery xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/disco/">
-  <contractRef ref="https://ojfile119.ejob.gov.tw/OJTWS/GetOjt0219ws1.asmx?wsdl" docRef="https://ojfile119.ejob.gov.tw/OJTWS/GetOjt0219ws1.asmx" xmlns="http://schemas.xmlsoap.org/disco/scl/" />
-  <soap address="https://ojfile119.ejob.gov.tw/OJTWS/GetOjt0219ws1.asmx" xmlns:q1="http://ojt/OJTWS/GetOjt0219ws1" binding="q1:GetOjt0219ws1Soap" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
-  <soap address="https://ojfile119.ejob.gov.tw/OJTWS/GetOjt0219ws1.asmx" xmlns:q2="http://ojt/OJTWS/GetOjt0219ws1" binding="q2:GetOjt0219ws1Soap12" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
-</discovery>
